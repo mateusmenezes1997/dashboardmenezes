@@ -850,7 +850,11 @@ body[data-role="viewer"] .viewer-note{display:block}
       <div class="consultor-card">
         <div class="focus-toolbar-clean">
           <div class="sim-field"><label>Selecionar consultor</label><select id="consultantFocus"></select></div>
-          <button class="btn manager-only" id="consultantEditBtn" type="button">Editar vendas do consultor</button>
+          <div class="manager-only" style="display:flex;gap:9px;align-items:end;flex-wrap:wrap">
+            <div class="sim-field" style="min-width:260px"><label>Editar nome do consultor</label><input id="consultantNameEdit" type="text" placeholder="Nome do consultor"/></div>
+            <button class="btn dark" id="saveConsultantName" type="button">Salvar nome</button>
+            <button class="btn" id="consultantEditBtn" type="button">Editar vendas do consultor</button>
+          </div>
         </div>
 
         <div class="team-assignment-editor manager-only hidden" id="consultantTeamEditor">
@@ -1951,6 +1955,18 @@ function renderTeam(){
      : firstName+' já alcançou '+pct.toFixed(1).replace('.',',')+'% da meta. Faltam '+money(gap)+' para chegar aos '+money(target)+'.';
 
  document.getElementById('consultantName').textContent=c.name;
+ const consultantNameEdit=document.getElementById('consultantNameEdit');
+ const saveConsultantName=document.getElementById('saveConsultantName');
+ if(consultantNameEdit)consultantNameEdit.value=c.name||'';
+ if(saveConsultantName)saveConsultantName.onclick=()=>{
+   if(!requireManager())return;
+   const target=state.consultants.find(x=>x.id===consultantFocusId);if(!target)return;
+   const nextName=String(consultantNameEdit?.value||'').trim();
+   if(!nextName){alert('Informe o nome do consultor.');return;}
+   target.name=nextName;
+   save();
+   render();
+ };
  const roleStyle=c.role==='gestor'?'gestor':c.role==='trainee'?'trainee':'consultor';
  const consultantRoleEl=document.getElementById('consultantRole');
  consultantRoleEl.textContent=roleLabel(c);
