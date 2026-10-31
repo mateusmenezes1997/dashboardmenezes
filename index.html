@@ -1040,7 +1040,7 @@ const SIM_LOGO="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAACwCAYAAACsCX
 
 
 const initialState={ _dashboardVersion:26,
- settings:{teamTarget:15000000,defaultTarget:5000000,cobre:0,prata:500000,ouro:3000000,diamante:5000000,secretaryWhatsapp:''},
+ settings:{teamTarget:15000000,defaultTarget:5000000,cobre:0,prata:500000,ouro:3000000,diamante:5000000,secretaryWhatsapp:'5511932075504'},
  consultants:[
   {id:'mateus',name:'Mateus Menezes',target:5000000,opening:1113203.6,openingLar:1113203.6,openingMotors:0,openingLarQty:2,openingMotorsQty:0,openingUnclassifiedQty:0,gender:'m',role:'gestor',leaderId:null},
   {id:'thaynara',name:'Thaynara Silva',target:5000000,opening:744010.0,openingLar:744010.0,openingMotors:0,openingLarQty:5,openingMotorsQty:0,openingUnclassifiedQty:0,gender:'f',role:'consultor',leaderId:null},
@@ -1101,7 +1101,7 @@ if(state._dashboardVersion < 25){
 }
 if(state._dashboardVersion < 26){
   state.settings=state.settings||{};
-  if(state.settings.secretaryWhatsapp==null)state.settings.secretaryWhatsapp='';
+  if(state.settings.secretaryWhatsapp==null||!String(state.settings.secretaryWhatsapp).trim())state.settings.secretaryWhatsapp='5511932075504';
   (state.consultants||[]).forEach(c=>{
     if(!c.enrollmentStatus)c.enrollmentStatus='sem';
     if(c.enrollmentNumber==null)c.enrollmentNumber='';
