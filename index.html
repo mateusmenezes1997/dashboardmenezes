@@ -1108,6 +1108,8 @@ if(state._dashboardVersion < 26){
   });
   state._dashboardVersion=26;
 }
+if(!state.settings)state.settings={};
+if(!String(state.settings.secretaryWhatsapp||'').trim())state.settings.secretaryWhatsapp='5511932075504';
 localStorage.setItem(KEY,JSON.stringify(state));
 function ensureHierarchy(){
   const defaults={
