@@ -1249,6 +1249,36 @@ h2{font-size:34px!important;line-height:.96}
   .manager-select-name{font-size:18px}
 }
 
+
+/* Commission title icons — executive set */
+.commission-title{
+  display:flex!important;
+  align-items:center;
+  gap:11px;
+}
+.commission-title-icon{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  color:#efd392;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(239,211,146,.16),transparent 45%),
+    linear-gradient(145deg,#281019,#140b0f);
+  border:1px solid rgba(239,212,154,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 20px rgba(0,0,0,.20);
+}
+.commission-title-icon svg{width:18px;height:18px;display:block}
+.commission-card:hover .commission-title-icon{
+  color:#fff0c9;
+  border-color:rgba(239,212,154,.34);
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(91,16,39,.22),0 0 18px rgba(201,163,93,.08);
+}
+.commission-title-icon{transition:.2s ease}
+
 </style>
 </head>
 <body>
@@ -1582,7 +1612,7 @@ h2{font-size:34px!important;line-height:.96}
 
     <div class="commission-grid">
       <div class="commission-card">
-        <div class="commission-card-head"><div><h3>🚗 MOTORS</h3><span class="subcopy">Como a comissão é distribuída</span></div><span class="commission-tag">13x linear</span></div>
+        <div class="commission-card-head"><div><h3 class="commission-title"><span class="commission-title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-5"/><path d="M7 18h10"/><path d="M6.5 11.5h.01M17.5 11.5h.01"/></svg></span><span>MOTORS</span></h3><span class="subcopy">Como a comissão é distribuída</span></div><span class="commission-tag">13x linear</span></div>
         <div class="commission-list">
           <div class="commission-row"><span>Distribuição das parcelas</span><b>13 parcelas lineares</b></div>
           <div class="commission-row"><span>Leitura prática</span><b>Mesmo peso por parcela</b></div>
@@ -1590,7 +1620,7 @@ h2{font-size:34px!important;line-height:.96}
       </div>
 
       <div class="commission-card">
-        <div class="commission-card-head"><div><h3>🏠 LAR</h3><span class="subcopy">Escolha a condição usada na venda</span></div><span class="commission-tag">Condições</span></div>
+        <div class="commission-card-head"><div><h3 class="commission-title"><span class="commission-title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="3.5"/><path d="M11.5 12H21"/><path d="M17 12v3"/><path d="M14 12v2"/></svg></span><span>LAR</span></h3><span class="subcopy">Escolha a condição usada na venda</span></div><span class="commission-tag">Condições</span></div>
         <div class="commission-list">
           <div class="commission-row"><span>Parcela cheia</span><b>100% • 11x</b></div>
           <div class="commission-row"><span>Parcela reduzida</span><b>85% • 11x</b></div>
@@ -1610,7 +1640,7 @@ h2{font-size:34px!important;line-height:.96}
       </div>
 
       <div class="commission-card">
-        <div class="commission-card-head"><div><h3>🚨 Impostos</h3><span class="subcopy">O que reduz o valor recebido</span></div><span class="commission-tag">Conforme contrato</span></div>
+        <div class="commission-card-head"><div><h3 class="commission-title"><span class="commission-title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h3M8 16h8"/><circle cx="15.5" cy="12.5" r="1.5"/></svg></span><span>Impostos</span></h3><span class="subcopy">O que reduz o valor recebido</span></div><span class="commission-tag">Conforme contrato</span></div>
         <div class="commission-tax">
           <div class="commission-tax-box"><small>Desconto em NF</small><b>18,23%</b></div>
           <div class="commission-tax-box"><small>ISS</small><b>1,50%</b></div>
@@ -1619,7 +1649,7 @@ h2{font-size:34px!important;line-height:.96}
       </div>
 
       <div class="commission-card">
-        <div class="commission-card-head"><div><h3>📎 Legendas</h3><span class="subcopy">Entenda rapidamente cada status</span></div><span class="commission-tag">Leitura rápida</span></div>
+        <div class="commission-card-head"><div><h3 class="commission-title"><span class="commission-title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14M5 12h14M5 19h14"/><circle cx="3" cy="5" r=".6" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r=".6" fill="currentColor" stroke="none"/><circle cx="3" cy="19" r=".6" fill="currentColor" stroke="none"/></svg></span><span>Legendas</span></h3><span class="subcopy">Entenda rapidamente cada status</span></div><span class="commission-tag">Leitura rápida</span></div>
         <div class="legend-grid">
           <div class="legend-item"><b>NC1 / NC2 / NC3</b><span>Não consta pagamento há X meses.</span></div>
           <div class="legend-item"><b>TAXA ADMINISTRATIVA ou 14</b><span>14ª comissão não repassada ao consultor, ou comissão encerrada e restante somente em taxa.</span></div>
