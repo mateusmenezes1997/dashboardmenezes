@@ -1253,7 +1253,7 @@ h2{font-size:34px!important;line-height:.96}
     </div>
 
     <div class="stack">
-      <div class="card section"><div class="section-head"><h3>Destaques do mês</h3><span class="badge">elite do mês</span></div><div class="top3" id="top3"></div></div>
+      
       <div class="card section"><div class="section-head"><h3>Radar da gestão</h3><span class="badge">leitura estratégica</span></div><div class="alerts" id="alerts"></div></div>
       <div class="card section"><div class="section-head"><h3>Últimas vitórias</h3><span class="badge">movimento do time</span></div><div class="recent" id="recent"></div></div>
     </div>
@@ -2484,7 +2484,7 @@ function render(){
  }).join('');
  document.querySelectorAll('[data-edit-sales]').forEach(btn=>btn.onclick=()=>openEditSales(btn.dataset.editSales));
 
- document.getElementById('top3').innerHTML=rows.slice(0,3).map((r,i)=>{
+ const legacyTop3=document.getElementById('top3'); if(legacyTop3) legacyTop3.innerHTML=rows.slice(0,3).map((r,i)=>{
   const lvl=levelInfo(r.total);
   const prog=Math.min(100,r.total/5000000*100);
   const share=total?((r.total/total)*100):0;
