@@ -1085,6 +1085,69 @@ h2{font-size:34px!important;line-height:.96}
   .hero-podium-head>span{display:none}
 }
 
+
+/* Hero podium V2 - better space usage */
+.hero-podium{margin-top:20px;padding-top:20px}
+.hero-podium-stack{display:grid;gap:14px}
+.hero-podium-champion{
+  min-height:190px;
+  grid-template-columns:auto minmax(0,1fr) minmax(210px,.42fr);
+  padding:22px 24px;
+}
+.hero-podium-trophy{width:72px;height:72px;border-radius:22px;font-size:38px}
+.hero-podium-copy b{font-size:32px}
+.hero-podium-copy span{font-size:11px}
+.hero-podium-value b{font-size:31px}
+.hero-podium-extra{
+  grid-column:2/4;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 130px 130px;
+  gap:10px;
+  align-items:center;
+  margin-top:3px;
+}
+.hero-podium-progress-wrap{min-width:0}
+.hero-podium-progress-label{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:9px;font-weight:800;margin-bottom:7px}
+.hero-podium-progress{height:9px;border-radius:999px;background:#281a20;overflow:hidden;border:1px solid rgba(239,212,154,.07)}
+.hero-podium-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#741a36,#c49a50,#efd18e)}
+.hero-podium-stat{
+  padding:10px 12px;border-radius:14px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(239,212,154,.08)
+}
+.hero-podium-stat small{display:block;color:var(--muted);font-size:8px;text-transform:uppercase;font-weight:900;letter-spacing:.08em}
+.hero-podium-stat b{display:block;margin-top:4px;color:#fff;font-size:13px}
+.hero-podium-secondary{gap:14px}
+.hero-podium-card{
+  min-height:126px;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:14px;
+  padding:18px 20px;
+}
+.hero-podium-rank{width:54px;height:54px;border-radius:16px;font-size:15px}
+.hero-podium-card .podium-name{font-size:16px}
+.hero-podium-card .podium-value{font-size:14px}
+.hero-podium-card .podium-meta{margin-top:6px;color:var(--muted);font-size:9px;font-weight:800}
+.hero-podium-card .podium-right{text-align:right}
+.hero-podium-card .podium-right small{display:block;color:var(--muted);font-size:8px;text-transform:uppercase;font-weight:900}
+.hero-podium-card .podium-right b{display:block;margin-top:4px;color:#fff;font-size:13px}
+.hero-podium-card .podium-mini-progress{
+  grid-column:2/4;
+  height:7px;border-radius:999px;background:#261a1f;overflow:hidden
+}
+.hero-podium-card .podium-mini-progress span{display:block;height:100%;border-radius:999px}
+.hero-podium-card.silver .podium-mini-progress span{background:linear-gradient(90deg,#818895,#d9dde4)}
+.hero-podium-card.bronze .podium-mini-progress span{background:linear-gradient(90deg,#8f5336,#d49769)}
+@media(max-width:900px){
+  .hero-podium-champion{grid-template-columns:auto minmax(0,1fr)}
+  .hero-podium-value{grid-column:2;text-align:left}
+  .hero-podium-extra{grid-column:1/3;grid-template-columns:1fr 1fr}
+  .hero-podium-progress-wrap{grid-column:1/3}
+  .hero-podium-card{grid-template-columns:auto minmax(0,1fr)}
+  .hero-podium-card .podium-right{grid-column:2;text-align:left}
+  .hero-podium-card .podium-mini-progress{grid-column:1/3}
+}
+
 </style>
 </head>
 <body>
@@ -2337,9 +2400,27 @@ function render(){
    if(!podium.length){
      heroPodium.innerHTML='<div class="empty">Ainda não há resultados para formar o pódio.</div>';
    }else{
-     const champ=podium[0];
-     const second=podium[1];
-     const third=podium[2];
+     const champ=podium[0], second=podium[1], third=podium[2];
+     const champLevel=levelInfo(champ.total);
+     const champProg=Math.min(100,champ.total/5000000*100);
+     const champShare=total?champ.total/total*100:0;
+     const champNext=champLevel.next?money(Math.max(0,champLevel.next.value-champ.total)):'Topo atingido';
+     const secondaryCard=(r,place,cls)=>{
+       if(!r)return '';
+       const lvl=levelInfo(r.total);
+       const prog=Math.min(100,r.total/5000000*100);
+       const share=total?r.total/total*100:0;
+       return `<div class="hero-podium-card ${cls}">
+         <div class="hero-podium-rank">${place}º</div>
+         <div>
+           <div class="podium-name">${esc(r.name)}</div>
+           <div class="podium-value">${money(r.total)}</div>
+           <div class="podium-meta">${lvl.name} • ${share.toFixed(1).replace('.',',')}% do total da gestão</div>
+         </div>
+         <div class="podium-right"><small>Progresso</small><b>${prog.toFixed(1).replace('.',',')}%</b></div>
+         <div class="podium-mini-progress"><span style="width:${prog}%"></span></div>
+       </div>`;
+     };
      heroPodium.innerHTML=`
        <div class="hero-podium-stack">
          <div class="hero-podium-champion">
@@ -2347,21 +2428,28 @@ function render(){
            <div class="hero-podium-copy">
              <small>Campeão do mês</small>
              <b>${esc(champ.name)}</b>
-             <span>1º lugar no ranking da gestão</span>
+             <span>1º lugar no ranking da gestão • ${champLevel.name}</span>
            </div>
            <div class="hero-podium-value">
              <small>Total vendido</small>
              <b>${money(champ.total)}</b>
            </div>
+           <div class="hero-podium-extra">
+             <div class="hero-podium-progress-wrap">
+               <div class="hero-podium-progress-label"><span>Progresso até R$ 5 milhões</span><b>${champProg.toFixed(1).replace('.',',')}%</b></div>
+               <div class="hero-podium-progress"><span style="width:${champProg}%"></span></div>
+             </div>
+             <div class="hero-podium-stat"><small>Participação</small><b>${champShare.toFixed(1).replace('.',',')}%</b></div>
+             <div class="hero-podium-stat"><small>Próximo nível</small><b>${champNext}</b></div>
+           </div>
          </div>
          <div class="hero-podium-secondary">
-           ${second?`<div class="hero-podium-card silver"><div class="hero-podium-rank">2º</div><div><div class="podium-name">${esc(second.name)}</div><div class="podium-value">${money(second.total)}</div></div></div>`:''}
-           ${third?`<div class="hero-podium-card bronze"><div class="hero-podium-rank">3º</div><div><div class="podium-name">${esc(third.name)}</div><div class="podium-value">${money(third.total)}</div></div></div>`:''}
+           ${secondaryCard(second,2,'silver')}
+           ${secondaryCard(third,3,'bronze')}
          </div>
        </div>`;
    }
  }
-
  const classified=lar+motors;
  const unclassified=Math.max(0,total-classified);
  const classifiedPct=total?((classified/total)*100):0;
