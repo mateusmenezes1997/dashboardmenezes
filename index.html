@@ -53,6 +53,17 @@ button{cursor:pointer}
 .nav i{width:8px;height:8px;border-radius:50%;background:#4c5560;box-shadow:0 0 0 4px rgba(76,85,96,.18)}
 .nav button.active i{background:var(--gold);box-shadow:0 0 0 4px rgba(213,171,103,.16)}
 .side-note{margin-top:auto;color:#7c8591;font-size:10px;line-height:1.6;padding:14px 8px 2px}
+
+.commission-page{display:grid;gap:18px}.commission-hero{padding:24px;border-radius:24px;border:1px solid rgba(213,171,103,.22);background:linear-gradient(135deg,#151c25,#0d131a);box-shadow:0 18px 44px rgba(0,0,0,.24)}
+.commission-hero h2{margin:4px 0 0;font-size:31px;color:#fff;letter-spacing:-.03em}.commission-hero p{margin:8px 0 0;color:#99a3af;font-size:12px;line-height:1.7;max-width:860px}
+.commission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.commission-card{padding:20px;border-radius:22px;border:1px solid #222d39;background:linear-gradient(180deg,#111821,#0d141b);box-shadow:0 16px 38px rgba(0,0,0,.22)}
+.commission-card.full{grid-column:1/-1}.commission-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}.commission-card-head h3{margin:0;font-size:17px;color:#fff}.commission-tag{padding:7px 10px;border-radius:999px;border:1px solid rgba(213,171,103,.24);background:rgba(213,171,103,.09);color:#e8c98f;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.commission-list{display:grid;gap:10px}.commission-row{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:12px 13px;border-radius:14px;background:#0d131a;border:1px solid #202a35}.commission-row span{color:#9da7b3;font-size:11px;line-height:1.55}.commission-row b{color:#fff;font-size:12px;text-align:right;white-space:nowrap}
+.commission-alert{padding:15px 16px;border-radius:16px;border:1px solid rgba(213,171,103,.28);background:rgba(213,171,103,.08);color:#e8d3a5;font-size:11px;line-height:1.65}.commission-alert strong{color:#fff}
+.commission-tax{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}.commission-tax-box{padding:15px;border-radius:16px;background:#0d131a;border:1px solid #222d39}.commission-tax-box small{display:block;color:#88939f;font-size:9px;text-transform:uppercase;letter-spacing:.09em;font-weight:900}.commission-tax-box b{display:block;color:#fff;font-size:22px;margin-top:5px}
+.legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.legend-item{padding:14px;border-radius:15px;border:1px solid #222d39;background:#0d131a}.legend-item b{display:block;color:#e7c88e;font-size:11px;margin-bottom:5px}.legend-item span{display:block;color:#9ca6b2;font-size:10px;line-height:1.55}
+@media(max-width:900px){.commission-grid,.commission-tax,.legend-grid{grid-template-columns:1fr}.commission-card.full{grid-column:auto}.commission-row{flex-direction:column;gap:4px}.commission-row b{text-align:left;white-space:normal}}
+
 .main{padding:28px;min-width:0}
 .hidden{display:none!important}
 .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:22px}
@@ -596,6 +607,7 @@ body[data-role="viewer"] .viewer-note{display:block}
     <button data-view="simulator"><i></i>Simulador</button>
     <button class="manager-only" data-view="sale"><i></i>Lançar venda</button>
     <button data-view="team"><i></i>Equipe</button>
+    <button data-view="commission"><i></i>Confira como funciona o comissionamento aqui</button>
     <button data-view="booking"><i></i>Agende com seu gestor</button>
     <button class="manager-only" data-view="settings"><i></i>Configurações</button>
   </nav>
@@ -811,6 +823,84 @@ body[data-role="viewer"] .viewer-note{display:block}
   </div>
 </section>
 
+
+
+<section id="commission" class="view hidden">
+  <div class="commission-page">
+    <div class="commission-hero">
+      <div class="eyebrow">Comissionamento</div>
+      <h2>Confira como funciona o comissionamento aqui</h2>
+      <p>Consulte as regras de cálculo, quantidade de parcelas, impostos e principais legendas utilizadas no acompanhamento das comissões.</p>
+    </div>
+
+    <div class="commission-grid">
+      <div class="commission-card">
+        <div class="commission-card-head">
+          <h3>🚗 Cálculo de parcelas — MOTORS</h3>
+          <span class="commission-tag">Linear</span>
+        </div>
+        <div class="commission-list">
+          <div class="commission-row"><span>Todas as parcelas</span><b>13x — linear</b></div>
+        </div>
+      </div>
+
+      <div class="commission-card">
+        <div class="commission-card-head">
+          <h3>🏠 Cálculo de parcelas — LAR</h3>
+          <span class="commission-tag">Por condição</span>
+        </div>
+        <div class="commission-list">
+          <div class="commission-row"><span>Parcela cheia</span><b>100% • 11x</b></div>
+          <div class="commission-row"><span>Parcela reduzida</span><b>85% • 11x</b></div>
+          <div class="commission-row"><span>Parcela reduzida</span><b>70% • 13x</b></div>
+          <div class="commission-row"><span>Parcela reduzida</span><b>50% • 10x + 2x + 1x</b></div>
+        </div>
+      </div>
+
+      <div class="commission-card full">
+        <div class="commission-card-head">
+          <h3>Detalhamento — LAR com parcela reduzida de 50%</h3>
+          <span class="commission-tag">13 parcelas</span>
+        </div>
+        <div class="commission-list">
+          <div class="commission-row"><span>Parcelas 01 a 10</span><b>Comissão de 1,288%</b></div>
+          <div class="commission-row"><span>Parcelas 11 e 12</span><b>Comissão de 2,374%</b></div>
+          <div class="commission-row"><span>Parcela 13</span><b>Comissão de 2,372%</b></div>
+        </div>
+        <div class="commission-alert" style="margin-top:12px"><strong>Parcela Furo:</strong> possui diferencial. A quantidade e o cálculo das parcelas podem variar de acordo com o aditivo do grupo.</div>
+      </div>
+
+      <div class="commission-card">
+        <div class="commission-card-head">
+          <h3>🚨 Impostos e descontos</h3>
+          <span class="commission-tag">Conforme contrato</span>
+        </div>
+        <div class="commission-alert">Dos valores de comissão são deduzidos os valores devidos de impostos.</div>
+        <div class="commission-tax">
+          <div class="commission-tax-box"><small>Desconto em NF</small><b>18,23%</b></div>
+          <div class="commission-tax-box"><small>ISS</small><b>1,50%</b></div>
+        </div>
+      </div>
+
+      <div class="commission-card">
+        <div class="commission-card-head">
+          <h3>📎 Legendas</h3>
+          <span class="commission-tag">Leitura rápida</span>
+        </div>
+        <div class="legend-grid">
+          <div class="legend-item"><b>NC1 / NC2 / NC3</b><span>Não consta pagamento há X meses.</span></div>
+          <div class="legend-item"><b>TAXA ADMINISTRATIVA ou 14</b><span>14ª comissão que não é repassada ao consultor, ou a comissão já acabou e está somente em taxa.</span></div>
+          <div class="legend-item"><b>CONTABILIDADE ATRASADA</b><span>Pagamento não contabilizado antes do dia do vencimento.</span></div>
+          <div class="legend-item"><b>ATRASADO</b><span>Cliente fez o pagamento atrasado.</span></div>
+          <div class="legend-item"><b>JÁ RECEBEU</b><span>Comissão já recebida em duplicidade ou no mês anterior.</span></div>
+          <div class="legend-item"><b>EXC</b><span>Excluído ou cancelado.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="commission-alert"><strong>Importante:</strong> este material é um lembrete operacional. A quantidade e o cálculo das parcelas podem variar conforme o aditivo específico de cada grupo.</div>
+  </div>
+</section>
 
 
 <section id="booking" class="view hidden">
