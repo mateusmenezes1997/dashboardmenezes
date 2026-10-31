@@ -2570,8 +2570,7 @@ function roundRectRank(ctx,x,y,w,h,r,fill,stroke){
 }
 function exportRankingCard(auto=false){
   const {m,total,target,rows}=rankCardData();
-  const SCALE=2;
-  const W=1920,H=1080;
+  const SCALE=2,W=1920,H=1080;
   const canvas=document.createElement('canvas');
   canvas.width=W*SCALE;canvas.height=H*SCALE;
   const ctx=canvas.getContext('2d');
@@ -2582,7 +2581,11 @@ function exportRankingCard(auto=false){
   const pct=target?total/target*100:0;
   const top3=rows.slice(0,3);
   const rest=rows.slice(3,10);
-  const C={bg:'#050405',bg2:'#090608',panel:'#100b0e',panel2:'#171014',wine:'#6a1732',gold:'#c9a35d',gold2:'#efd392',text:'#f7f0e7',muted:'#9f959a',line:'rgba(239,212,154,.11)',silver:'#d8dbe0',bronze:'#c98a61'};
+  const C={
+    bg:'#080608',bg2:'#0d090c',panel:'#120d10',panel2:'#171014',panel3:'#0f0b0e',
+    wine:'#6b1732',gold:'#c8a45f',gold2:'#efd392',silver:'#d7dce3',bronze:'#d09870',
+    text:'#f7f0e7',muted:'#a79da2',line:'rgba(232,212,174,.10)',lineStrong:'rgba(232,212,174,.22)'
+  };
 
   function rr(x,y,w,h,r,fill,stroke=null,lw=1){
     ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);
@@ -2594,103 +2597,127 @@ function exportRankingCard(auto=false){
   function tx(t,x,y,max,size,color=C.text,weight=800,align='left'){
     ctx.textAlign=align;ctx.fillStyle=color;ctx.font=`${weight} ${fit(t,max,size,10,weight)}px Arial`;ctx.fillText(String(t),x,y);
   }
-  function line(x1,y1,x2,y2,color=C.line,w=1){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke()}
+  function line(x1,y1,x2,y2,color=C.line,w=1){
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke();
+  }
   function progress(x,y,w,h,p,a=C.wine,b=C.gold2){
     rr(x,y,w,h,h/2,'#24191e');
     const fw=Math.max(8,Math.min(w,w*Math.max(0,Math.min(100,p))/100));
     const g=ctx.createLinearGradient(x,0,x+fw,0);g.addColorStop(0,a);g.addColorStop(1,b);rr(x,y,fw,h,h/2,g);
   }
-  function levelShort(v){return levelInfo(v).name.toUpperCase()}
-  function trophyBadge(x,y,size){
-    const g=ctx.createLinearGradient(x,y,x+size,y+size);
-    g.addColorStop(0,'#3a2614');g.addColorStop(1,'#17100b');
-    rr(x,y,size,size,20,g,'rgba(239,212,154,.30)',1.2);
-    ctx.save();ctx.strokeStyle=C.gold2;ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';
-    const cx=x+size/2,cy=y+size/2-2,s=1.35;
-    ctx.beginPath();ctx.moveTo(cx-8*s,cy-10*s);ctx.lineTo(cx+8*s,cy-10*s);ctx.lineTo(cx+6*s,cy+2*s);ctx.quadraticCurveTo(cx,cy+9*s,cx-6*s,cy+2*s);ctx.closePath();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx-8*s,cy-6*s);ctx.quadraticCurveTo(cx-14*s,cy-5*s,cx-12*s,cy+2*s);ctx.quadraticCurveTo(cx-10*s,cy+6*s,cx-5*s,cy+5*s);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx+8*s,cy-6*s);ctx.quadraticCurveTo(cx+14*s,cy-5*s,cx+12*s,cy+2*s);ctx.quadraticCurveTo(cx+10*s,cy+6*s,cx+5*s,cy+5*s);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy+9*s);ctx.lineTo(cx,cy+16*s);ctx.moveTo(cx-7*s,cy+16*s);ctx.lineTo(cx+7*s,cy+16*s);ctx.stroke();
+  function levelStyle(name){
+    if(name==='Diamante')return{bg:'#19232a',fg:'#d8e8f1'};
+    if(name==='Ouro')return{bg:'#2f2415',fg:'#efd392'};
+    if(name==='Prata')return{bg:'#202229',fg:'#d8dde5'};
+    return{bg:'#291c16',fg:'#d9a378'};
+  }
+  function pill(x,y,w,h,label,bg,fg){
+    rr(x,y,w,h,h/2,bg,null);
+    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=fg;ctx.font='900 11px Arial';ctx.fillText(label,x+w/2,y+h/2+1);ctx.restore();
+  }
+  function trophy(x,y){
+    rr(x,y,54,54,16,'#2b1d11',C.lineStrong,1);
+    ctx.save();ctx.strokeStyle=C.gold2;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+    const cx=x+27,cy=y+23;
+    ctx.beginPath();ctx.moveTo(cx-7,cy-9);ctx.lineTo(cx+7,cy-9);ctx.lineTo(cx+5,cy+2);ctx.quadraticCurveTo(cx,cy+7,cx-5,cy+2);ctx.closePath();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-7,cy-5);ctx.quadraticCurveTo(cx-12,cy-4,cx-10,cy+2);ctx.quadraticCurveTo(cx-8,cy+5,cx-4,cy+4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+7,cy-5);ctx.quadraticCurveTo(cx+12,cy-4,cx+10,cy+2);ctx.quadraticCurveTo(cx+8,cy+5,cx+4,cy+4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy+7);ctx.lineTo(cx,cy+13);ctx.moveTo(cx-5,cy+13);ctx.lineTo(cx+5,cy+13);ctx.stroke();
     ctx.restore();
   }
+  function drawShowcase(r,place,x,y,w,h){
+    const accent=place===1?C.gold2:place===2?C.silver:C.bronze;
+    const fill=place===1?'#17100d':C.panel;
+    rr(x,y,w,h,24,fill,place===1?C.lineStrong:C.line,1);
+    const topg=ctx.createLinearGradient(x,0,x+w,0);topg.addColorStop(0,accent);topg.addColorStop(1,place===1?C.gold:'#8a6552');
+    rr(x,y,w,4,2,topg,null);
 
-  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,C.bg);bg.addColorStop(1,C.bg2);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  const g1=ctx.createRadialGradient(120,50,0,120,50,430);g1.addColorStop(0,'rgba(106,23,50,.18)');g1.addColorStop(1,'rgba(106,23,50,0)');ctx.fillStyle=g1;ctx.fillRect(0,0,560,430);
-  const g2=ctx.createRadialGradient(1770,30,0,1770,30,300);g2.addColorStop(0,'rgba(201,163,93,.10)');g2.addColorStop(1,'rgba(201,163,93,0)');ctx.fillStyle=g2;ctx.fillRect(1480,0,440,330);
+    if(place===1){
+      trophy(x+22,y+20);
+      pill(x+88,y+26,122,32,'CAMPEÃO DO MÊS','#2b1d11',C.gold2);
+    }else{
+      pill(x+22,y+24,86,30,`${place}º LUGAR`,place===2?'#20242b':'#2b1b16',accent);
+    }
 
-  // header
-  ctx.fillStyle=C.gold2;ctx.font='900 13px Arial';ctx.fillText('GESTÃO MENEZES',58,48);
-  tx('RANKING DE VENDAS',58,108,900,46,C.text,900);
-  ctx.fillStyle=C.muted;ctx.font='800 13px Arial';ctx.fillText(monthLabel,60,138);
-  ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText('META DA GESTÃO',1860,46);
-  tx(compact(target).replace('R$ ','').toUpperCase(),1860,80,250,26,C.gold2,900,'right');
-  line(58,156,1862,156,C.line);
+    const lv=levelInfo(r.total),ls=levelStyle(lv.name);
+    pill(x+w-122,y+24,100,30,lv.name.toUpperCase(),ls.bg,ls.fg);
 
-  // metrics aligned in safe area
-  const mx=58,my=186,mw=255,gap=38;
-  const ms=[['TOTAL DA GESTÃO',money(total)],['META ATINGIDA',pct.toFixed(1).replace('.',',')+'%'],['CONSULTORES',String(rows.length)]];
-  ms.forEach((m,i)=>{const x=mx+i*(mw+gap);ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(m[0],x,my);tx(m[1],x,my+31,mw,20,i===1?C.gold2:C.text,900)});
+    const nameY=place===1?112:100;
+    tx(r.name,x+22,nameY,w-44,place===1?31:25,C.text,900);
+    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('VENDAS NO MÊS',x+22,nameY+28);
+    tx(money(r.total),x+22,nameY+72,w-44,place===1?35:30,place===1?C.gold2:C.text,900);
 
-  // champion
-  const champ=top3[0];
-  const cx=58,cy=260,cw=1120,ch=338;
-  const cg=ctx.createLinearGradient(cx,cy,cx+cw,cy+ch);cg.addColorStop(0,'#271510');cg.addColorStop(.58,'#160c11');cg.addColorStop(1,'#0d090b');
-  rr(cx,cy,cw,ch,34,cg,'rgba(239,212,154,.28)',1.2);
-  trophyBadge(cx+34,cy+34,78);
-  ctx.fillStyle=C.gold2;ctx.font='900 11px Arial';ctx.fillText('CAMPEÃO DO MÊS',cx+138,cy+55);
-  tx(champ?.name||'—',cx+138,cy+103,760,41,C.text,900);
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('VENDAS NO MÊS',cx+138,cy+136);
-  tx(money(champ?.total||0),cx+138,cy+194,750,48,C.gold2,900);
+    const share=total?((r.total/total)*100):0;
+    const next=lv.next?money(Math.max(0,lv.next.value-r.total)):'Nível máximo';
+    const boxY=nameY+96,boxGap=10,boxW=(w-54)/2;
+    rr(x+22,boxY,boxW,56,14,'rgba(255,255,255,.025)',C.line,1);
+    rr(x+32+boxW,boxY,boxW,56,14,'rgba(255,255,255,.025)',C.line,1);
+    ctx.fillStyle=C.muted;ctx.font='800 8px Arial';ctx.fillText('PARTICIPAÇÃO',x+34,boxY+18);ctx.fillText('PRÓXIMO NÍVEL',x+44+boxW,boxY+18);
+    tx(share.toFixed(1).replace('.',',')+'%',x+34,boxY+40,boxW-24,14,C.text,900);
+    tx(next,x+44+boxW,boxY+40,boxW-24,14,C.text,900);
 
-  const cp=Math.min(100,(champ?.total||0)/5000000*100);
-  progress(cx+138,cy+244,690,12,cp);
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('PROGRESSO ATÉ R$ 5 MILHÕES',cx+138,cy+273);
-  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 12px Arial';ctx.fillText(cp.toFixed(1).replace('.',',')+'%',cx+828,cy+273);ctx.textAlign='left';
-
-  const sx=cx+900;
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('NÍVEL',sx,cy+70);
-  tx(champ?levelShort(champ.total):'—',sx,cy+101,160,20,C.text,900);
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('PARTICIPAÇÃO',sx,cy+147);
-  tx(total&&champ?((champ.total/total)*100).toFixed(1).replace('.',',')+'%':'0%',sx,cy+178,160,20,C.text,900);
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('POSIÇÃO',sx,cy+224);
-  tx('1º LUGAR',sx,cy+255,160,20,C.gold2,900);
-
-  function secondary(r,place,x,y,w,h,accent){
-    rr(x,y,w,h,28,C.panel,C.line);
-    const topPad=22;
-    ctx.fillStyle=accent;ctx.font='900 11px Arial';ctx.fillText(place+'º LUGAR',x+22,y+topPad);
-    tx(r?.name||'—',x+22,y+66,w-44,26,C.text,900);
-    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('VENDAS NO MÊS',x+22,y+97);
-    tx(money(r?.total||0),x+22,y+135,w-44,29,accent,900);
-    line(x+22,y+154,x+w-22,y+154,C.line);
-    const p=Math.min(100,(r?.total||0)/5000000*100);
-    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(r?levelShort(r.total):'—',x+22,y+181);
-    ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(p.toFixed(1).replace('.',',')+'%',x+w-22,y+181);ctx.textAlign='left';
-    progress(x+22,y+198,w-44,9,p,place===2?'#777b84':'#8b5737',accent);
+    const p=Math.min(100,r.total/5000000*100);
+    progress(x+22,y+h-34,w-44,9,p,place===2?'#777d86':place===3?'#8d593b':C.wine,accent);
+    ctx.fillStyle=C.muted;ctx.font='800 8px Arial';ctx.fillText('PROGRESSO ATÉ R$ 5 MILHÕES',x+22,y+h-12);
+    ctx.textAlign='right';ctx.fillStyle=accent;ctx.font='900 9px Arial';ctx.fillText(p.toFixed(1).replace('.',',')+'%',x+w-22,y+h-12);ctx.textAlign='left';
   }
 
-  secondary(top3[1],2,1210,260,652,160,C.silver);
-  secondary(top3[2],3,1210,438,652,160,C.bronze);
+  // fundo
+  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,C.bg);bg.addColorStop(1,C.bg2);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  const glow=ctx.createRadialGradient(120,50,0,120,50,430);glow.addColorStop(0,'rgba(107,23,50,.18)');glow.addColorStop(1,'rgba(107,23,50,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,560,430);
 
-  // list
-  ctx.fillStyle=C.gold;ctx.font='900 11px Arial';ctx.fillText('RANKING GERAL',58,650);
-  tx('POSIÇÕES 4 A 10',58,683,420,28,C.text,900);
-  const lx=58,ly=712,lw=1804,rowH=42;
+  // topo igual à linguagem do dashboard
+  ctx.fillStyle=C.gold2;ctx.font='900 12px Arial';ctx.fillText('GESTÃO MENEZES',58,46);
+  tx('RANKING DE PERFORMANCE',58,99,900,43,C.text,900);
+  ctx.fillStyle=C.muted;ctx.font='800 12px Arial';ctx.fillText(monthLabel,60,129);
+  ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('META DA GESTÃO',1860,43);
+  tx(compact(target),1860,74,230,24,C.gold2,900,'right');
+  line(58,148,1862,148,C.line);
+
+  // resumo compacto
+  const summary=[['TOTAL DA GESTÃO',money(total)],['META ATINGIDA',pct.toFixed(1).replace('.',',')+'%'],['CONSULTORES',String(rows.length)]];
+  summary.forEach((m,i)=>{
+    const x=58+i*290;ctx.fillStyle=C.muted;ctx.font='800 8px Arial';ctx.fillText(m[0],x,176);tx(m[1],x,204,250,18,i===1?C.gold2:C.text,900);
+  });
+
+  // top 3 como no dashboard
+  ctx.fillStyle=C.gold;ctx.font='900 10px Arial';ctx.fillText('PÓDIO DO MÊS',58,246);
+  const topY=265,gap=18,totalW=1804;
+  const firstW=860,sideW=(totalW-firstW-gap)/2;
+  drawShowcase(top3[0],1,58,topY,firstW,300);
+  drawShowcase(top3[1],2,58+firstW+gap,topY,sideW,300);
+  drawShowcase(top3[2],3,58+firstW+gap+sideW+gap,topY,sideW,300);
+
+  // ranking geral como tabela do dashboard
+  ctx.fillStyle=C.gold;ctx.font='900 10px Arial';ctx.fillText('RANKING GERAL',58,610);
+  tx('DEMAIS CONSULTORES',58,642,480,25,C.text,900);
+
+  const x0=58,y0=666,w0=1804;
+  const cols={pos:x0+12,name:x0+85,sales:x0+640,target:x0+940,prog:x0+1160,level:x0+1500,next:x0+1640};
+  rr(x0,y0,w0,34,11,C.panel2,null);
+  ctx.fillStyle=C.muted;ctx.font='800 8px Arial';
+  ctx.fillText('#',cols.pos,y0+22);ctx.fillText('CONSULTOR',cols.name,y0+22);ctx.fillText('TOTAL VENDIDO',cols.sales,y0+22);
+  ctx.fillText('META INDIVIDUAL',cols.target,y0+22);ctx.fillText('PROGRESSO',cols.prog,y0+22);ctx.fillText('NÍVEL',cols.level,y0+22);ctx.fillText('PRÓXIMO',cols.next,y0+22);
+
   rest.forEach((r,idx)=>{
-    const y=ly+idx*rowH;
-    if(idx>0)line(lx,y,lx+lw,y,'rgba(255,255,255,.045)');
-    tx(String(idx+4).padStart(2,'0'),lx,y+28,44,15,idx===0?C.gold2:C.muted,900);
-    tx(r.name.toUpperCase(),lx+70,y+28,610,15,C.text,800);
-    tx(money(r.total),lx+720,y+28,310,15,C.gold2,900);
-    ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText(levelShort(r.total),lx+1085,y+28);
+    const y=y0+42+idx*42;
+    line(x0,y-8,x0+w0,y-8,'rgba(255,255,255,.045)');
+    tx(String(idx+4)+'º',cols.pos,y+17,44,13,idx===0?C.gold2:C.text,900);
+    tx(r.name,cols.name,y+17,500,14,C.text,800);
+    tx(money(r.total),cols.sales,y+17,250,14,C.text,900);
+    tx(compact(r.target),cols.target,y+17,180,12,C.muted,800);
     const p=Math.min(100,r.total/5000000*100);
-    progress(lx+1320,y+18,320,7,p);
-    ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(p.toFixed(1).replace('.',',')+'%',lx+1800,y+28);ctx.textAlign='left';
+    progress(cols.prog,y+6,190,7,p);
+    ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 8px Arial';ctx.fillText(p.toFixed(1).replace('.',',')+'%',cols.prog+228,y+17);ctx.textAlign='left';
+    const lv=levelInfo(r.total),ls=levelStyle(lv.name);
+    pill(cols.level,y-1,86,24,lv.name.toUpperCase(),ls.bg,ls.fg);
+    const next=lv.next?money(Math.max(0,lv.next.value-r.total)):'Topo';
+    tx(next,cols.next,y+17,180,11,C.muted,800);
   });
 
   line(58,1030,1862,1030,C.line);
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('COBRE 500K+  •  PRATA 1MM+  •  OURO 3MM+  •  DIAMANTE 5MM+',58,1054);
-  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 9px Arial';ctx.fillText('GESTÃO MENEZES',1862,1054);ctx.textAlign='left';
+  ctx.fillStyle=C.muted;ctx.font='800 8px Arial';ctx.fillText('COBRE 500K+  •  PRATA 1MM+  •  OURO 3MM+  •  DIAMANTE 5MM+',58,1052);
+  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 8px Arial';ctx.fillText('GESTÃO MENEZES',1862,1052);ctx.textAlign='left';
 
   const a=document.createElement('a');
   a.download=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
