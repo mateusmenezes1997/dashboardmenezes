@@ -1585,6 +1585,45 @@ h2{font-size:34px!important;line-height:.96}
   #commission .commission-card-head{gap:10px}
 }
 
+
+/* Ranking full-height gold sweep */
+#dashboard .table-wrap{
+  position:relative;
+  isolation:isolate;
+}
+#dashboard .table-wrap::after{
+  content:"";
+  position:absolute;
+  z-index:4;
+  top:0;
+  bottom:0;
+  left:-18%;
+  width:11%;
+  pointer-events:none;
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(239,212,154,.025) 22%,
+    rgba(239,212,154,.10) 48%,
+    rgba(255,239,198,.16) 52%,
+    rgba(239,212,154,.07) 68%,
+    transparent 100%
+  );
+  transform:skewX(-16deg);
+  animation:rankingFullSweep 5.8s ease-in-out infinite;
+}
+@keyframes rankingFullSweep{
+  0%,12%{left:-18%;opacity:0}
+  20%{opacity:1}
+  72%{opacity:1}
+  82%,100%{left:108%;opacity:0}
+}
+/* The sweep now belongs to the full ranking, not only the champion row */
+#dashboard .champion-row::after{display:none!important}
+@media (prefers-reduced-motion:reduce){
+  #dashboard .table-wrap::after{animation:none;display:none}
+}
+
 </style>
 </head>
 <body>
