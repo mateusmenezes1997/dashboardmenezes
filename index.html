@@ -1029,6 +1029,62 @@ h2{font-size:34px!important;line-height:.96}
 /* Neutralize legacy dot rules */
 .nav button > i{display:none!important}
 
+
+/* Hero podium */
+.hero-podium{margin-top:18px;padding-top:18px;border-top:1px solid rgba(239,212,154,.09)}
+.hero-podium-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:12px}
+.hero-podium-head small{display:block;color:var(--gold-2);font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.14em}
+.hero-podium-head b{display:block;margin-top:4px;color:#fff;font-size:18px;font-family:"League Spartan",Sora,sans-serif;letter-spacing:-.02em}
+.hero-podium-head>span{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.hero-podium-stack{display:grid;gap:10px}
+.hero-podium-champion{
+  position:relative;overflow:hidden;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:16px 18px;border-radius:20px;
+  background:
+    radial-gradient(circle at 92% 0%,rgba(239,212,154,.16),transparent 30%),
+    linear-gradient(135deg,#24130f,#180d12 48%,#0e090b);
+  border:1px solid rgba(239,212,154,.34);
+  box-shadow:0 18px 40px rgba(0,0,0,.28),0 0 28px rgba(201,163,93,.06);
+}
+.hero-podium-champion:after{
+  content:"";position:absolute;inset:0 auto 0 -20%;width:16%;
+  background:linear-gradient(90deg,transparent,rgba(255,239,197,.10),transparent);
+  transform:skewX(-18deg);animation:championSweep 4.8s ease-in-out infinite;pointer-events:none;
+}
+.hero-podium-trophy{
+  width:56px;height:56px;border-radius:18px;display:grid;place-items:center;
+  font-size:30px;background:linear-gradient(135deg,#3b2815,#1c120c);
+  border:1px solid rgba(239,212,154,.28);
+  box-shadow:0 10px 24px rgba(201,163,93,.10);
+  animation:trophyFloat 2.3s ease-in-out infinite,trophyGlow 2.3s ease-in-out infinite;
+}
+.hero-podium-copy small{display:block;color:#efd49a;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.14em}
+.hero-podium-copy b{display:block;margin-top:4px;color:#fff5df;font-size:23px;line-height:1;font-family:"League Spartan",Sora,sans-serif}
+.hero-podium-copy span{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.hero-podium-value{text-align:right}
+.hero-podium-value small{display:block;color:var(--muted);font-size:8px;text-transform:uppercase;font-weight:900;letter-spacing:.08em}
+.hero-podium-value b{display:block;margin-top:4px;color:#efd49a;font-size:23px;font-family:"League Spartan",Sora,sans-serif}
+.hero-podium-secondary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero-podium-card{
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:11px;align-items:center;
+  padding:13px 14px;border-radius:17px;background:linear-gradient(180deg,#171014,#100b0e);
+  border:1px solid rgba(239,212,154,.10)
+}
+.hero-podium-rank{
+  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:12px;font-weight:900;
+}
+.hero-podium-card.silver .hero-podium-rank{background:linear-gradient(135deg,#c8cdd5,#eef1f4);color:#17191d}
+.hero-podium-card.bronze .hero-podium-rank{background:linear-gradient(135deg,#9b5e3d,#d79767);color:#160d08}
+.hero-podium-card .podium-name{color:#fff;font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-podium-card .podium-value{margin-top:3px;color:#d8c6b2;font-size:11px;font-weight:800}
+@media(max-width:720px){
+  .hero-podium-champion{grid-template-columns:auto minmax(0,1fr)}
+  .hero-podium-value{grid-column:2;text-align:left}
+  .hero-podium-secondary{grid-template-columns:1fr}
+  .hero-podium-head>span{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -1079,6 +1135,14 @@ h2{font-size:34px!important;line-height:.96}
         <div class="mini"><small>Melhor resultado</small><b id="miniTop">R$ 0</b></div>
         <div class="mini"><small>Consultores ativos</small><b id="miniActive">0</b></div>
         <div class="mini"><small>Cotas vendidas</small><b id="miniSales">0</b></div>
+      </div>
+
+      <div class="hero-podium">
+        <div class="hero-podium-head">
+          <div><small>Pódio do mês</small><b>Top 3 vendedores</b></div>
+          <span>Performance em destaque</span>
+        </div>
+        <div id="heroPodium"></div>
       </div>
     </div>
 
@@ -2267,6 +2331,36 @@ function render(){
  document.getElementById('miniTop').textContent=money(rows[0]?.total||0);
  document.getElementById('miniActive').textContent=String(active);
  document.getElementById('miniSales').textContent=String(totalQty);
+ const heroPodium=document.getElementById('heroPodium');
+ if(heroPodium){
+   const podium=rows.slice(0,3);
+   if(!podium.length){
+     heroPodium.innerHTML='<div class="empty">Ainda não há resultados para formar o pódio.</div>';
+   }else{
+     const champ=podium[0];
+     const second=podium[1];
+     const third=podium[2];
+     heroPodium.innerHTML=`
+       <div class="hero-podium-stack">
+         <div class="hero-podium-champion">
+           <div class="hero-podium-trophy" aria-hidden="true">🏆</div>
+           <div class="hero-podium-copy">
+             <small>Campeão do mês</small>
+             <b>${esc(champ.name)}</b>
+             <span>1º lugar no ranking da gestão</span>
+           </div>
+           <div class="hero-podium-value">
+             <small>Total vendido</small>
+             <b>${money(champ.total)}</b>
+           </div>
+         </div>
+         <div class="hero-podium-secondary">
+           ${second?`<div class="hero-podium-card silver"><div class="hero-podium-rank">2º</div><div><div class="podium-name">${esc(second.name)}</div><div class="podium-value">${money(second.total)}</div></div></div>`:''}
+           ${third?`<div class="hero-podium-card bronze"><div class="hero-podium-rank">3º</div><div><div class="podium-name">${esc(third.name)}</div><div class="podium-value">${money(third.total)}</div></div></div>`:''}
+         </div>
+       </div>`;
+   }
+ }
 
  const classified=lar+motors;
  const unclassified=Math.max(0,total-classified);
