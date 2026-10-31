@@ -72,6 +72,13 @@ button{cursor:pointer}
 .commission-result-box{padding:14px;border-radius:16px;background:#0d141b;border:1px solid #222d39}.commission-result-box small{display:block;color:#87929f;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.commission-result-box b{display:block;margin-top:6px;color:#fff;font-size:18px}.commission-result-box span{display:block;margin-top:4px;color:#818c98;font-size:9px}
 .commission-flow{grid-column:1/-1;padding:15px;border-radius:17px;background:#0b1117;border:1px solid #202a34}.commission-flow-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:11px}.commission-flow-head b{color:#fff;font-size:12px}.commission-flow-head span{color:#d4b574;font-size:9px;font-weight:900}.commission-bars{display:grid;gap:8px}.commission-bar-row{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:9px;align-items:center}.commission-bar-row span{color:#929daa;font-size:9px}.commission-bar-track{height:8px;border-radius:999px;background:#171f28;overflow:hidden}.commission-bar-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#b88845,#edcf93)}.commission-bar-row b{color:#fff;font-size:9px;white-space:nowrap}
 .commission-note-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(213,171,103,.08);border:1px solid rgba(213,171,103,.2);color:#d8bd86;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+
+.commission-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}.commission-step{padding:12px 13px;border-radius:15px;background:#0e151c;border:1px solid #222d38}.commission-step small{display:block;color:#d6b77c;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.commission-step b{display:block;margin-top:4px;color:#fff;font-size:11px}.commission-step span{display:block;margin-top:4px;color:#88939f;font-size:9px;line-height:1.45}
+.commission-highlight{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px 15px;border-radius:16px;background:linear-gradient(135deg,rgba(213,171,103,.12),rgba(213,171,103,.04));border:1px solid rgba(213,171,103,.24)}.commission-highlight strong{display:block;color:#fff;font-size:12px}.commission-highlight span{display:block;margin-top:3px;color:#a9b2bd;font-size:9px;line-height:1.5}.commission-highlight .big{font-size:24px;color:#f0d49d;font-weight:900;white-space:nowrap}
+.commission-summary-line{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 13px;border-radius:13px;background:#10171f;border:1px solid #222c36}.commission-summary-line span{color:#909ba7;font-size:9px}.commission-summary-line b{color:#fff;font-size:10px}
+.commission-card-head .subcopy{display:block;color:#8994a0;font-size:9px;margin-top:4px;font-weight:500}
+@media(max-width:900px){.commission-steps{grid-template-columns:1fr}.commission-highlight{grid-template-columns:1fr}.commission-highlight .big{font-size:20px}.commission-summary-line{align-items:flex-start;flex-direction:column}}
+
 @media(max-width:900px){.commission-sim{grid-template-columns:1fr}.commission-results{grid-template-columns:1fr}.commission-result-main,.commission-flow{grid-column:auto}.commission-bar-row{grid-template-columns:76px minmax(0,1fr);}.commission-bar-row b{grid-column:2;text-align:right}}
 
 @media(max-width:900px){.commission-grid,.commission-tax,.legend-grid{grid-template-columns:1fr}.commission-card.full{grid-column:auto}.commission-row{flex-direction:column;gap:4px}.commission-row b{text-align:left;white-space:normal}}
@@ -841,16 +848,21 @@ body[data-role="viewer"] .viewer-note{display:block}
   <div class="commission-page">
     <div class="commission-hero">
       <div class="eyebrow">Comissionamento • Gestão Menezes</div>
-      <h2>Entenda e simule seu comissionamento</h2>
-      <p>Visualize como funciona a distribuição das parcelas e faça uma estimativa do comissionamento a partir do valor do crédito.</p>
+      <h2>Veja quanto uma venda pode gerar de comissão</h2>
+      <p>Digite o valor do crédito, escolha a condição e acompanhe de forma simples a comissão bruta, os descontos estimados e o valor líquido aproximado.</p>
+      <div class="commission-steps">
+        <div class="commission-step"><small>Passo 1</small><b>Informe o crédito</b><span>Ex.: R$ 300.000,00</span></div>
+        <div class="commission-step"><small>Passo 2</small><b>Escolha a condição</b><span>Motors ou condição de Lar</span></div>
+        <div class="commission-step"><small>Passo 3</small><b>Veja sua estimativa</b><span>Bruto, impostos e líquido aproximado</span></div>
+      </div>
     </div>
 
     <div class="commission-sim">
       <div class="commission-sim-controls">
         <div class="commission-sim-title">
           <small>Simulador de comissão</small>
-          <h3>Quanto essa venda pode gerar?</h3>
-          <p>Informe o crédito e escolha a condição utilizada na venda.</p>
+          <h3>Calcule em poucos segundos</h3>
+          <p>Use o valor real da venda para ter uma estimativa rápida do comissionamento.</p>
         </div>
 
         <div class="commission-field">
@@ -876,34 +888,38 @@ body[data-role="viewer"] .viewer-note{display:block}
           </select>
         </div>
 
+        <div class="commission-highlight">
+          <div><strong>Base estimada usada no simulador</strong><span>O cálculo considera 2% do valor do crédito como comissão bruta de referência.</span></div>
+          <div class="big">2%</div>
+        </div>
         <div class="commission-disclaimer">
-          <strong>Simulação que aproxima da realidade.</strong> O cálculo utiliza uma base estimada de 2% de comissão total. No LAR 50%, a distribuição visual converte proporcionalmente as faixas informadas de 1,288% / 2,374% / 2,372% para dentro desses 2%. Valores, quantidade de parcelas e distribuição podem variar conforme o grupo, parcela furo, aditivos e regras contratuais.
+          <strong>Simulação que aproxima da realidade.</strong> O valor final pode variar conforme grupo, aditivo, parcela furo, situação das parcelas e regras contratuais.
         </div>
       </div>
 
       <div class="commission-results" aria-live="polite">
         <div class="commission-result-main">
-          <small>Comissão líquida estimada</small>
+          <small>Você receberia aproximadamente</small>
           <b id="commissionNet">R$ 0,00</b>
-          <span id="commissionNetCaption">Após estimativa dos descontos informados.</span>
+          <span id="commissionNetCaption">Valor líquido aproximado após os descontos simulados.</span>
         </div>
         <div class="commission-result-box">
-          <small>Comissão bruta estimada</small>
+          <small>Comissão antes dos descontos</small>
           <b id="commissionGross">R$ 0,00</b>
           <span>Base estimada de 2% do crédito</span>
         </div>
         <div class="commission-result-box">
-          <small>Impostos estimados</small>
+          <small>Descontos estimados</small>
           <b id="commissionTaxes">R$ 0,00</b>
           <span>18,23% NF + 1,50% ISS</span>
         </div>
         <div class="commission-result-box">
-          <small>Número de parcelas</small>
+          <small>Forma de recebimento</small>
           <b id="commissionParcelCount">13x</b>
           <span id="commissionParcelMode">Distribuição diferenciada</span>
         </div>
         <div class="commission-result-box">
-          <small>Percentual líquido aproximado</small>
+          <small>Percentual líquido estimado</small>
           <b id="commissionNetPct">1,61%</b>
           <span>Sobre o valor do crédito</span>
         </div>
@@ -915,12 +931,16 @@ body[data-role="viewer"] .viewer-note{display:block}
           </div>
           <div class="commission-bars" id="commissionBars"></div>
         </div>
+        <div class="commission-summary-line">
+          <span>Como ler: primeiro o sistema estima 2% sobre o crédito; depois aplica os descontos informados para chegar ao líquido aproximado.</span>
+          <b id="commissionReadSummary">Simulação operacional</b>
+        </div>
       </div>
     </div>
 
     <div class="commission-grid">
       <div class="commission-card">
-        <div class="commission-card-head"><h3>🚗 MOTORS</h3><span class="commission-tag">13x linear</span></div>
+        <div class="commission-card-head"><div><h3>🚗 MOTORS</h3><span class="subcopy">Como a comissão é distribuída</span></div><span class="commission-tag">13x linear</span></div>
         <div class="commission-list">
           <div class="commission-row"><span>Distribuição das parcelas</span><b>13 parcelas lineares</b></div>
           <div class="commission-row"><span>Leitura prática</span><b>Mesmo peso por parcela</b></div>
@@ -928,7 +948,7 @@ body[data-role="viewer"] .viewer-note{display:block}
       </div>
 
       <div class="commission-card">
-        <div class="commission-card-head"><h3>🏠 LAR</h3><span class="commission-tag">Condições</span></div>
+        <div class="commission-card-head"><div><h3>🏠 LAR</h3><span class="subcopy">Escolha a condição usada na venda</span></div><span class="commission-tag">Condições</span></div>
         <div class="commission-list">
           <div class="commission-row"><span>Parcela cheia</span><b>100% • 11x</b></div>
           <div class="commission-row"><span>Parcela reduzida</span><b>85% • 11x</b></div>
@@ -938,7 +958,7 @@ body[data-role="viewer"] .viewer-note{display:block}
       </div>
 
       <div class="commission-card full">
-        <div class="commission-card-head"><h3>LAR 50% • distribuição informada</h3><span class="commission-tag">Regra operacional</span></div>
+        <div class="commission-card-head"><div><h3>LAR 50% • distribuição informada</h3><span class="subcopy">Percentuais usados para explicar a divisão das parcelas</span></div><span class="commission-tag">Regra operacional</span></div>
         <div class="commission-list">
           <div class="commission-row"><span>Parcelas 01 a 10</span><b>1,288% cada</b></div>
           <div class="commission-row"><span>Parcelas 11 e 12</span><b>2,374% cada</b></div>
@@ -948,7 +968,7 @@ body[data-role="viewer"] .viewer-note{display:block}
       </div>
 
       <div class="commission-card">
-        <div class="commission-card-head"><h3>🚨 Impostos</h3><span class="commission-tag">Conforme contrato</span></div>
+        <div class="commission-card-head"><div><h3>🚨 Impostos</h3><span class="subcopy">O que reduz o valor recebido</span></div><span class="commission-tag">Conforme contrato</span></div>
         <div class="commission-tax">
           <div class="commission-tax-box"><small>Desconto em NF</small><b>18,23%</b></div>
           <div class="commission-tax-box"><small>ISS</small><b>1,50%</b></div>
@@ -957,7 +977,7 @@ body[data-role="viewer"] .viewer-note{display:block}
       </div>
 
       <div class="commission-card">
-        <div class="commission-card-head"><h3>📎 Legendas</h3><span class="commission-tag">Leitura rápida</span></div>
+        <div class="commission-card-head"><div><h3>📎 Legendas</h3><span class="subcopy">Entenda rapidamente cada status</span></div><span class="commission-tag">Leitura rápida</span></div>
         <div class="legend-grid">
           <div class="legend-item"><b>NC1 / NC2 / NC3</b><span>Não consta pagamento há X meses.</span></div>
           <div class="legend-item"><b>TAXA ADMINISTRATIVA ou 14</b><span>14ª comissão não repassada ao consultor, ou comissão encerrada e restante somente em taxa.</span></div>
@@ -2359,6 +2379,8 @@ function renderCommissionSimulator(){
   document.getElementById('commissionParcelMode').textContent=cfg.mode;
   document.getElementById('commissionNetPct').textContent=netPct.toFixed(2).replace('.',',')+'%';
   document.getElementById('commissionFlowLabel').textContent=cfg.label;
+  const readSummary=document.getElementById('commissionReadSummary');
+  if(readSummary)readSummary.textContent=money(credit)+' em crédito → '+money(gross)+' bruto → '+money(net)+' líquido aprox.';
   const bars=document.getElementById('commissionBars');
   if(bars){
     const maxRate=Math.max(...cfg.rows.map(r=>r[1]));
