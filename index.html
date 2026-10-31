@@ -278,9 +278,14 @@ body[data-role="viewer"] .viewer-note{display:block}
   position:relative;padding:10px;border-radius:28px;background:linear-gradient(180deg,#161d26,#0f151c);border:1px solid rgba(213,171,103,.16);box-shadow:0 18px 40px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.03);
 }
 #team .consultant-photo-frame::before{content:'';position:absolute;inset:8px;border-radius:22px;padding:1.5px;background:linear-gradient(145deg,rgba(244,214,148,.98),rgba(177,129,63,.88) 44%,rgba(255,246,224,.95));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-#team .consultant-photo{border-radius:18px;overflow:hidden;background:#0d1318;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.26)}
+#team .consultant-photo{border-radius:18px;overflow:hidden;background:#0d1318;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.26);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+#team .consultant-photo::before{content:'';position:absolute;z-index:2;inset:-45% auto -45% -38%;width:32%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent);transition:left .5s ease;pointer-events:none}
 #team .consultant-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.12),transparent 24%,transparent 70%,rgba(255,255,255,.05));pointer-events:none}
-#team .consultant-photo img{width:100%;height:100%;object-fit:cover;display:none}
+#team .consultant-photo img{width:100%;height:100%;object-fit:cover;display:none;transition:transform .22s ease,filter .22s ease}
+#team .consultant-photo-frame:hover .consultant-photo{transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 24px rgba(213,171,103,.28),0 16px 34px rgba(0,0,0,.34);filter:brightness(1.04)}
+#team .consultant-photo-frame:hover .consultant-photo::before{left:112%}
+#team .consultant-photo-frame:hover .consultant-photo.has-image img{transform:scale(1.045);filter:brightness(1.08) contrast(1.03)}
+#team .consultor-photo-frame:hover{box-shadow:0 20px 48px rgba(0,0,0,.32),0 0 26px rgba(213,171,103,.18),inset 0 1px 0 rgba(255,255,255,.04)}
 #team .consultant-photo.has-image img{display:block}
 #team .consultant-photo-placeholder{min-height:150px;padding:18px;display:grid;place-items:center;text-align:center;gap:10px}
 #team .consultant-photo.has-image .consultant-photo-placeholder{display:none}
