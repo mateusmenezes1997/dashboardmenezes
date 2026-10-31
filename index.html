@@ -1815,7 +1815,7 @@ function renderBookingManagers(){
     return `<${tag} class="manager-select-card ${available?'available':'unavailable'}" ${attrs}>
       <div class="manager-select-photo">${photo?`<img src="${photo}" alt="${esc(c.name)}">`:`<div style="height:100%;display:grid;place-items:center;font-size:34px;font-weight:900;color:#d6b678">${esc(initials(c.name))}</div>`}<span class="manager-select-glow"></span></div>
       <div class="manager-select-info">
-        <div class="manager-select-role">Gestor • Gestão Menezes</div>
+        <div class="manager-select-role">${id==='mateus'?'Gestor':'Líder'} • Gestão Menezes</div>
         <div class="manager-select-name">${esc(c.name)}</div>
         <div class="manager-select-action"><span><i class="manager-availability-dot"></i>${status}</span><span class="arrow">${available?'→':'·'}</span></div>
       </div>
