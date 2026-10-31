@@ -4,6 +4,9 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Gestão Menezes — Dashboard Premium Comercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 
 :root{
@@ -615,6 +618,234 @@ body[data-role="viewer"] .viewer-note{display:block}
 .booking-footnote{text-align:center;color:#7d8794;font-size:10px;margin-top:17px;line-height:1.6;position:relative;z-index:1}
 @media(max-width:1050px){.manager-select-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.booking-stage{padding:16px}.manager-select-grid{grid-template-columns:1fr 1fr;gap:10px}.booking-intro{align-items:flex-start;flex-direction:column}.booking-intro h2{font-size:24px}.manager-select-info{padding:12px}.manager-select-name{font-size:14px}.manager-select-action{font-size:8px}.booking-status{white-space:normal}.manager-select-card.available:hover{transform:translateY(-4px) scale(1.01)}}
+
+/* === GESTÃO MENEZES — SIGNATURE / V60 === */
+:root{
+  --bg:#080608;
+  --panel:#110d10;
+  --panel-2:#171014;
+  --line:rgba(232,212,174,.10);
+  --ink:#f7f0e7;
+  --muted:#a79da2;
+  --red:#5f1426;
+  --red-2:#8a203d;
+  --gold:#c8a45f;
+  --gold-2:#efd49a;
+  --champagne:#f2e4c6;
+  --wine:#4a0f1e;
+  --wine-2:#701a32;
+  --shadow:0 24px 70px rgba(0,0,0,.46);
+}
+html{background:#070507}
+body{
+  font-family:Manrope,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(112,26,50,.18),transparent 26%),
+    radial-gradient(circle at 90% 8%,rgba(200,164,95,.10),transparent 22%),
+    linear-gradient(180deg,#090709 0%,#060506 100%);
+  color:var(--ink);
+}
+h1,h2,h3,.hero .big,.kpi .value,.showcase-name,.showcase-value,.consultant-total,.hero-total,.commission-result-main b{
+  font-family:Sora,Manrope,sans-serif;
+}
+.sidebar{
+  background:
+    radial-gradient(circle at 18% 0%,rgba(112,26,50,.22),transparent 26%),
+    linear-gradient(180deg,#0c090b 0%,#080608 100%);
+  border-right:1px solid rgba(200,164,95,.11);
+  box-shadow:18px 0 60px rgba(0,0,0,.22);
+}
+.brand{border-bottom-color:rgba(200,164,95,.12)}
+.brand h1{font-family:Sora,sans-serif;font-size:18px;letter-spacing:-.045em;color:#fff}
+.brand small{color:#b8a8ad;letter-spacing:.18em}
+.nav{gap:7px}
+.nav button{
+  border-radius:14px;
+  color:#a99ca2;
+  padding:13px 14px;
+  font-weight:800;
+  letter-spacing:-.01em;
+}
+.nav button:hover{
+  color:#fff;
+  border-color:rgba(200,164,95,.14);
+  background:linear-gradient(135deg,rgba(95,20,38,.32),rgba(18,13,16,.94));
+  box-shadow:0 12px 28px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.025);
+}
+.nav button.active{
+  color:#fff;
+  border-color:rgba(200,164,95,.24);
+  background:
+    linear-gradient(90deg,rgba(200,164,95,.10),transparent 24%),
+    linear-gradient(135deg,#38101d,#161014 72%);
+  box-shadow:0 14px 34px rgba(52,7,22,.34),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.nav button.active i{background:var(--gold-2);box-shadow:0 0 0 4px rgba(200,164,95,.12),0 0 18px rgba(200,164,95,.30)}
+.main{padding:30px 32px}
+.topbar h2{
+  font-family:Sora,sans-serif;
+  font-size:36px;
+  font-weight:800;
+  letter-spacing:-.045em;
+  color:#fff;
+}
+.eyebrow{
+  color:var(--gold-2);
+  font-size:9px;
+  letter-spacing:.2em;
+}
+.sub{color:#a79ba1}
+.card,
+#team .consultor-card,#team .consultor-side-card,
+.commission-card,.commission-sim,.commission-hero{
+  border-color:rgba(232,212,174,.10);
+  background:
+    linear-gradient(180deg,rgba(27,18,22,.95),rgba(13,10,12,.98));
+  box-shadow:0 22px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.022);
+}
+.card:before{
+  background:
+    radial-gradient(circle at 0 0,rgba(200,164,95,.055),transparent 28%),
+    linear-gradient(180deg,rgba(255,255,255,.022),transparent 25%);
+}
+.kpi{
+  border-radius:24px;
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.kpi:hover{
+  transform:translateY(-3px);
+  border-color:rgba(200,164,95,.20);
+  box-shadow:0 26px 65px rgba(0,0,0,.42),0 0 30px rgba(95,20,38,.11);
+}
+.kpi .label{color:#b5aab0;letter-spacing:.13em}
+.kpi .value{font-size:29px;letter-spacing:-.045em}
+.kpi .line{height:3px;width:56px}
+.kpi.red .line{background:linear-gradient(90deg,#7b1835,#b73559)}
+.kpi.gold .line{background:linear-gradient(90deg,#b98f49,#f0d497)}
+.btn,.control{
+  border-color:rgba(232,212,174,.12);
+  background:linear-gradient(180deg,#171115,#0f0c0e);
+}
+.btn:hover{border-color:rgba(200,164,95,.28);box-shadow:0 10px 28px rgba(0,0,0,.22)}
+.btn.primary{background:linear-gradient(135deg,#63152a,#8b2140);box-shadow:0 12px 26px rgba(95,20,38,.20)}
+.btn.dark{background:linear-gradient(135deg,#b98f49,#efd49a);color:#130d0a}
+.badge{
+  border-color:rgba(200,164,95,.16);
+  background:rgba(200,164,95,.07);
+  color:#d8c39b;
+}
+.hero,.product-card,.section,.form-card,.leader-card{border-radius:26px}
+.hero h3,.section-head h3{font-family:Sora,sans-serif;font-size:16px;letter-spacing:-.025em}
+.hero .big{font-size:43px}
+.progress,.bar,.showcase-progress .track{background:#24181d;border-color:rgba(255,255,255,.025)}
+.progress span,.bar span,.showcase-progress .fill{
+  background:linear-gradient(90deg,#751b36 0%,#c49b55 62%,#efd49a 100%);
+  box-shadow:0 0 18px rgba(200,164,95,.14);
+}
+.table-wrap{
+  border-color:rgba(232,212,174,.10);
+  background:linear-gradient(180deg,#120d10,#0d0a0c);
+  border-radius:18px;
+}
+th{
+  background:#171014;
+  color:#bdb0b4;
+  border-bottom-color:rgba(232,212,174,.11);
+  font-size:9px;
+  letter-spacing:.10em;
+}
+td{border-bottom-color:rgba(232,212,174,.07)}
+tbody tr:hover{background:rgba(112,26,50,.09)}
+.avatar{background:linear-gradient(135deg,#2b1820,#141014);border-color:rgba(200,164,95,.14)}
+.position{font-family:Sora,sans-serif;color:#d7b976}
+.level.cobre{background:rgba(134,81,47,.18);color:#d8a177}
+.level.prata{background:rgba(195,204,220,.10);color:#dce2eb}
+.level.ouro{background:rgba(200,164,95,.13);color:#efd49a}
+.level.diamante{background:rgba(186,217,231,.10);color:#b9dce9}
+
+/* Champion / 1º lugar */
+@keyframes trophyFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-6px) rotate(3deg)}}
+@keyframes trophyGlow{0%,100%{filter:drop-shadow(0 0 5px rgba(239,212,154,.22))}50%{filter:drop-shadow(0 0 16px rgba(239,212,154,.55))}}
+@keyframes championPulse{0%,100%{box-shadow:inset 3px 0 0 #c8a45f,0 0 0 rgba(200,164,95,0)}50%{box-shadow:inset 3px 0 0 #efd49a,0 0 30px rgba(200,164,95,.07)}}
+.champion-trophy{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  line-height:1;
+  margin-right:5px;
+  animation:trophyFloat 2.2s ease-in-out infinite,trophyGlow 2.2s ease-in-out infinite;
+  transform-origin:center bottom;
+}
+.champion-row{
+  position:relative;
+  background:linear-gradient(90deg,rgba(200,164,95,.075),rgba(95,20,38,.055) 42%,transparent 78%);
+  animation:championPulse 3.2s ease-in-out infinite;
+}
+.champion-row td:first-child{color:#f0d497}
+.champion-row .avatar{
+  border-color:rgba(239,212,154,.42);
+  background:linear-gradient(135deg,#5e4320,#24160f);
+  box-shadow:0 0 20px rgba(200,164,95,.10);
+}
+.champion-row .name{color:#fff3d8}
+.champion-rank-wrap{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.showcase-card{
+  border-color:rgba(232,212,174,.10);
+  background:linear-gradient(180deg,#191116,#0f0b0d);
+  border-radius:22px;
+}
+.showcase-card.champion-card{
+  padding:20px;
+  border-color:rgba(239,212,154,.30);
+  background:
+    radial-gradient(circle at 88% 0%,rgba(200,164,95,.18),transparent 28%),
+    linear-gradient(145deg,#25150f 0%,#1b1015 45%,#0e0a0c 100%);
+  box-shadow:0 24px 55px rgba(0,0,0,.38),0 0 38px rgba(200,164,95,.08);
+}
+.showcase-card.champion-card:before{height:3px;background:linear-gradient(90deg,#efd49a,#b98f49,#701a32)}
+.showcase-champion-line{display:flex;align-items:center;gap:8px;color:#efd49a;font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.showcase-champion-line .champion-trophy{font-size:30px;margin-right:1px}
+.showcase-card.champion-card .showcase-name{font-size:30px;color:#fff6e2}
+.showcase-card.champion-card .showcase-value{color:#efd8aa}
+.showcase-card.champion-card .showcase-rank{
+  background:linear-gradient(135deg,#b98f49,#efd49a);
+  color:#17100a;
+}
+.showcase-card:nth-child(2):before{background:linear-gradient(90deg,#bfc4ce,#f0f3f7)}
+.showcase-card:nth-child(3):before{background:linear-gradient(90deg,#8b4d2f,#c9885e)}
+.showcase-rank{font-family:Sora,sans-serif}
+.showcase-tier{border-color:rgba(232,212,174,.10);background:#171115}
+.showcase-box{background:rgba(255,255,255,.018);border-color:rgba(232,212,174,.08)}
+
+/* Language + modern surface polish */
+.product-status,.prod,.mini,.topitem,.recentitem,.alert,.enrollment-card,.enrollment-editor{
+  background:linear-gradient(180deg,#181116,#0f0b0e);
+  border-color:rgba(232,212,174,.09);
+}
+#team .consultor-photo-frame{
+  background:linear-gradient(180deg,#1b1116,#0e0a0c);
+}
+#team .consultant-photo{background:linear-gradient(135deg,#20151a,#0e0a0c)}
+.commission-result-main{
+  background:linear-gradient(135deg,#f2e2bd,#cfa75f);
+  color:#160f0b;
+}
+.commission-result-box,.commission-flow,.commission-step,.legend-item,.commission-row,.commission-tax-box{
+  background:#120d10;
+  border-color:rgba(232,212,174,.09);
+}
+.commission-highlight{
+  background:linear-gradient(135deg,rgba(112,26,50,.22),rgba(200,164,95,.055));
+  border-color:rgba(200,164,95,.20);
+}
+.sim-preview-wrap{border-radius:26px}
+input,select{accent-color:#7c1d38}
+::selection{background:#7c1d38;color:#fff5e4}
+@media(prefers-reduced-motion:reduce){
+  .champion-trophy,.champion-row{animation:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -642,7 +873,7 @@ body[data-role="viewer"] .viewer-note{display:block}
 <section id="dashboard" class="view">
   <div class="viewer-note">Modo consultor: visualização liberada. Lançamentos, edição de vendas, cadastro de consultores, fotos e configurações são exclusivos do gestor.</div>
   <div class="topbar">
-    <div><div class="eyebrow">Gestão Menezes</div><h2>Painel comercial da Gestão Menezes</h2><div class="sub">Acompanhamento de performance com visual mais comercial, leitura rápida e foco em resultado.</div></div>
+    <div><div class="eyebrow">Gestão Menezes</div><h2>Central de Performance</h2><div class="sub">Acompanhamento de performance com visual mais comercial, leitura rápida e foco em resultado.</div></div>
     <div class="actions"><input id="monthFilter" class="control" type="month"/><button class="btn" id="exportBtn">Exportar CSV</button><button class="btn dark" id="exportRankCard">Baixar card ranking 4K</button><label style="display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted);font-weight:800"><input id="autoRankExport" type="checkbox" checked/> Exportar ranking automaticamente</label><button class="btn primary manager-only" data-go="sale">+ Nova venda</button></div>
   </div>
 
@@ -702,7 +933,7 @@ body[data-role="viewer"] .viewer-note{display:block}
 
   <div class="content-grid">
     <div class="card section">
-      <div class="section-head"><h3>Ranking comercial</h3><span class="badge" id="rankingBadge">0 consultores</span></div>
+      <div class="section-head"><h3>Pódio de Performance</h3><span class="badge" id="rankingBadge">0 consultores</span></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>#</th><th>Consultor</th><th>Total vendido</th><th>Meta individual</th><th>Progresso até R$ 5 milhões</th><th>Nível atual</th><th>Próximo passo</th><th class="manager-only">Ações</th></tr></thead>
@@ -712,9 +943,9 @@ body[data-role="viewer"] .viewer-note{display:block}
     </div>
 
     <div class="stack">
-      <div class="card section"><div class="section-head"><h3>Consultores em destaque</h3><span class="badge">top 3 do mês</span></div><div class="top3" id="top3"></div></div>
-      <div class="card section"><div class="section-head"><h3>Oportunidades do gestor</h3><span class="badge">automático</span></div><div class="alerts" id="alerts"></div></div>
-      <div class="card section"><div class="section-head"><h3>Movimentações recentes</h3><span class="badge">novas vendas</span></div><div class="recent" id="recent"></div></div>
+      <div class="card section"><div class="section-head"><h3>Destaques do mês</h3><span class="badge">elite do mês</span></div><div class="top3" id="top3"></div></div>
+      <div class="card section"><div class="section-head"><h3>Radar da gestão</h3><span class="badge">leitura estratégica</span></div><div class="alerts" id="alerts"></div></div>
+      <div class="card section"><div class="section-head"><h3>Últimas vitórias</h3><span class="badge">movimento do time</span></div><div class="recent" id="recent"></div></div>
     </div>
   </div>
 </section>
@@ -1927,7 +2158,7 @@ function render(){
  document.getElementById('rankingBody').innerHTML=rows.map((r,i)=>{
   const prog=Math.min(100,r.total/5000000*100),lvl=levelInfo(r.total);
   const next=lvl.next?`${lvl.next.name}: ${money(Math.max(0,lvl.next.value-r.total))}`:'Topo atingido';
-  return`<tr><td class="position">${i+1}</td><td><div class="person"><div class="avatar">${esc(initials(r.name))}</div><div class="name">${esc(r.name)}</div></div></td><td class="money">${money(r.total)}</td><td>${compact(r.target)}</td><td><div class="bar"><span style="width:${prog}%"></span></div><div style="font-size:9px;color:#96999e;margin-top:4px">${prog.toFixed(1).replace('.',',')}%</div></td><td><span class="level ${lvl.cls}">${lvl.name}</span></td><td>${next}</td><td class="manager-only"><button class="edit-sales-btn" data-edit-sales="${r.id}">Editar vendas</button></td></tr>`
+  return`<tr class="${i===0?'champion-row':''}"><td class="position"><div class="champion-rank-wrap">${i===0?'<span class="champion-trophy" aria-label="Líder do ranking">🏆</span>':''}<span>${i+1}º</span></div></td><td><div class="person"><div class="avatar">${esc(initials(r.name))}</div><div class="name">${esc(r.name)}</div></div></td><td class="money">${money(r.total)}</td><td>${compact(r.target)}</td><td><div class="bar"><span style="width:${prog}%"></span></div><div style="font-size:9px;color:#96999e;margin-top:4px">${prog.toFixed(1).replace('.',',')}%</div></td><td><span class="level ${lvl.cls}">${lvl.name}</span></td><td>${next}</td><td class="manager-only"><button class="edit-sales-btn" data-edit-sales="${r.id}">Editar vendas</button></td></tr>`
  }).join('');
  document.querySelectorAll('[data-edit-sales]').forEach(btn=>btn.onclick=()=>openEditSales(btn.dataset.editSales));
 
@@ -1936,7 +2167,8 @@ function render(){
   const prog=Math.min(100,r.total/5000000*100);
   const share=total?((r.total/total)*100):0;
   const nextText=lvl.next?money(Math.max(0,lvl.next.value-r.total)):'Nível máximo';
-  return `<div class="showcase-card">
+  return `<div class="showcase-card ${i===0?'champion-card':''}">
+    ${i===0?'<div class="showcase-champion-line"><span class="champion-trophy" aria-hidden="true">🏆</span><span>Campeão do mês</span></div>':''}
     <div class="showcase-head">
       <span class="showcase-rank">${i+1}º lugar</span>
       <span class="showcase-tier">${lvl.name}</span>
