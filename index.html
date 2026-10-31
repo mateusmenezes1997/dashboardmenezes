@@ -2570,220 +2570,140 @@ function roundRectRank(ctx,x,y,w,h,r,fill,stroke){
 }
 function exportRankingCard(auto=false){
   const {m,total,target,rows}=rankCardData();
-  const EXPORT_SCALE=2;
+  const SCALE=2;
   const canvas=document.createElement('canvas');
-  canvas.width=1920*EXPORT_SCALE;
-  canvas.height=1080*EXPORT_SCALE;
+  canvas.width=1920*SCALE;
+  canvas.height=1080*SCALE;
   const ctx=canvas.getContext('2d');
-  ctx.scale(EXPORT_SCALE,EXPORT_SCALE);
+  ctx.scale(SCALE,SCALE);
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
 
   const monthLabel=formatMonth(m).toUpperCase();
   const pct=target?total/target*100:0;
-  const gap=Math.max(0,target-total);
   const top3=rows.slice(0,3);
   const rest=rows.slice(3,10);
 
   const C={
-    bg:'#050405',
-    bg2:'#090608',
-    wine:'#5b1027',
-    wine2:'#7b1b3b',
-    wineSoft:'#2a0d18',
-    panel:'#0f0b0e',
-    panel2:'#171014',
-    panel3:'#120c10',
-    line:'rgba(239,212,154,.12)',
-    lineStrong:'rgba(239,212,154,.24)',
-    text:'#f8f2ea',
-    muted:'#a99da2',
-    gold:'#c9a35d',
-    gold2:'#efd392',
-    silver:'#d5d9df',
-    bronze:'#c7885e'
+    bg:'#050405', bg2:'#090608', panel:'#100b0e', panel2:'#161014',
+    wine:'#6a1732', gold:'#c9a35d', gold2:'#efd392',
+    text:'#f7f0e7', muted:'#9f959a', line:'rgba(239,212,154,.11)',
+    silver:'#d8dbe0', bronze:'#c98a61'
   };
 
-  function rr(x,y,w,h,r,fill,stroke,lineWidth=1){
-    ctx.beginPath();
-    ctx.moveTo(x+r,y);
-    ctx.arcTo(x+w,y,x+w,y+h,r);
-    ctx.arcTo(x+w,y+h,x,y+h,r);
-    ctx.arcTo(x,y+h,x,y,r);
-    ctx.arcTo(x,y,x+w,y,r);
-    if(fill){ctx.fillStyle=fill;ctx.fill()}
-    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke()}
+  function rr(x,y,w,h,r,fill,stroke=null,lw=1){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);
+    if(fill){ctx.fillStyle=fill;ctx.fill()} if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()}
   }
-  function fit(text,maxWidth,start,min=10,weight=800){
-    let size=start;
-    while(size>min){
-      ctx.font=`${weight} ${size}px "Arial Black", Arial`;
-      if(ctx.measureText(String(text)).width<=maxWidth)break;
-      size-=1;
-    }
-    return size;
+  function fit(t,max,start,min=10,weight=800){
+    let s=start;while(s>min){ctx.font=`${weight} ${s}px Arial`;if(ctx.measureText(String(t)).width<=max)break;s--}return s;
   }
-  function text(txt,x,y,maxWidth,size,color=C.text,weight=700,align='left'){
-    ctx.textAlign=align;
-    const fs=fit(txt,maxWidth,size,10,weight);
-    ctx.fillStyle=color;
-    ctx.font=`${weight} ${fs}px "Arial Black", Arial`;
-    ctx.fillText(String(txt),x,y);
+  function tx(t,x,y,max,size,color=C.text,weight=800,align='left'){
+    ctx.textAlign=align;ctx.fillStyle=color;ctx.font=`${weight} ${fit(t,max,size,10,weight)}px Arial`;ctx.fillText(String(t),x,y);
   }
-  function pill(x,y,w,h,label,bg,fg,fontSize=13,stroke=null){
-    rr(x,y,w,h,h/2,bg,stroke);
-    ctx.save();
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle=fg;ctx.font=`900 ${fontSize}px Arial`;
-    ctx.fillText(label,x+w/2,y+h/2+1);
-    ctx.restore();
-  }
-  function progress(x,y,w,h,p,accent1=C.wine2,accent2=C.gold2){
-    rr(x,y,w,h,h/2,'#24191e',null);
+  function line(x1,y1,x2,y2,color=C.line,w=1){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke()}
+  function progress(x,y,w,h,p,a=C.wine,b=C.gold2){
+    rr(x,y,w,h,h/2,'#24191e');
     const fw=Math.max(8,Math.min(w,w*Math.max(0,Math.min(100,p))/100));
-    const g=ctx.createLinearGradient(x,0,x+fw,0);
-    g.addColorStop(0,accent1);g.addColorStop(1,accent2);
-    rr(x,y,fw,h,h/2,g,null);
+    const g=ctx.createLinearGradient(x,0,x+fw,0);g.addColorStop(0,a);g.addColorStop(1,b);rr(x,y,fw,h,h/2,g);
   }
-  function levelStyle(name){
-    if(name==='Diamante')return{bg:'#172029',fg:'#dbeaf3',stroke:'#314253'};
-    if(name==='Ouro')return{bg:'#2b2115',fg:'#f0d392',stroke:'#665027'};
-    if(name==='Prata')return{bg:'#202126',fg:'#d9dde3',stroke:'#3a3d45'};
-    return{bg:'#261915',fg:'#d7a177',stroke:'#583827'};
+  function levelInfoShort(totalVal){
+    const l=levelInfo(totalVal); return l.name.toUpperCase();
   }
-  function drawIcon(type,cx,cy,color,size=18){
-    ctx.save();
-    ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.1;ctx.lineCap='round';ctx.lineJoin='round';
-    if(type==='trophy'){
-      ctx.beginPath();ctx.moveTo(cx-6,cy-7);ctx.lineTo(cx+6,cy-7);ctx.lineTo(cx+4,cy+1);ctx.quadraticCurveTo(cx,cy+5,cx-4,cy+1);ctx.closePath();ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx-6,cy-4);ctx.quadraticCurveTo(cx-11,cy-3,cx-9,cy+2);ctx.quadraticCurveTo(cx-7,cy+5,cx-4,cy+4);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx+6,cy-4);ctx.quadraticCurveTo(cx+11,cy-3,cx+9,cy+2);ctx.quadraticCurveTo(cx+7,cy+5,cx+4,cy+4);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx,cy+5);ctx.lineTo(cx,cy+10);ctx.moveTo(cx-5,cy+10);ctx.lineTo(cx+5,cy+10);ctx.stroke();
-    }else if(type==='target'){
-      ctx.beginPath();ctx.arc(cx,cy,size/2,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx,cy,size/4,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+8,cy-8);ctx.stroke();
-    }else if(type==='chart'){
-      ctx.beginPath();ctx.moveTo(cx-8,cy+7);ctx.lineTo(cx-3,cy+1);ctx.lineTo(cx+1,cy+4);ctx.lineTo(cx+8,cy-6);ctx.stroke();
-    }else if(type==='users'){
-      ctx.beginPath();ctx.arc(cx-4,cy-3,4,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx+6,cy-2,3,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx-4,cy+10,7,Math.PI,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx+6,cy+9,5,Math.PI,Math.PI*2);ctx.stroke();
-    }
-    ctx.restore();
-  }
-  function metricCard(x,y,w,h,label,value,iconType,accent=C.gold2){
-    rr(x,y,w,h,22,C.panel,C.line,1);
-    rr(x+18,y+18,40,40,13,C.wineSoft,C.lineStrong,1);
-    drawIcon(iconType,x+38,y+38,accent,18);
-    ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText(label,x+72,y+35);
-    text(value,x+72,y+64,w-92,24,C.text,900);
-  }
-  function drawTopCard(x,y,w,h,r,place){
-    const isChamp=place===1;
-    const accent=place===1?C.gold2:place===2?C.silver:C.bronze;
-    const g=ctx.createLinearGradient(x,y,x+w,y+h);
-    if(isChamp){g.addColorStop(0,'#25140f');g.addColorStop(.45,'#180d12');g.addColorStop(1,'#0d090b')}
-    else{g.addColorStop(0,'#171014');g.addColorStop(1,'#0d090c')}
-    rr(x,y,w,h,28,g,isChamp?C.lineStrong:C.line,1.2);
-
-    if(isChamp){
-      const glow=ctx.createRadialGradient(x+w-70,y+25,0,x+w-70,y+25,180);
-      glow.addColorStop(0,'rgba(239,211,146,.16)');glow.addColorStop(1,'rgba(239,211,146,0)');
-      ctx.fillStyle=glow;ctx.fillRect(x+w-260,y,x>0?260:260,h);
-    }
-
-    rr(x+20,y+18,46,46,14,isChamp?'#3a2614':'#21171b',isChamp?C.lineStrong:C.line,1);
-    drawIcon(isChamp?'trophy':'chart',x+43,y+41,accent,20);
-
-    pill(x+78,y+22,86,34,`${place}º LUGAR`,isChamp?'#3b2a16':'#1d171b',accent,11,isChamp?'rgba(239,211,146,.26)':null);
-    const lv=levelInfo(r.total),ls=levelStyle(lv.name);
-    pill(x+w-134,y+22,112,34,lv.name.toUpperCase(),ls.bg,ls.fg,10,ls.stroke);
-
-    text(r.name.toUpperCase(),x+22,y+103,w-44,isChamp?30:25,C.text,900);
-    ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText('VENDAS NO MÊS',x+22,y+129);
-    text(money(r.total),x+22,y+173,w-44,isChamp?36:31,isChamp?C.gold2:C.gold,900);
-
-    ctx.strokeStyle=C.line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+22,y+193);ctx.lineTo(x+w-22,y+193);ctx.stroke();
-
-    const p=Math.min(100,r.total/5000000*100);
-    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('PROGRESSO ATÉ R$ 5 MILHÕES',x+22,y+218);
-    ctx.textAlign='right';ctx.fillStyle=C.text;ctx.font='900 10px Arial';ctx.fillText(`${p.toFixed(1).replace('.',',')}%`,x+w-22,y+218);ctx.textAlign='left';
-    progress(x+22,y+232,w-44,10,p,isChamp?C.wine2:'#6f5a3d',isChamp?C.gold2:accent);
+  function trophy(cx,cy,s=1){
+    ctx.save();ctx.strokeStyle=C.gold2;ctx.lineWidth=2.4*s;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(cx-8*s,cy-9*s);ctx.lineTo(cx+8*s,cy-9*s);ctx.lineTo(cx+6*s,cy+2*s);
+    ctx.quadraticCurveTo(cx,cy+8*s,cx-6*s,cy+2*s);ctx.closePath();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-8*s,cy-5*s);ctx.quadraticCurveTo(cx-13*s,cy-4*s,cx-11*s,cy+2*s);ctx.quadraticCurveTo(cx-9*s,cy+6*s,cx-5*s,cy+5*s);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+8*s,cy-5*s);ctx.quadraticCurveTo(cx+13*s,cy-4*s,cx+11*s,cy+2*s);ctx.quadraticCurveTo(cx+9*s,cy+6*s,cx+5*s,cy+5*s);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy+8*s);ctx.lineTo(cx,cy+14*s);ctx.moveTo(cx-6*s,cy+14*s);ctx.lineTo(cx+6*s,cy+14*s);ctx.stroke();ctx.restore();
   }
 
-  // Fundo premium
-  const bg=ctx.createLinearGradient(0,0,1920,1080);
-  bg.addColorStop(0,C.bg);bg.addColorStop(.55,C.bg2);bg.addColorStop(1,'#060405');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,1920,1080);
+  // background
+  const bg=ctx.createLinearGradient(0,0,1920,1080);bg.addColorStop(0,C.bg);bg.addColorStop(1,C.bg2);ctx.fillStyle=bg;ctx.fillRect(0,0,1920,1080);
+  const g1=ctx.createRadialGradient(90,60,0,90,60,420);g1.addColorStop(0,'rgba(106,23,50,.19)');g1.addColorStop(1,'rgba(106,23,50,0)');ctx.fillStyle=g1;ctx.fillRect(0,0,520,420);
+  const g2=ctx.createRadialGradient(1800,40,0,1800,40,320);g2.addColorStop(0,'rgba(201,163,93,.10)');g2.addColorStop(1,'rgba(201,163,93,0)');ctx.fillStyle=g2;ctx.fillRect(1480,0,440,340);
 
-  const glow1=ctx.createRadialGradient(100,40,0,100,40,430);
-  glow1.addColorStop(0,'rgba(123,27,59,.22)');glow1.addColorStop(1,'rgba(123,27,59,0)');
-  ctx.fillStyle=glow1;ctx.fillRect(0,0,540,460);
+  // header
+  ctx.fillStyle=C.gold2;ctx.font='900 13px Arial';ctx.fillText('GESTÃO MENEZES',58,54);
+  tx('RANKING DE VENDAS',58,112,900,48,C.text,900);
+  ctx.fillStyle=C.muted;ctx.font='800 13px Arial';ctx.fillText(monthLabel,60,143);
+  ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 11px Arial';ctx.fillText('META DA GESTÃO',1858,54);
+  tx(compact(target).replace('R$ ','').toUpperCase(),1858,87,260,27,C.gold2,900,'right');
+  line(58,164,1862,164,C.line);
 
-  const glow2=ctx.createRadialGradient(1800,20,0,1800,20,320);
-  glow2.addColorStop(0,'rgba(201,163,93,.14)');glow2.addColorStop(1,'rgba(201,163,93,0)');
-  ctx.fillStyle=glow2;ctx.fillRect(1480,0,440,360);
-
-  // assinatura
-  rr(58,42,44,44,14,C.wineSoft,C.lineStrong,1);
-  drawIcon('trophy',80,64,C.gold2,19);
-  ctx.fillStyle=C.gold2;ctx.font='900 14px Arial';ctx.fillText('GESTÃO MENEZES',118,59);
-  ctx.fillStyle=C.muted;ctx.font='700 10px Arial';ctx.fillText('PERFORMANCE • RESULTADO • LIDERANÇA',118,79);
-
-  text('RANKING DE PERFORMANCE',58,132,900,46,C.text,900);
-  ctx.fillStyle=C.muted;ctx.font='800 14px Arial';ctx.fillText(monthLabel,60,160);
-  pill(1620,52,242,40,'META  '+compact(target).replace('R$ ','').toUpperCase(),C.panel2,C.gold2,13,C.lineStrong);
-
-  // KPIs
-  const kX=58,kY=188,kH=92,kGap=16,kTotalW=1804,kW=(kTotalW-kGap*3)/4;
-  metricCard(kX,kY,kW,kH,'TOTAL DA GESTÃO',money(total),'chart',C.gold2);
-  metricCard(kX+(kW+kGap),kY,kW,kH,'META ATINGIDA',`${pct.toFixed(1).replace('.',',')}%`,'target',C.gold2);
-  metricCard(kX+2*(kW+kGap),kY,kW,kH,'FALTA PARA META',money(gap),'target',C.bronze);
-  metricCard(kX+3*(kW+kGap),kY,kW,kH,'LÍDER DO MÊS',rows[0]?.name||'—','users',C.gold2);
-
-  // Top 3
-  ctx.fillStyle=C.gold;ctx.font='900 11px Arial';ctx.fillText('PÓDIO DO MÊS',58,320);
-  text('TOP 3 CONSULTORES',58,354,700,28,C.text,900);
-
-  const topY=380,topH=270,topGap=18,topW=(1804-topGap*2)/3;
-  top3.forEach((r,i)=>drawTopCard(58+i*(topW+topGap),topY,topW,topH,r,i+1));
-
-  // Ranking geral
-  const tx=58,ty=678,tw=1804,th=320;
-  rr(tx,ty,tw,th,24,C.panel,C.line,1);
-  ctx.fillStyle=C.gold;ctx.font='900 10px Arial';ctx.fillText('RANKING GERAL',tx+24,ty+31);
-  text('POSIÇÕES 4 A 10',tx+24,ty+62,420,24,C.text,900);
-
-  const hx=tx+20,hy=ty+80,hw=tw-40;
-  rr(hx,hy,hw,34,12,C.panel2,null);
-
-  const cols={pos:hx+16,name:hx+90,sales:hx+620,level:hx+1005,progress:hx+1212,next:hx+1490};
-  ctx.fillStyle=C.muted;ctx.font='900 9px Arial';
-  ['POS.','CONSULTOR','VENDAS','NÍVEL','PROGRESSO','PRÓXIMO NÍVEL'].forEach((lab,i)=>{
-    const xs=[cols.pos,cols.name,cols.sales,cols.level,cols.progress,cols.next];ctx.fillText(lab,xs[i],hy+22);
+  // compact metrics strip
+  const metrics=[
+    ['TOTAL DA GESTÃO',money(total)],
+    ['META ATINGIDA',pct.toFixed(1).replace('.',',')+'%'],
+    ['CONSULTORES',String(rows.length)]
+  ];
+  metrics.forEach((m,i)=>{
+    const x=58+i*250;
+    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(m[0],x,198);
+    tx(m[1],x,228,220,20,i===1?C.gold2:C.text,900);
   });
 
+  // champion hero
+  const champ=top3[0];
+  const cx=58,cy=270,cw=1120,ch=330;
+  const cg=ctx.createLinearGradient(cx,cy,cx+cw,cy+ch);cg.addColorStop(0,'#24130f');cg.addColorStop(.55,'#160c11');cg.addColorStop(1,'#0d090b');
+  rr(cx,cy,cw,ch,34,cg,'rgba(239,212,154,.26)',1.2);
+  trophy(cx+62,cy+66,1.25);
+  ctx.fillStyle=C.gold2;ctx.font='900 11px Arial';ctx.fillText('CAMPEÃO DO MÊS',cx+110,cy+52);
+  tx(champ?.name||'—',cx+110,cy+103,850,42,C.text,900);
+  ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText('VENDAS NO MÊS',cx+110,cy+137);
+  tx(money(champ?.total||0),cx+110,cy+196,780,50,C.gold2,900);
+
+  const champPct=Math.min(100,(champ?.total||0)/5000000*100);
+  progress(cx+110,cy+244,760,12,champPct);
+  ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText('PROGRESSO ATÉ R$ 5 MILHÕES',cx+110,cy+274);
+  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 12px Arial';ctx.fillText(champPct.toFixed(1).replace('.',',')+'%',cx+870,cy+274);
+  ctx.textAlign='left';
+  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('NÍVEL',cx+930,cy+88);
+  tx(champ?levelInfoShort(champ.total):'—',cx+930,cy+118,150,20,C.text,900);
+  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('PARTICIPAÇÃO',cx+930,cy+164);
+  tx(total&&champ?((champ.total/total)*100).toFixed(1).replace('.',',')+'%':'0%',cx+930,cy+194,150,20,C.text,900);
+  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('POSIÇÃO',cx+930,cy+240);
+  tx('1º LUGAR',cx+930,cy+270,150,20,C.gold2,900);
+
+  // 2nd and 3rd
+  function drawSecondary(r,place,x,y,w,h,accent){
+    rr(x,y,w,h,28,C.panel,C.line);
+    ctx.fillStyle=accent;ctx.font='900 12px Arial';ctx.fillText(place+'º LUGAR',x+22,y+34);
+    tx(r?.name||'—',x+22,y+78,w-44,27,C.text,900);
+    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('VENDAS NO MÊS',x+22,y+108);
+    tx(money(r?.total||0),x+22,y+147,w-44,30,accent,900);
+    line(x+22,y+170,x+w-22,y+170,C.line);
+    ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(r?levelInfoShort(r.total):'—',x+22,y+200);
+    const p=Math.min(100,(r?.total||0)/5000000*100);
+    progress(x+22,y+220,w-44,9,p,place===2?'#6c7078':'#865334',accent);
+  }
+  drawSecondary(top3[1],2,1210,270,652,155,C.silver);
+  drawSecondary(top3[2],3,1210,445,652,155,C.bronze);
+
+  // ranking list
+  ctx.fillStyle=C.gold;ctx.font='900 11px Arial';ctx.fillText('RANKING GERAL',58,655);
+  tx('POSIÇÕES 4 A 10',58,688,420,28,C.text,900);
+
+  const lx=58,ly=716,lw=1804,rowH=41;
   rest.forEach((r,idx)=>{
-    const y=hy+43+idx*34;
-    rr(hx,y,hw,28,10,idx%2===0?'#120d10':'#0f0b0e',idx===0?C.lineStrong:C.line,1);
-    pill(cols.pos-2,y+3,40,22,String(idx+4),'#1d1519',idx===0?C.gold2:C.text,10,idx===0?C.lineStrong:null);
-    text(r.name.toUpperCase(),cols.name,y+20,485,13,C.text,800);
-    text(money(r.total),cols.sales,y+20,292,13,C.gold2,900);
-    const lv=levelInfo(r.total),ls=levelStyle(lv.name);
-    pill(cols.level-8,y+3,96,22,lv.name.toUpperCase(),ls.bg,ls.fg,9,ls.stroke);
+    const y=ly+idx*rowH;
+    if(idx>0) line(lx,y,lx+lw,y,'rgba(255,255,255,.045)');
+    tx(String(idx+4).padStart(2,'0'),lx,y+27,44,15,idx===0?C.gold2:C.muted,900);
+    tx(r.name.toUpperCase(),lx+70,y+27,650,15,C.text,800);
+    tx(money(r.total),lx+770,y+27,300,15,C.gold2,900);
+    ctx.fillStyle=C.muted;ctx.font='800 10px Arial';ctx.fillText(levelInfoShort(r.total),lx+1120,y+27);
     const p=Math.min(100,r.total/5000000*100);
-    progress(cols.progress,y+10,140,7,p,C.wine2,C.gold2);
-    ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='900 8px Arial';ctx.fillText(`${p.toFixed(1).replace('.',',')}%`,cols.progress+188,y+18);ctx.textAlign='left';
-    const next=lv.next?money(Math.max(0,lv.next.value-r.total)):'TOPO ATINGIDO';
-    text(next,cols.next,y+20,240,12,C.text,800);
+    progress(lx+1370,y+17,300,7,p);
+    ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(p.toFixed(1).replace('.',',')+'%',lx+1800,y+27);ctx.textAlign='left';
   });
 
-  // Rodapé
-  rr(58,1020,1804,34,16,'#0b080a',C.line,1);
-  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('COBRE 500K+  •  PRATA 1MM+  •  OURO 3MM+  •  DIAMANTE 5MM+',82,1042);
-  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 10px Arial';ctx.fillText('GESTÃO MENEZES • PERFORMANCE EM MOVIMENTO',1836,1042);ctx.textAlign='left';
+  // footer
+  line(58,1030,1862,1030,C.line);
+  ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText('COBRE 500K+  •  PRATA 1MM+  •  OURO 3MM+  •  DIAMANTE 5MM+',58,1054);
+  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 9px Arial';ctx.fillText('GESTÃO MENEZES',1862,1054);ctx.textAlign='left';
 
   const a=document.createElement('a');
   a.download=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
