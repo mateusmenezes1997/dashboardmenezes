@@ -6,7 +6,7 @@
 <title>Gestão Menezes — Dashboard Premium Comercial</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 
 :root{
@@ -844,6 +844,165 @@ input,select{accent-color:#7c1d38}
 ::selection{background:#7c1d38;color:#fff5e4}
 @media(prefers-reduced-motion:reduce){
   .champion-trophy,.champion-row{animation:none!important}
+}
+
+
+/* === GESTÃO MENEZES — V61 EXECUTIVE IMPACT === */
+:root{
+  --bg:#050405;
+  --panel:#0d090b;
+  --panel-2:#151014;
+  --wine:#5b1027;
+  --wine-2:#801d3c;
+  --gold:#c9a35d;
+  --gold-2:#f0d392;
+  --ink:#f8f2ea;
+  --muted:#a99da2;
+}
+body{
+  background:
+    radial-gradient(circle at 8% -8%,rgba(128,29,60,.25),transparent 32%),
+    radial-gradient(circle at 92% 0%,rgba(201,163,93,.10),transparent 28%),
+    linear-gradient(180deg,#080608 0%,#040304 100%);
+}
+h1,h2,.hero .big,.kpi .value,.showcase-name,.showcase-value,.consultant-total,.hero-total,.commission-result-main b{
+  font-family:"League Spartan",Sora,Manrope,sans-serif;
+  letter-spacing:-.035em;
+}
+h2{font-size:34px!important;line-height:.96}
+.eyebrow{
+  color:var(--gold-2)!important;
+  letter-spacing:.20em!important;
+  font-weight:900!important;
+}
+.sidebar{
+  background:
+    linear-gradient(180deg,rgba(96,15,39,.10),transparent 22%),
+    linear-gradient(180deg,#0b080a 0%,#060506 100%);
+}
+.nav button{
+  position:relative;
+  overflow:hidden;
+}
+.nav button:after{
+  content:"";
+  position:absolute;
+  left:0;top:10px;bottom:10px;
+  width:2px;border-radius:999px;
+  background:transparent;
+}
+.nav button.active:after{background:linear-gradient(180deg,var(--gold-2),var(--wine-2))}
+.nav button[data-view="commission"]{
+  border-color:rgba(201,163,93,.13);
+  background:linear-gradient(135deg,rgba(201,163,93,.045),rgba(91,16,39,.08));
+}
+.nav button[data-view="commission"] i{
+  background:var(--gold);
+  box-shadow:0 0 0 4px rgba(201,163,93,.10);
+}
+.card,.section,.hero,.product-card,.form-card,.leader-card{
+  border-color:rgba(240,211,146,.10)!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.26);
+}
+.kpi{
+  position:relative;
+  overflow:hidden;
+}
+.kpi:before{
+  content:"";
+  position:absolute;left:0;top:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(240,211,146,.34),transparent);
+}
+.kpi .value{font-size:31px!important}
+.progress span,.bar span{
+  background:linear-gradient(90deg,#6e1632,#b78445,#efd18e)!important;
+}
+@keyframes championSweep{
+  0%{transform:translateX(-160%) skewX(-18deg)}
+  55%,100%{transform:translateX(260%) skewX(-18deg)}
+}
+.champion-row{overflow:hidden}
+.champion-row:after{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 -18%;
+  width:16%;
+  background:linear-gradient(90deg,transparent,rgba(255,232,179,.10),transparent);
+  animation:championSweep 4.6s ease-in-out infinite;
+  pointer-events:none;
+}
+.champion-trophy{
+  font-size:26px!important;
+  filter:drop-shadow(0 0 10px rgba(240,211,146,.34));
+}
+.showcase-card.champion-card{
+  transform:translateY(-2px);
+  border:1px solid rgba(240,211,146,.38)!important;
+  box-shadow:0 28px 70px rgba(0,0,0,.46),0 0 50px rgba(201,163,93,.10);
+}
+.showcase-card.champion-card .showcase-name{
+  font-family:"League Spartan",Sora,sans-serif;
+  font-size:34px!important;
+  line-height:.95;
+}
+.showcase-champion-line{
+  border-bottom:1px solid rgba(240,211,146,.12);
+  padding-bottom:9px;
+}
+#commission .commission-hero{
+  background:
+    radial-gradient(circle at 92% 0%,rgba(240,211,146,.14),transparent 34%),
+    linear-gradient(135deg,#1a0d12,#0b080a 64%);
+  border-color:rgba(240,211,146,.22)!important;
+}
+#commission .commission-hero h2{
+  font-family:"League Spartan",Sora,sans-serif;
+  font-size:42px!important;
+}
+.commission-sim{
+  border:1px solid rgba(240,211,146,.13)!important;
+  background:linear-gradient(180deg,#100b0e,#080608)!important;
+  box-shadow:0 28px 70px rgba(0,0,0,.35);
+}
+.commission-result-main{
+  background:
+    linear-gradient(135deg,#f3dfad 0%,#c79a4f 60%,#9b6f32 100%)!important;
+  box-shadow:0 20px 44px rgba(199,154,79,.16);
+}
+.commission-result-main b{
+  font-size:42px!important;
+  line-height:1!important;
+}
+.commission-highlight .big{
+  font-family:"League Spartan",Sora,sans-serif!important;
+  font-size:48px!important;
+  color:var(--gold-2)!important;
+}
+.commission-preset{
+  border-color:rgba(240,211,146,.14)!important;
+  background:#120c0f!important;
+}
+.commission-preset:hover{
+  color:#160e08!important;
+  background:linear-gradient(135deg,#e8c77d,#ba8b43)!important;
+  border-color:transparent!important;
+}
+.commission-bar-track i{
+  background:linear-gradient(90deg,#741a36,#c49a50,#efd18e)!important;
+}
+.btn.primary{
+  background:linear-gradient(135deg,#7b1838,#4e0e22)!important;
+  border-color:rgba(240,211,146,.18)!important;
+  box-shadow:0 14px 32px rgba(78,14,34,.28);
+}
+.btn.primary:hover{
+  filter:brightness(1.08);
+  transform:translateY(-1px);
+}
+@media(max-width:760px){
+  h2{font-size:28px!important}
+  #commission .commission-hero h2{font-size:34px!important}
+  .commission-result-main b{font-size:34px!important}
 }
 
 </style>
@@ -2653,6 +2812,6 @@ function init(){
 init();
 </script>
 
-<!-- deployment-refresh: commission-ui-v2 -->
+<!-- deployment-refresh: executive-v61 -->
 </body>
 </html>
