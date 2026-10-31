@@ -1398,6 +1398,193 @@ h2{font-size:34px!important;line-height:.96}
   .commission-summary-step b{font-size:21px!important}
 }
 
+
+/* Commission spacing system V4 */
+#commission .commission-page{
+  display:grid;
+  gap:28px;
+  max-width:1480px;
+  margin:0 auto;
+  padding-bottom:10px;
+}
+
+#commission .commission-hero{
+  padding:30px 32px;
+  border-radius:28px;
+}
+#commission .commission-hero .eyebrow{margin-bottom:8px}
+#commission .commission-hero h2{margin-top:0!important}
+#commission .commission-hero p{
+  margin-top:12px;
+  max-width:900px;
+  line-height:1.75;
+}
+
+#commission .commission-steps{
+  margin-top:24px;
+  gap:14px;
+}
+#commission .commission-step{
+  padding:16px 17px;
+  min-height:94px;
+}
+#commission .commission-step b{margin-top:6px}
+#commission .commission-step span{margin-top:6px}
+
+#commission .commission-sim{
+  gap:24px;
+  padding:26px;
+  border-radius:28px;
+  align-items:start;
+}
+#commission .commission-sim-controls{
+  gap:18px;
+}
+#commission .commission-sim-title{
+  margin-bottom:2px;
+}
+#commission .commission-sim-title h3{
+  margin-top:7px;
+}
+#commission .commission-sim-title p{
+  margin-top:9px;
+  line-height:1.7;
+}
+#commission .commission-field label{
+  margin-bottom:8px;
+}
+#commission .commission-field input,
+#commission .commission-field select{
+  height:48px;
+}
+#commission .commission-presets{
+  gap:9px;
+  margin-top:-4px;
+}
+#commission .commission-preset{
+  height:36px;
+  padding:0 13px;
+}
+#commission .commission-highlight{
+  padding:17px 18px;
+  margin-top:2px;
+}
+#commission .commission-disclaimer{
+  padding:14px 15px;
+  margin-top:-2px;
+  line-height:1.65;
+}
+
+#commission .commission-results{
+  gap:14px;
+}
+#commission .commission-result-main{
+  padding:24px 26px;
+  min-height:118px;
+}
+#commission .commission-result-main b{
+  margin-top:8px!important;
+}
+#commission .commission-result-main span{
+  margin-top:8px!important;
+}
+#commission .commission-result-box{
+  padding:17px 18px;
+  min-height:104px;
+}
+#commission .commission-result-box b{
+  margin-top:8px;
+}
+#commission .commission-result-box span{
+  margin-top:6px;
+  line-height:1.45;
+}
+
+#commission .commission-flow{
+  margin-top:4px;
+}
+#commission .commission-summary-large{
+  margin-top:2px;
+}
+
+#commission .commission-grid{
+  gap:20px;
+  align-items:stretch;
+}
+#commission .commission-card{
+  padding:24px;
+  border-radius:24px;
+}
+#commission .commission-card-head{
+  margin-bottom:20px;
+  gap:16px;
+  align-items:flex-start;
+}
+#commission .commission-card-head .subcopy{
+  margin-top:7px;
+  line-height:1.5;
+}
+#commission .commission-list{
+  gap:12px;
+}
+#commission .commission-row{
+  padding:14px 15px;
+  min-height:52px;
+  align-items:center;
+}
+#commission .commission-tax{
+  gap:14px;
+  margin-top:2px;
+}
+#commission .commission-tax-box{
+  padding:18px;
+}
+#commission .commission-card .commission-alert{
+  margin-top:16px!important;
+}
+#commission .legend-grid{
+  gap:12px;
+}
+#commission .legend-item{
+  padding:16px;
+}
+#commission .legend-item b{
+  margin-bottom:7px;
+}
+#commission .legend-item span{
+  line-height:1.65;
+}
+
+#commission .commission-page > .commission-alert{
+  margin-top:0;
+  padding:18px 20px;
+  border-radius:18px;
+  line-height:1.7;
+}
+
+@media(max-width:1100px){
+  #commission .commission-page{gap:22px}
+  #commission .commission-sim{grid-template-columns:1fr;padding:22px}
+  #commission .commission-grid{gap:16px}
+}
+@media(max-width:900px){
+  #commission .commission-page{gap:18px}
+  #commission .commission-hero{padding:22px}
+  #commission .commission-steps{margin-top:18px}
+  #commission .commission-card{padding:19px}
+  #commission .commission-card-head{margin-bottom:16px}
+}
+@media(max-width:650px){
+  #commission .commission-page{gap:16px}
+  #commission .commission-hero{padding:18px}
+  #commission .commission-sim{padding:16px;gap:18px}
+  #commission .commission-sim-controls{gap:15px}
+  #commission .commission-results{gap:10px}
+  #commission .commission-result-box{min-height:auto}
+  #commission .commission-card{padding:16px}
+  #commission .commission-card-head{gap:10px}
+}
+
 </style>
 </head>
 <body>
