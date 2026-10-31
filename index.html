@@ -877,7 +877,7 @@ body[data-role="viewer"] .viewer-note{display:block}
         </div>
 
         <div class="commission-disclaimer">
-          <strong>Simulação que aproxima da realidade.</strong> O cálculo utiliza uma base estimada de 20% de comissão total. Valores, quantidade de parcelas e distribuição podem variar conforme o grupo, parcela furo, aditivos e regras contratuais.
+          <strong>Simulação que aproxima da realidade.</strong> O cálculo utiliza uma base estimada de 2% de comissão total. Valores, quantidade de parcelas e distribuição podem variar conforme o grupo, parcela furo, aditivos e regras contratuais.
         </div>
       </div>
 
@@ -890,7 +890,7 @@ body[data-role="viewer"] .viewer-note{display:block}
         <div class="commission-result-box">
           <small>Comissão bruta estimada</small>
           <b id="commissionGross">R$ 0,00</b>
-          <span>Base estimada de 20% do crédito</span>
+          <span>Base estimada de 2% do crédito</span>
         </div>
         <div class="commission-result-box">
           <small>Impostos estimados</small>
@@ -904,7 +904,7 @@ body[data-role="viewer"] .viewer-note{display:block}
         </div>
         <div class="commission-result-box">
           <small>Percentual líquido aproximado</small>
-          <b id="commissionNetPct">16,05%</b>
+          <b id="commissionNetPct">1,61%</b>
           <span>Sobre o valor do crédito</span>
         </div>
 
@@ -938,11 +938,11 @@ body[data-role="viewer"] .viewer-note{display:block}
       </div>
 
       <div class="commission-card full">
-        <div class="commission-card-head"><h3>LAR 50% • distribuição informada</h3><span class="commission-tag">Total = 20%</span></div>
+        <div class="commission-card-head"><h3>LAR 50% • distribuição informada</h3><span class="commission-tag">Total = 2%</span></div>
         <div class="commission-list">
-          <div class="commission-row"><span>Parcelas 01 a 10</span><b>1,288% cada</b></div>
-          <div class="commission-row"><span>Parcelas 11 e 12</span><b>2,374% cada</b></div>
-          <div class="commission-row"><span>Parcela 13</span><b>2,372%</b></div>
+          <div class="commission-row"><span>Parcelas 01 a 10</span><b>0,1288% cada</b></div>
+          <div class="commission-row"><span>Parcelas 11 e 12</span><b>0,2374% cada</b></div>
+          <div class="commission-row"><span>Parcela 13</span><b>0,2372%</b></div>
         </div>
         <div class="commission-alert" style="margin-top:12px"><strong>Parcela Furo:</strong> possui diferencial. A quantidade e o cálculo podem variar de acordo com o aditivo do grupo.</div>
       </div>
@@ -2338,7 +2338,7 @@ function renderCommissionSimulator(){
   if(!creditEl||!conditionEl)return;
   const credit=Math.max(0,parseNumber(creditEl.value)||0);
   const condition=conditionEl.value;
-  const baseRate=.20;
+  const baseRate=.02;
   const nf=.1823,iss=.015,totalTaxRate=nf+iss;
   const gross=credit*baseRate;
   const taxes=gross*totalTaxRate;
@@ -2349,7 +2349,7 @@ function renderCommissionSimulator(){
     lar100:{count:11,label:'LAR • 100%',mode:'Distribuição linear estimada',rows:[['Parcelas 01 a 11',baseRate/11,11]]},
     lar85:{count:11,label:'LAR • 85%',mode:'Distribuição linear estimada',rows:[['Parcelas 01 a 11',baseRate/11,11]]},
     lar70:{count:13,label:'LAR • 70%',mode:'Distribuição linear estimada',rows:[['Parcelas 01 a 13',baseRate/13,13]]},
-    lar50:{count:13,label:'LAR • 50%',mode:'Distribuição diferenciada',rows:[['Parcelas 01 a 10',.01288,10],['Parcelas 11 e 12',.02374,2],['Parcela 13',.02372,1]]}
+    lar50:{count:13,label:'LAR • 50%',mode:'Distribuição diferenciada',rows:[['Parcelas 01 a 10',.001288,10],['Parcelas 11 e 12',.002374,2],['Parcela 13',.002372,1]]}
   };
   const cfg=configs[condition]||configs.lar50;
   document.getElementById('commissionGross').textContent=money(gross);
