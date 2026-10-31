@@ -2588,8 +2588,8 @@ function exportRankingCard(auto=false){
   const list=rows.slice(0,10);
   const leader=Math.max(1,Number(list[0]?.total)||1);
   const C={
-    bg:'#050405',bg2:'#0a0709',panel:'#0f0a0d',panel2:'#151014',
-    wine:'#721934',wine2:'#962545',gold:'#c89f58',gold2:'#efd28e',
+    bg:'#040304',bg2:'#080507',panel:'#0d090b',panel2:'#120d10',
+    wine:'#5b1027',wine2:'#7c1b39',gold:'#b99452',gold2:'#efd9a0',
     text:'#f8f1e8',muted:'#aaa0a5',line:'rgba(239,210,145,.11)',
     line2:'rgba(239,210,145,.24)',silver:'#d8dde5',bronze:'#cc8c63'
   };
@@ -2628,18 +2628,18 @@ function exportRankingCard(auto=false){
 
   // background
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,C.bg);bg.addColorStop(1,C.bg2);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  const glow=ctx.createRadialGradient(1680,40,0,1680,40,460);glow.addColorStop(0,'rgba(114,25,52,.22)');glow.addColorStop(1,'rgba(114,25,52,0)');ctx.fillStyle=glow;ctx.fillRect(1300,0,620,500);
+  const glow=ctx.createRadialGradient(1680,40,0,1680,40,500);glow.addColorStop(0,'rgba(91,16,39,.16)');glow.addColorStop(1,'rgba(114,25,52,0)');ctx.fillStyle=glow;ctx.fillRect(1300,0,620,500);
 
   // title
-  ctx.fillStyle=C.gold2;ctx.font='900 11px Arial';ctx.fillText('PLACAR COMPLETO',58,48);
-  tx('Ranking dos campeões',58,102,880,44,C.text,900);
-  ctx.fillStyle=C.muted;ctx.font='600 15px Arial';ctx.fillText('Cada venda muda o jogo. Acompanhe sua posição e dispute o topo.',58,136);
+  ctx.fillStyle=C.gold2;ctx.font='800 10px Arial';ctx.fillText('PLACAR COMPLETO',58,48);
+  tx('Ranking dos campeões',58,102,880,46,C.text,900);
+  ctx.fillStyle='#b8adb2';ctx.font='600 14px Arial';ctx.fillText('Cada venda muda o jogo. Acompanhe sua posição e dispute o topo.',58,136);
   ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(monthLabel,1860,48);
   tx('GESTÃO MENEZES',1860,77,260,19,C.gold2,900,'right');ctx.textAlign='left';
 
   // board
   const boardX=58,boardY=180,boardW=1804,rowH=76,boardH=rowH*10;
-  rr(boardX,boardY,boardW,boardH,26,'rgba(15,10,13,.94)',C.line2,1.1);
+  rr(boardX,boardY,boardW,boardH,28,'rgba(11,8,10,.97)','rgba(239,210,145,.16)',1);
 
   list.forEach((r,i)=>{
     const y=boardY+i*rowH;
@@ -2649,10 +2649,10 @@ function exportRankingCard(auto=false){
 
     if(isFirst){
       const g=ctx.createLinearGradient(boardX,y,boardX+boardW,y);
-      g.addColorStop(0,'rgba(92,26,25,.90)');
-      g.addColorStop(.58,'rgba(73,15,31,.88)');
-      g.addColorStop(1,'rgba(30,11,17,.96)');
-      rr(boardX,y,boardW,rowH,place===1?26:0,g,'rgba(239,210,145,.28)',1);
+      g.addColorStop(0,'rgba(82,22,28,.92)');
+      g.addColorStop(.58,'rgba(57,13,26,.90)');
+      g.addColorStop(1,'rgba(18,8,12,.98)');
+      rr(boardX,y,boardW,rowH,place===1?26:0,g,'rgba(239,210,145,.36)',1.15);
       ctx.fillStyle=C.gold2;ctx.fillRect(boardX,y,5,rowH);
     }else if(isSecond){
       ctx.fillStyle='rgba(215,221,229,.045)';ctx.fillRect(boardX,y,boardW,rowH);
@@ -2665,8 +2665,8 @@ function exportRankingCard(auto=false){
 
     // rank icon/number
     if(isFirst){
-      rr(boardX+22,y+14,48,48,15,'#2c1c10',C.line2,1);
-      trophy(boardX+46,y+36,1.05);
+      rr(boardX+22,y+12,52,52,16,'#21150d','rgba(239,210,145,.26)',1);
+      trophy(boardX+48,y+36,1.15);
     }else if(isSecond){
       medal(boardX+46,y+36,2,C.silver);
     }else if(isThird){
@@ -2674,41 +2674,41 @@ function exportRankingCard(auto=false){
     }
 
     const rankColor=isFirst?C.gold2:isSecond?C.silver:isThird?C.bronze:C.gold2;
-    tx(String(place).padStart(2,'0'),boardX+88,y+47,60,20,rankColor,900);
+    tx(String(place).padStart(2,'0'),boardX+92,y+47,60,19,rankColor,900);
 
     // name
-    tx(r.name.toUpperCase(),boardX+155,y+34,410,isFirst?19:17,C.text,900);
+    tx(r.name.toUpperCase(),boardX+160,y+33,400,isFirst?20:17,C.text,900);
     if(isFirst){
-      rr(boardX+155,y+43,130,22,11,'#d5ad63',null);
-      ctx.fillStyle='#21130b';ctx.font='900 9px Arial';ctx.fillText('CAMPEÃO DO MÊS',boardX+169,y+58);
+      rr(boardX+160,y+44,138,22,11,'#d8b76d',null);
+      ctx.fillStyle='#1a1009';ctx.font='900 8px Arial';ctx.fillText('CAMPEÃO DO MÊS',boardX+176,y+58);
     }
 
     // progress
-    const barX=boardX+520,barY=y+33,barW=520;
+    const barX=boardX+520,barY=y+34,barW=500;
     const barA=isSecond?'#777d86':isThird?'#8c593b':C.wine2;
     const barB=isSecond?C.silver:isThird?C.bronze:C.gold2;
     progress(barX,barY,barW,9,p,barA,barB);
     ctx.textAlign='right';ctx.fillStyle=rankColor;ctx.font='900 10px Arial';ctx.fillText(p.toFixed(0)+'%',barX+barW+48,y+39);ctx.textAlign='left';
 
     // total
-    line(boardX+1130,y+17,boardX+1130,y+59,C.line2);
-    ctx.fillStyle=C.muted;ctx.font='800 8px Arial';ctx.fillText('TOTAL VENDIDO',boardX+1160,y+25);
-    tx(money(r.total),boardX+1160,y+50,315,21,isFirst?C.gold2:'#f1d69f',900);
+    line(boardX+1110,y+18,boardX+1110,y+58,'rgba(239,210,145,.13)');
+    ctx.fillStyle=C.muted;ctx.font='800 7px Arial';ctx.fillText('TOTAL VENDIDO',boardX+1140,y+24);
+    tx(money(r.total),boardX+1140,y+50,330,21,isFirst?C.gold2:'#ead9b3',900);
 
     // qty / launches
-    line(boardX+1510,y+17,boardX+1510,y+59,C.line2);
+    line(boardX+1500,y+18,boardX+1500,y+58,'rgba(239,210,145,.13)');
     const qty=Number(r.qty||0),launches=Number(r.launches||0);
     const qLabel=qty===1?'1 cota':qty+' cotas';
     const lLabel=launches===1?'1 lançamento':launches+' lançamentos';
-    tx(qLabel,boardX+1540,y+31,135,12,C.text,800);
+    tx(qLabel,boardX+1530,y+31,140,12,C.text,800);
     tx(lLabel,boardX+1690,y+31,150,12,C.text,800);
-    ctx.fillStyle=C.muted;ctx.font='700 8px Arial';ctx.fillText('COTAS',boardX+1540,y+50);ctx.fillText('LANÇAMENTOS',boardX+1690,y+50);
+    ctx.fillStyle=C.muted;ctx.font='700 7px Arial';ctx.fillText('COTAS',boardX+1530,y+50);ctx.fillText('LANÇAMENTOS',boardX+1690,y+50);
   });
 
   // footer
   const fy=970;
-  rr(58,fy,1804,66,18,'rgba(255,255,255,.018)',C.line2,1);
-  ctx.fillStyle=C.gold2;ctx.font='900 11px Arial';ctx.fillText('GESTÃO MENEZES • RESULTADOS DO MÊS',82,fy+27);
+  rr(58,fy,1804,66,18,'rgba(255,255,255,.012)','rgba(239,210,145,.14)',1);
+  ctx.fillStyle=C.gold2;ctx.font='900 10px Arial';ctx.fillText('GESTÃO MENEZES • RESULTADOS DO MÊS',82,fy+27);
   ctx.fillStyle=C.muted;ctx.font='600 10px Arial';ctx.fillText('Ranking gerado automaticamente com base nas vendas registradas no dashboard.',82,fy+46);
   ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 10px Arial';ctx.fillText('TOTAL DA GESTÃO  '+money(total),1838,fy+37);ctx.textAlign='left';
 
