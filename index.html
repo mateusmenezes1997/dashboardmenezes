@@ -2762,7 +2762,7 @@ function rankCardData(){
     total:Number(t.by[c.id]||0),
     qty:Number(t.qtyBy[c.id]||0),
     launches:Number(launchCount[c.id]||0)
-  })).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'pt-BR'));
+  })).filter(c=>c.total>0).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'pt-BR'));
   return {m,total:t.total,target,rows};
 }
 function fitCanvasText(ctx,text,maxWidth,startSize,minSize=18,weight='800'){
@@ -2967,8 +2967,9 @@ function render(){
  const m=document.getElementById('monthFilter').value;
  const {monthSales,by,lar,motors,larCount,motorsCount,larQty,motorsQty,unclassifiedQty,totalQty,total}=totals(m);
  const target=Number(state.settings.teamTarget)||0,pct=target?Math.min(100,total/target*100):0,gap=Math.max(0,target-total);
- const rows=state.consultants.map(c=>({...c,total:by[c.id]||0})).sort((a,b)=>b.total-a.total);
- const active=rows.filter(r=>r.total>0).length;
+ const allRows=state.consultants.map(c=>({...c,total:by[c.id]||0})).sort((a,b)=>b.total-a.total);
+ const rows=allRows.filter(r=>r.total>0);
+ const active=rows.length;
  document.getElementById('kpiSales').textContent=money(total);
  document.getElementById('kpiTarget').textContent=compact(target);
  document.getElementById('kpiTargetHint').textContent=`${pct.toFixed(1).replace('.',',')}% atingido`;
@@ -3063,8 +3064,8 @@ function render(){
    <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:var(--gold)"></span><div><b>Motors</b><small>${motorsPct.toFixed(1).replace('.',',')}% da gestão</small></div></div><div class="legend-val">${money(motors)}</div></div>
    <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#5b6470"></span><div><b>Não classificado</b><small>${unPct.toFixed(1).replace('.',',')}% da gestão</small></div></div><div class="legend-val">${money(unclassified)}</div></div>`;
 
- renderLeadership(rows);
- document.getElementById('rankingBadge').textContent=`${rows.length} consultores`;
+ renderLeadership(allRows);
+ document.getElementById('rankingBadge').textContent=rows.length?`${rows.length} vendedor${rows.length===1?'':'es'} no ranking`:'Aguardando a primeira venda';
  document.getElementById('rankingBody').innerHTML=rows.map((r,i)=>{
   const prog=Math.min(100,r.total/5000000*100),lvl=levelInfo(r.total);
   const next=lvl.next?`${lvl.next.name}: ${money(Math.max(0,lvl.next.value-r.total))}`:'Topo atingido';
