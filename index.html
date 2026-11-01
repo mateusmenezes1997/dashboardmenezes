@@ -1937,6 +1937,75 @@ h2{font-size:34px!important;line-height:.96}
 .month-picker-shell.is-open .month-picker-menu{z-index:10001!important}
 .kpis,.hero-grid{position:relative;z-index:1}
 </style>
+<!-- GESTAO-MENEZES-TYPOGRAPHY-V2 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style id="gestao-menezes-typography-v2">
+  :root{
+    --font-ui: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-impact: "Sora", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  html, body {
+    font-family: var(--font-ui) !important;
+    font-feature-settings: "ss01" 1, "ss02" 1, "cv01" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  button, input, select, textarea {
+    font-family: var(--font-ui) !important;
+    letter-spacing: -0.012em;
+  }
+
+  h1, h2, h3,
+  .title, .page-title, .section-title, .card-title,
+  .dashboard-title, .brand-title, .hero-title,
+  [class*="headline"], [class*="heading"] {
+    font-family: var(--font-impact) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  h1, .dashboard-title, .brand-title, .hero-title {
+    font-weight: 800 !important;
+    letter-spacing: -0.05em !important;
+  }
+
+  .kpi-value, .metric-value, .stat-value, .total-value,
+  .amount, .value, .number, .score, .percentage,
+  [class*="kpi"][class*="value"],
+  [class*="metric"][class*="value"],
+  [class*="stat"][class*="value"],
+  [class*="total"][class*="value"],
+  [class*="ranking"][class*="value"],
+  [class*="rank"][class*="value"] {
+    font-family: var(--font-impact) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.045em !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nav, .nav-item, .tab, .tab-btn, .menu-item,
+  [class*="nav-"], [class*="tab-"] {
+    font-family: var(--font-ui) !important;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .badge, .pill, .chip, .status,
+  [class*="badge"], [class*="pill"], [class*="chip"] {
+    font-family: var(--font-ui) !important;
+    font-weight: 800;
+    letter-spacing: .015em;
+  }
+
+  small, .subtitle, .description, .muted, .label,
+  [class*="subtitle"], [class*="description"], [class*="label"] {
+    letter-spacing: -0.012em;
+  }
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
