@@ -1870,6 +1870,16 @@ h2{font-size:34px!important;line-height:.96}
 @media (prefers-reduced-motion:reduce){.gm-splash-inner,.gm-splash-line,.month-picker-shell.is-open .month-picker-menu{animation:none}}
 @media(max-width:760px){.month-picker-shell{min-width:0;width:100%}.month-picker-menu{max-height:300px}}
 </style>
+
+<style id="gm-month-layer-fix">
+/* Mantém o seletor de meses acima dos cards quando aberto */
+.topbar{position:relative;z-index:40}
+.actions{position:relative;z-index:50}
+.month-picker-shell{position:relative;z-index:60}
+.month-picker-shell.is-open{z-index:10000!important}
+.month-picker-shell.is-open .month-picker-menu{z-index:10001!important}
+.kpis,.hero-grid{position:relative;z-index:1}
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
