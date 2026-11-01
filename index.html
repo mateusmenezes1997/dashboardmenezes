@@ -2437,11 +2437,44 @@ function levelInfo(v){
  return{name:'Cobre',cls:'cobre',next:{name:'Prata',value:s.prata}};
 }
 function salesForMonth(m){return state.sales.filter(s=>monthKey(s.date)===m)}
+function openingForMonth(c,m){
+ const monthly=c.monthOpenings&&c.monthOpenings[m];
+ if(monthly)return{
+  total:Number(monthly.total)||0,
+  lar:Number(monthly.lar)||0,
+  motors:Number(monthly.motors)||0,
+  larQty:Number(monthly.larQty)||0,
+  motorsQty:Number(monthly.motorsQty)||0,
+  unclassifiedQty:Number(monthly.unclassifiedQty)||0
+ };
+ // Os campos legados representam exclusivamente o fechamento/base de outubro de 2026.
+ if(m==='2026-10')return{
+  total:Number(c.opening)||0,
+  lar:Number(c.openingLar)||0,
+  motors:Number(c.openingMotors)||0,
+  larQty:Number(c.openingLarQty)||0,
+  motorsQty:Number(c.openingMotorsQty)||0,
+  unclassifiedQty:Number(c.openingUnclassifiedQty)||0
+ };
+ return{total:0,lar:0,motors:0,larQty:0,motorsQty:0,unclassifiedQty:0};
+}
+function setOpeningForMonth(c,m,data){
+ c.monthOpenings=c.monthOpenings||{};
+ c.monthOpenings[m]={
+  total:Math.max(0,Number(data.total)||0),
+  lar:Math.max(0,Number(data.lar)||0),
+  motors:Math.max(0,Number(data.motors)||0),
+  larQty:Math.max(0,Math.round(Number(data.larQty)||0)),
+  motorsQty:Math.max(0,Math.round(Number(data.motorsQty)||0)),
+  unclassifiedQty:Math.max(0,Math.round(Number(data.unclassifiedQty)||0))
+ };
+}
 function totals(m){
  const monthSales=salesForMonth(m), by={}, larBy={}, motorsBy={}, qtyBy={}, larQtyBy={}, motorsQtyBy={}, unclassifiedQtyBy={};
  state.consultants.forEach(c=>{
-  by[c.id]=Number(c.opening)||0;larBy[c.id]=Number(c.openingLar)||0;motorsBy[c.id]=Number(c.openingMotors)||0;
-  larQtyBy[c.id]=Number(c.openingLarQty)||0;motorsQtyBy[c.id]=Number(c.openingMotorsQty)||0;unclassifiedQtyBy[c.id]=Number(c.openingUnclassifiedQty)||0;
+  const o=openingForMonth(c,m);
+  by[c.id]=o.total;larBy[c.id]=o.lar;motorsBy[c.id]=o.motors;
+  larQtyBy[c.id]=o.larQty;motorsQtyBy[c.id]=o.motorsQty;unclassifiedQtyBy[c.id]=o.unclassifiedQty;
   qtyBy[c.id]=larQtyBy[c.id]+motorsQtyBy[c.id]+unclassifiedQtyBy[c.id];
  });
  let lar=Object.values(larBy).reduce((a,b)=>a+b,0),motors=Object.values(motorsBy).reduce((a,b)=>a+b,0);
@@ -3087,7 +3120,14 @@ document.getElementById('saveEditSales').onclick=()=>{
   }
   const larQty=Math.max(0,Math.round(Number(document.getElementById('editQtyLar').value)||0)),motorsQty=Math.max(0,Math.round(Number(document.getElementById('editQtyMotors').value)||0)),unclassifiedQty=Math.max(0,Math.round(Number(document.getElementById('editQtyUnclassified').value)||0));
   if(larQty<booked.larQty||motorsQty<booked.motorsQty||unclassifiedQty<booked.unclassifiedQty){document.getElementById('editSalesError').textContent='As cotas não podem ficar abaixo dos lançamentos individuais já registrados.';return}
-  c.opening=Math.max(0,total-booked.total);c.openingLar=Math.max(0,lar-booked.lar);c.openingMotors=Math.max(0,motors-booked.motors);c.openingLarQty=Math.max(0,larQty-booked.larQty);c.openingMotorsQty=Math.max(0,motorsQty-booked.motorsQty);c.openingUnclassifiedQty=Math.max(0,unclassifiedQty-booked.unclassifiedQty);
+  setOpeningForMonth(c,m,{
+    total:Math.max(0,total-booked.total),
+    lar:Math.max(0,lar-booked.lar),
+    motors:Math.max(0,motors-booked.motors),
+    larQty:Math.max(0,larQty-booked.larQty),
+    motorsQty:Math.max(0,motorsQty-booked.motorsQty),
+    unclassifiedQty:Math.max(0,unclassifiedQty-booked.unclassifiedQty)
+  });
   save();closeEditSales();render();maybeAutoExportRanking();
 };
 
@@ -3374,6 +3414,7 @@ document.getElementById('importBackupFile').onchange=e=>{
  reader.readAsText(file,'utf-8');
 };
 document.getElementById('resetData').onclick=()=>{if(!requireManager())return;if(confirm('Restaurar a base inicial desta versão?')){state=clone(initialState);save();init()}};
+document.getElementById('monthFilter').addEventListener('change',()=>{render();renderTeam();});
 document.getElementById('exportRankCard').onclick=()=>exportRankingCard(false);
 document.getElementById('exportBtn').onclick=()=>{
  const m=document.getElementById('monthFilter').value,{by}=totals(m),rows=[['Posição','Consultor','Total vendido','Meta','Nível']];
@@ -3462,7 +3503,7 @@ const changePinBtn=document.getElementById('changeManagerPin');if(changePinBtn)c
 
 function init(){
  const now=new Date(),current=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
- document.getElementById('monthFilter').value='2026-10';
+ document.getElementById('monthFilter').value=current;
  document.getElementById('saleDate').value=now.toISOString().slice(0,10);
  syncSettings();render();initCurrencyInputs();
  applyAccessRole(sessionStorage.getItem('gestao_menezes_role')==='manager'?'manager':'viewer');
