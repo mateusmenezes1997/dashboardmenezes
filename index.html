@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="theme-color" content="#4a1020"/>
-<style>html{background:#4a1020}</style>
+<meta name="theme-color" content="#050506"/>
+<style>html{background:#050506}</style>
 <title>Gestão Menezes — Dashboard Premium Comercial</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1857,72 +1857,75 @@ h2{font-size:34px!important;line-height:.96}
 .month-picker-check{opacity:0;color:#d8b16a}.month-picker-option.is-selected .month-picker-check{opacity:1}
 @keyframes gmMenuIn{from{opacity:0;transform:translateY(-5px) scale(.99)}to{opacity:1;transform:none}}
 
-/* Abertura minimalista */
+/* Abertura executiva — preto, bordô e dourado */
 #gmSplash{
   position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;
   background:
-    radial-gradient(circle at 50% 40%,rgba(216,177,106,.16),transparent 30%),
-    radial-gradient(circle at 50% 62%,rgba(126,26,46,.24),transparent 38%),
-    linear-gradient(145deg,#5a1428 0%,#45101f 48%,#6a1930 100%);
-  transition:opacity .72s cubic-bezier(.2,.8,.2,1),visibility .72s ease
+    radial-gradient(ellipse at 50% 42%,rgba(115,18,39,.18) 0%,rgba(60,7,20,.08) 28%,transparent 56%),
+    linear-gradient(135deg,#030304 0%,#090709 52%,#040405 100%);
+  transition:opacity .78s cubic-bezier(.2,.8,.2,1),visibility .78s ease
 }
 #gmSplash:before{
-  content:"";position:absolute;inset:-18%;
+  content:"";position:absolute;inset:0;pointer-events:none;
   background:
-    conic-gradient(from 180deg at 50% 50%,transparent 0 35%,rgba(216,177,106,.055) 43%,transparent 51% 100%);
-  animation:gmAura 8s linear infinite;pointer-events:none
+    linear-gradient(115deg,transparent 0 41%,rgba(197,151,79,.035) 49%,transparent 57%),
+    linear-gradient(90deg,rgba(98,14,32,.11),transparent 18%,transparent 82%,rgba(98,14,32,.08));
+  opacity:.9
 }
 #gmSplash:after{
-  content:"";position:absolute;left:50%;top:50%;width:min(74vw,620px);height:min(74vw,620px);
-  transform:translate(-50%,-50%);border-radius:50%;
-  border:1px solid rgba(216,177,106,.08);
-  box-shadow:0 0 0 34px rgba(216,177,106,.015),0 0 100px rgba(126,26,46,.12);
-  pointer-events:none
+  content:"";position:absolute;left:50%;top:50%;width:min(72vw,760px);height:min(72vw,760px);
+  transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
+  border:1px solid rgba(198,154,83,.075);
+  box-shadow:0 0 0 1px rgba(255,255,255,.008),0 0 110px rgba(87,12,30,.10)
 }
 #gmSplash.gm-hide{opacity:0;visibility:hidden}
 .gm-splash-inner{
-  position:relative;z-index:2;text-align:center;padding:34px 34px 30px;
-  transform:translateY(3px);animation:gmSplashIn .85s cubic-bezier(.16,1,.3,1) both
+  position:relative;z-index:2;text-align:center;padding:40px 42px 34px;min-width:min(92vw,540px);
+  animation:gmSplashIn .95s cubic-bezier(.16,1,.3,1) both
 }
 .gm-splash-inner:before{
-  content:"";position:absolute;left:50%;top:4px;width:126px;height:126px;transform:translateX(-50%);
-  border-radius:50%;background:radial-gradient(circle,rgba(216,177,106,.10),rgba(126,26,46,.07) 48%,transparent 72%);
-  filter:blur(3px);animation:gmPulse 2.2s ease-in-out infinite;z-index:-1
+  content:"";position:absolute;left:50%;top:7px;width:118px;height:118px;transform:translateX(-50%);
+  border-radius:50%;z-index:-1;
+  background:radial-gradient(circle,rgba(145,21,48,.18),rgba(83,10,26,.07) 46%,transparent 72%);
+  filter:blur(7px)
 }
 .gm-splash-logo{
-  width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 22px;
+  width:104px;height:104px;object-fit:contain;display:block;margin:0 auto 27px;
   background:transparent!important;border:0!important;border-radius:0;
-  mix-blend-mode:screen;
-  filter:drop-shadow(0 0 12px rgba(216,177,106,.20)) drop-shadow(0 18px 36px rgba(0,0,0,.35));
-  animation:gmLogoFloat 2.6s ease-in-out infinite
+  mix-blend-mode:normal;
+  filter:drop-shadow(0 10px 28px rgba(0,0,0,.65)) drop-shadow(0 0 10px rgba(198,154,83,.12));
+  animation:gmLogoEnter 1.05s cubic-bezier(.16,1,.3,1) both
 }
 .gm-splash-kicker{
-  font-size:9px;letter-spacing:.38em;text-transform:uppercase;color:#aa9c91;
-  margin-bottom:10px;font-weight:800
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:8px;letter-spacing:.42em;text-transform:uppercase;color:#a99d90;
+  margin-bottom:13px;font-weight:800
 }
+.gm-splash-kicker:before,.gm-splash-kicker:after{
+  content:"";width:23px;height:1px;background:linear-gradient(90deg,transparent,rgba(198,154,83,.58))
+}
+.gm-splash-kicker:after{background:linear-gradient(90deg,rgba(198,154,83,.58),transparent)}
 .gm-splash-title{
-  margin:0;color:#faf6f2;font-size:clamp(25px,3.25vw,43px);font-weight:700;
-  letter-spacing:-.045em;text-shadow:0 8px 28px rgba(0,0,0,.28)
+  margin:0;color:#f4f0e9;font-family:"League Spartan",Inter,sans-serif;
+  font-size:clamp(27px,3.3vw,46px);font-weight:700;letter-spacing:-.035em;
+  text-shadow:0 12px 34px rgba(0,0,0,.52)
 }
 .gm-splash-sub{
-  margin-top:9px;color:#d8b16a;font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:800
+  margin-top:10px;color:#c69a53;font-size:10px;letter-spacing:.34em;text-transform:uppercase;font-weight:800
 }
 .gm-splash-line{
-  position:relative;width:96px;height:1px;margin:24px auto 0;overflow:visible;
-  background:linear-gradient(90deg,transparent,rgba(216,177,106,.38),transparent)
+  position:relative;width:142px;height:1px;margin:27px auto 0;
+  background:linear-gradient(90deg,transparent,rgba(198,154,83,.24),rgba(198,154,83,.72),rgba(198,154,83,.24),transparent);
+  transform-origin:center;animation:gmLineReveal 1.15s .25s cubic-bezier(.16,1,.3,1) both
 }
 .gm-splash-line:after{
-  content:"";position:absolute;top:0;left:0;width:34px;height:1px;
-  background:linear-gradient(90deg,transparent,#f4d594,transparent);
-  box-shadow:0 0 12px rgba(216,177,106,.38);
-  animation:gmScan 1.65s ease-in-out infinite
+  content:"";position:absolute;left:50%;top:-2px;width:5px;height:5px;transform:translateX(-50%) rotate(45deg);
+  background:#b98943;box-shadow:0 0 13px rgba(198,154,83,.34)
 }
-@keyframes gmSplashIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes gmLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.025)}}
-@keyframes gmPulse{0%,100%{opacity:.48;transform:translateX(-50%) scale(.94)}50%{opacity:.92;transform:translateX(-50%) scale(1.08)}}
-@keyframes gmScan{0%{opacity:0;transform:translateX(-8px)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateX(70px)}}
-@keyframes gmAura{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.gm-splash-inner,.gm-splash-logo,.gm-splash-inner:before,.gm-splash-line:after,#gmSplash:before,.month-picker-shell.is-open .month-picker-menu{animation:none}}
+@keyframes gmSplashIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes gmLogoEnter{from{opacity:0;transform:scale(.90);filter:blur(5px) drop-shadow(0 10px 28px rgba(0,0,0,.65))}to{opacity:1;transform:scale(1);filter:blur(0) drop-shadow(0 10px 28px rgba(0,0,0,.65)) drop-shadow(0 0 10px rgba(198,154,83,.12))}}
+@keyframes gmLineReveal{from{opacity:0;transform:scaleX(.15)}to{opacity:1;transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.gm-splash-inner,.gm-splash-logo,.gm-splash-line{animation:none}}
 @media(max-width:760px){.month-picker-shell{min-width:0;width:100%}.month-picker-menu{max-height:300px}}
 </style>
 
