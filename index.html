@@ -1735,6 +1735,96 @@ h2{font-size:34px!important;line-height:.96}
   #sale .sale-total-preview span{text-align:left}
 }
 
+
+/* premium-month-picker */
+.month-picker-shell{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  min-width:240px;
+  height:54px;
+  border-radius:18px;
+  padding:0 48px 0 46px;
+  background:
+    linear-gradient(135deg,rgba(126,26,46,.16),rgba(12,9,11,.94) 58%),
+    #0d090b;
+  border:1px solid rgba(211,172,103,.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 10px 30px rgba(0,0,0,.16);
+  transition:.22s ease;
+  overflow:hidden;
+}
+.month-picker-shell:before{
+  content:"";
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(217,176,103,.82),transparent);
+  opacity:.48;
+}
+.month-picker-shell:hover,
+.month-picker-shell:focus-within{
+  transform:translateY(-1px);
+  border-color:rgba(222,184,112,.56);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 14px 32px rgba(0,0,0,.22),
+    0 0 0 3px rgba(130,28,49,.08);
+}
+.month-picker-icon{
+  position:absolute;
+  left:17px;
+  top:50%;
+  transform:translateY(-50%);
+  display:grid;
+  place-items:center;
+  color:#d8b16a;
+  pointer-events:none;
+}
+.month-select.control{
+  width:100%;
+  height:100%;
+  min-width:0;
+  padding:0 !important;
+  margin:0;
+  border:0 !important;
+  outline:0;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#f7f2ef;
+  font:700 15px/1.1 inherit;
+  letter-spacing:-.01em;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+}
+.month-select option{
+  background:#140d10;
+  color:#f7f2ef;
+}
+.month-picker-chevron{
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-58%);
+  color:#d8b16a;
+  font-size:22px;
+  line-height:1;
+  pointer-events:none;
+  transition:transform .2s ease;
+}
+.month-picker-shell:focus-within .month-picker-chevron{
+  transform:translateY(-45%) rotate(180deg);
+}
+@media (max-width:760px){
+  .month-picker-shell{
+    min-width:210px;
+    width:100%;
+  }
+}
 </style>
 </head>
 <body>
@@ -1763,7 +1853,16 @@ h2{font-size:34px!important;line-height:.96}
   <div class="viewer-note">Modo consultor: visualização liberada. Lançamentos, edição de vendas, cadastro de consultores, fotos e configurações são exclusivos do gestor.</div>
   <div class="topbar">
     <div><div class="eyebrow">Gestão Menezes</div><h2>Central de Performance</h2><div class="sub">Acompanhamento de performance com visual mais comercial, leitura rápida e foco em resultado.</div></div>
-    <div class="actions"><input id="monthFilter" class="control" type="month"/><button class="btn" id="exportBtn">Exportar CSV</button><button class="btn dark" id="exportRankCard">Baixar card ranking 4K</button><label style="display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted);font-weight:800"><input id="autoRankExport" type="checkbox" checked/> Exportar ranking automaticamente</label><button class="btn primary manager-only" data-go="sale">+ Nova venda</button></div>
+    <div class="actions"><div class="month-picker-shell" title="Selecionar período">
+  <span class="month-picker-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="3"></rect>
+      <path d="M16 3v4M8 3v4M3 10h18"></path>
+    </svg>
+  </span>
+  <select id="monthFilter" class="control month-select" aria-label="Selecionar mês"><option value="2025-01">Janeiro 2025</option><option value="2025-02">Fevereiro 2025</option><option value="2025-03">Março 2025</option><option value="2025-04">Abril 2025</option><option value="2025-05">Maio 2025</option><option value="2025-06">Junho 2025</option><option value="2025-07">Julho 2025</option><option value="2025-08">Agosto 2025</option><option value="2025-09">Setembro 2025</option><option value="2025-10">Outubro 2025</option><option value="2025-11">Novembro 2025</option><option value="2025-12">Dezembro 2025</option><option value="2026-01">Janeiro 2026</option><option value="2026-02">Fevereiro 2026</option><option value="2026-03">Março 2026</option><option value="2026-04">Abril 2026</option><option value="2026-05">Maio 2026</option><option value="2026-06">Junho 2026</option><option value="2026-07">Julho 2026</option><option value="2026-08">Agosto 2026</option><option value="2026-09">Setembro 2026</option><option value="2026-10">Outubro 2026</option><option value="2026-11">Novembro 2026</option><option value="2026-12">Dezembro 2026</option><option value="2027-01">Janeiro 2027</option><option value="2027-02">Fevereiro 2027</option><option value="2027-03">Março 2027</option><option value="2027-04">Abril 2027</option><option value="2027-05">Maio 2027</option><option value="2027-06">Junho 2027</option><option value="2027-07">Julho 2027</option><option value="2027-08">Agosto 2027</option><option value="2027-09">Setembro 2027</option><option value="2027-10">Outubro 2027</option><option value="2027-11">Novembro 2027</option><option value="2027-12">Dezembro 2027</option><option value="2028-01">Janeiro 2028</option><option value="2028-02">Fevereiro 2028</option><option value="2028-03">Março 2028</option><option value="2028-04">Abril 2028</option><option value="2028-05">Maio 2028</option><option value="2028-06">Junho 2028</option><option value="2028-07">Julho 2028</option><option value="2028-08">Agosto 2028</option><option value="2028-09">Setembro 2028</option><option value="2028-10">Outubro 2028</option><option value="2028-11">Novembro 2028</option><option value="2028-12">Dezembro 2028</option></select>
+  <span class="month-picker-chevron" aria-hidden="true">⌄</span>
+</div><button class="btn" id="exportBtn">Exportar CSV</button><button class="btn dark" id="exportRankCard">Baixar card ranking 4K</button><label style="display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted);font-weight:800"><input id="autoRankExport" type="checkbox" checked/> Exportar ranking automaticamente</label><button class="btn primary manager-only" data-go="sale">+ Nova venda</button></div>
   </div>
 
   <div class="kpis">
