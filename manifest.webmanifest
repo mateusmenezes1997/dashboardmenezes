@@ -1,0 +1,19 @@
+{
+  "name": "Dashboard Gestão Menezes",
+  "short_name": "Gestão Menezes",
+  "description": "Dashboard comercial da Gestão Menezes — Ademicon",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070709",
+  "theme_color": "#070709",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
