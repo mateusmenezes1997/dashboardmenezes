@@ -1687,6 +1687,54 @@ h2{font-size:34px!important;line-height:.96}
   }
 }
 
+
+/* Sale total calculator */
+#sale .sale-field-hint{
+  display:block;
+  margin-top:7px;
+  color:#8f858b;
+  font-size:9px;
+  line-height:1.4;
+}
+#sale .sale-total-preview{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:18px 20px;
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 92% 0%,rgba(239,212,154,.08),transparent 34%),
+    linear-gradient(135deg,#171014,#0e090c);
+  border:1px solid rgba(239,212,154,.14);
+}
+#sale .sale-total-preview small{
+  display:block;
+  color:#a79da2;
+  font-size:9px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+}
+#sale .sale-total-preview b{
+  display:block;
+  margin-top:5px;
+  color:#efd392;
+  font-family:"League Spartan",Sora,sans-serif;
+  font-size:28px;
+  line-height:1;
+}
+#sale .sale-total-preview span{
+  color:#b9adb2;
+  font-size:11px;
+  font-weight:700;
+  text-align:right;
+}
+@media(max-width:650px){
+  #sale .sale-total-preview{align-items:flex-start;flex-direction:column}
+  #sale .sale-total-preview span{text-align:left}
+}
+
 </style>
 </head>
 <body>
@@ -1912,13 +1960,17 @@ h2{font-size:34px!important;line-height:.96}
     <div class="form-grid">
       <div class="field"><label>Consultor</label><select id="saleConsultant"></select></div>
       <div class="field"><label>Produto</label><select id="saleProduct"><option value="nao_definido">Não definido</option><option value="lar">Consórcio Lar</option><option value="motors">Consórcio Motors</option></select></div>
-      <div class="field"><label>Valor da venda</label><input id="saleAmount" data-money="1" inputmode="decimal" placeholder="R$ 0,00"/></div>
-      <div class="field"><label>Quantidade de cotas</label><input id="saleQty" type="number" min="1" step="1" value="1"/></div>
+      <div class="field"><label>Valor por cota</label><input id="saleAmount" data-money="1" inputmode="decimal" placeholder="R$ 0,00"/><small class="sale-field-hint">Informe o crédito de cada cota.</small></div>
+      <div class="field"><label>Quantidade de cotas</label><input id="saleQty" type="number" min="1" step="1" value="1"/><small class="sale-field-hint">O total será calculado automaticamente.</small></div>
+      <div class="sale-total-preview" style="grid-column:1/-1">
+        <div><small>Total da venda</small><b id="saleTotalPreview">R$ 0,00</b></div>
+        <span id="saleTotalFormula">1 cota × R$ 0,00</span>
+      </div>
       <div class="field"><label>Data da venda</label><input id="saleDate" type="date"/></div>
       <div class="field" style="grid-column:1/-1"><label>Observação</label><input id="saleNote" placeholder="Cliente, origem ou observação"/></div>
     </div>
     <div class="form-actions"><button class="btn primary" id="saveSale">Salvar venda</button><button class="btn" data-go="dashboard">Voltar</button></div>
-    <div class="note">O saldo inicial dos consultores não foi dividido entre Lar e Motors. Somente novos lançamentos serão classificados quando você informar o produto.</div>
+    <div class="note">O valor informado é por cota. Ex.: R$ 100.000,00 × 8 cotas = R$ 800.000,00 no total da venda.</div>
   </div>
 </section>
 
@@ -3347,12 +3399,37 @@ document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>switchView(b.d
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>switchView(b.dataset.go));
 document.getElementById('monthFilter').onchange=render;
 
+function updateSaleTotalPreview(){
+ const unitAmount=Math.max(0,parseNumber(document.getElementById('saleAmount')?.value)||0);
+ const qty=Math.max(1,Math.round(Number(document.getElementById('saleQty')?.value)||1));
+ const total=unitAmount*qty;
+ const preview=document.getElementById('saleTotalPreview');
+ const formula=document.getElementById('saleTotalFormula');
+ if(preview)preview.textContent=money(total);
+ if(formula)formula.textContent=qty+' cota'+(qty===1?'':'s')+' × '+money(unitAmount);
+}
+document.getElementById('saleAmount').addEventListener('input',updateSaleTotalPreview);
+document.getElementById('saleAmount').addEventListener('blur',updateSaleTotalPreview);
+document.getElementById('saleQty').addEventListener('input',updateSaleTotalPreview);
+updateSaleTotalPreview();
+
 document.getElementById('saveSale').onclick=()=>{
  if(!requireManager())return;
- const consultantId=document.getElementById('saleConsultant').value,product=document.getElementById('saleProduct').value,amount=parseNumber(document.getElementById('saleAmount').value),qty=Math.max(0,Math.round(Number(document.getElementById('saleQty').value)||0)),date=document.getElementById('saleDate').value,note=document.getElementById('saleNote').value.trim();
- if(!consultantId||!amount||amount<=0||!qty||!date){alert('Preencha consultor, valor, quantidade de cotas e data.');return}
- state.sales.push({id:'s'+Date.now(),consultantId,product,amount,qty,date,note});save();
- document.getElementById('saleAmount').value='';document.getElementById('saleQty').value='1';document.getElementById('saleNote').value='';document.getElementById('monthFilter').value=monthKey(date);render();switchView('dashboard');maybeAutoExportRanking();
+ const consultantId=document.getElementById('saleConsultant').value;
+ const product=document.getElementById('saleProduct').value;
+ const unitAmount=parseNumber(document.getElementById('saleAmount').value);
+ const qty=Math.max(0,Math.round(Number(document.getElementById('saleQty').value)||0));
+ const date=document.getElementById('saleDate').value;
+ const note=document.getElementById('saleNote').value.trim();
+ if(!consultantId||!unitAmount||unitAmount<=0||!qty||!date){alert('Preencha consultor, valor por cota, quantidade de cotas e data.');return}
+ const amount=unitAmount*qty;
+ state.sales.push({id:'s'+Date.now(),consultantId,product,amount,unitAmount,qty,date,note});save();
+ document.getElementById('saleAmount').value='';
+ document.getElementById('saleQty').value='1';
+ document.getElementById('saleNote').value='';
+ updateSaleTotalPreview();
+ document.getElementById('monthFilter').value=monthKey(date);
+ render();switchView('dashboard');maybeAutoExportRanking();
 };
 document.getElementById('addConsultant').onclick=()=>{
  if(!requireManager())return;
