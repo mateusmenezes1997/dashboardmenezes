@@ -2009,6 +2009,70 @@ h2{font-size:34px!important;line-height:.96}
     letter-spacing: -0.012em;
   }
 </style>
+
+<style id="gm-commission-goal-compact-v2">
+#commission .commission-highlight.commission-goal-card{
+  display:block!important;
+  padding:16px 18px!important;
+  margin-top:4px!important;
+  border-radius:16px!important;
+  min-height:0!important;
+}
+#commission .commission-goal-card .commission-goal-copy{
+  max-width:680px;
+}
+#commission .commission-goal-card .commission-goal-copy strong{
+  display:block;
+  font-size:13px!important;
+  line-height:1.35;
+  letter-spacing:-.01em;
+}
+#commission .commission-goal-card .commission-goal-copy span{
+  display:block;
+  margin-top:6px!important;
+  font-size:10px!important;
+  line-height:1.65!important;
+  color:#ad9fa4!important;
+}
+#commission .commission-goal-card .commission-goal-copy span b{
+  color:#f2e8dc!important;
+  font-weight:800;
+}
+#commission .commission-goal-card .commission-goal-value{
+  margin-top:13px;
+  padding-top:12px;
+  border-top:1px solid rgba(240,211,146,.12);
+}
+#commission .commission-goal-card .commission-goal-value small{
+  display:block;
+  color:#9d9095;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+#commission .commission-goal-card #commissionMonthlyNet{
+  display:inline-block;
+  margin-top:5px;
+  font-family:"League Spartan",Sora,sans-serif!important;
+  font-size:34px!important;
+  line-height:1!important;
+  letter-spacing:-.035em;
+  color:var(--gold-2)!important;
+  white-space:nowrap;
+  transform-origin:left center;
+  transition:transform .2s ease,filter .2s ease,text-shadow .2s ease;
+}
+#commission .commission-goal-card:hover #commissionMonthlyNet{
+  transform:scale(1.025);
+  filter:brightness(1.1);
+  text-shadow:0 0 18px rgba(240,211,146,.22);
+}
+@media(max-width:650px){
+  #commission .commission-highlight.commission-goal-card{padding:15px!important}
+  #commission .commission-goal-card #commissionMonthlyNet{font-size:30px!important;white-space:normal}
+}
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -2324,12 +2388,15 @@ h2{font-size:34px!important;line-height:.96}
         <div class="commission-disclaimer">
           <strong>Simulação que aproxima da realidade.</strong> O valor final pode variar conforme grupo, aditivo, parcela furo, situação das parcelas e regras contratuais.
         </div>
-        <div class="commission-highlight" style="margin-top:4px">
-          <div>
-            <strong>Batendo 5MM no mês, quanto isso representa no bolso?</strong>
-            <span>Com 2% de comissão bruta e os descontos estimados do simulador, a projeção é de <b id="commissionAnnualProjection">R$ 963.240,00 líquidos em 12 meses</b> mantendo essa meta todos os meses.</span>
+        <div class="commission-highlight commission-goal-card">
+          <div class="commission-goal-copy">
+            <strong>Batendo 5MM no mês</strong>
+            <span>Com 2% de comissão bruta e os descontos estimados do simulador, a projeção é de <b id="commissionAnnualProjection">R$ 963.240,00 líquidos em 12 meses</b>, mantendo essa performance todos os meses.</span>
           </div>
-          <div class="big" id="commissionMonthlyNet">R$ 80.270,00/mês</div>
+          <div class="commission-goal-value">
+            <small>Líquido estimado / mês</small>
+            <div class="big" id="commissionMonthlyNet">R$ 80.270,00</div>
+          </div>
         </div>
       </div>
 
@@ -3860,7 +3927,7 @@ function renderCommissionSimulator(){
   const monthlyGoalNet=monthlyGoalCredit*baseRate*(1-totalTaxRate);
   const annualGoalNet=monthlyGoalNet*12;
   const monthlyGoalEl=document.getElementById('commissionMonthlyNet');
-  if(monthlyGoalEl)monthlyGoalEl.textContent=money(monthlyGoalNet)+'/mês';
+  if(monthlyGoalEl)monthlyGoalEl.textContent=money(monthlyGoalNet);
   const annualGoalEl=document.getElementById('commissionAnnualProjection');
   if(annualGoalEl)annualGoalEl.textContent=money(annualGoalNet)+' líquidos em 12 meses';
   const configs={
