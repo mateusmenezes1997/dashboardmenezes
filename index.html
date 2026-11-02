@@ -520,27 +520,27 @@ body[data-role="viewer"] .viewer-note{display:block}
 
 
 /* V40 — correção do Mix Comercial dos consultores */
-#team .consultor-grid > .mini-card:nth-child(2){
+#team .consultor-grid > .mini-card.mix-card-full{
   grid-column:1 / -1;
   overflow:hidden;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-wrap-clean{
+#team .consultor-grid > .mini-card.mix-card-full .mix-wrap-clean{
   grid-template-columns:minmax(180px,230px) minmax(0,1fr);
   gap:24px;
   width:100%;
   min-width:0;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-donut{
+#team .consultor-grid > .mini-card.mix-card-full .mix-donut{
   width:210px;
   height:210px;
   max-width:100%;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-legend-clean{
+#team .consultor-grid > .mini-card.mix-card-full .mix-legend-clean{
   width:100%;
   min-width:0;
   gap:10px;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-row{
+#team .consultor-grid > .mini-card.mix-card-full .mix-row{
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(150px,auto);
   align-items:center;
@@ -550,23 +550,23 @@ body[data-role="viewer"] .viewer-note{display:block}
   padding:14px 16px;
   overflow:hidden;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-row .left{
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left{
   min-width:0;
   overflow:hidden;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-row .left>div{
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left>div{
   min-width:0;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-row .left b{
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left b{
   white-space:normal;
   overflow-wrap:anywhere;
   line-height:1.25;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-row .left small{
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left small{
   white-space:normal;
   line-height:1.35;
 }
-#team .consultor-grid > .mini-card:nth-child(2) .mix-row .value{
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .value{
   font-size:16px;
   line-height:1.2;
   text-align:right;
@@ -576,14 +576,14 @@ body[data-role="viewer"] .viewer-note{display:block}
   text-overflow:ellipsis;
 }
 @media(max-width:960px){
-  #team .consultor-grid > .mini-card:nth-child(2){grid-column:auto}
-  #team .consultor-grid > .mini-card:nth-child(2) .mix-wrap-clean{grid-template-columns:1fr}
-  #team .consultor-grid > .mini-card:nth-child(2) .mix-row{grid-template-columns:minmax(0,1fr) auto}
-  #team .consultor-grid > .mini-card:nth-child(2) .mix-donut{width:190px;height:190px}
+  #team .consultor-grid > .mini-card.mix-card-full{grid-column:auto}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-wrap-clean{grid-template-columns:1fr}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-row{grid-template-columns:minmax(0,1fr) auto}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-donut{width:190px;height:190px}
 }
 @media(max-width:560px){
-  #team .consultor-grid > .mini-card:nth-child(2) .mix-row{grid-template-columns:1fr;gap:8px}
-  #team .consultor-grid > .mini-card:nth-child(2) .mix-row .value{text-align:left;white-space:normal}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-row{grid-template-columns:1fr;gap:8px}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-row .value{text-align:left;white-space:normal}
 }
 
 
@@ -2081,6 +2081,86 @@ h2{font-size:34px!important;line-height:.96}
   #commission .commission-goal-card #commissionMonthlyNet{font-size:30px!important;white-space:normal}
 }
 </style>
+
+<style id="gm-consultant-countdown-v1">
+#team .countdown-card{
+  position:relative;
+  min-height:0;
+  padding:18px 20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:12px;
+  overflow:hidden;
+  border-color:rgba(213,171,103,.34);
+  background:
+    radial-gradient(circle at 100% 0%,rgba(126,31,57,.24),transparent 42%),
+    radial-gradient(circle at 8% 100%,rgba(213,171,103,.08),transparent 36%),
+    linear-gradient(145deg,#13181f 0%,#10151b 58%,#151014 100%);
+  box-shadow:0 16px 36px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.025);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+#team .countdown-card::after{
+  content:'';
+  position:absolute;
+  inset:auto -18% -48% 30%;
+  height:90px;
+  background:radial-gradient(ellipse,rgba(213,171,103,.16),transparent 66%);
+  pointer-events:none;
+}
+#team .countdown-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(240,203,140,.56);
+  box-shadow:0 20px 42px rgba(0,0,0,.30),0 0 24px rgba(213,171,103,.10);
+}
+#team .countdown-head{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}
+#team .countdown-kicker{display:flex;align-items:center;gap:8px;color:#e3bd76;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#team .countdown-icon{width:27px;height:27px;border-radius:10px;display:grid;place-items:center;border:1px solid rgba(213,171,103,.28);background:rgba(213,171,103,.07);color:#efc97f;flex:none}
+#team .countdown-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#team .countdown-status{display:inline-flex;align-items:center;gap:6px;color:#8f99a5;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+#team .countdown-status i{width:6px;height:6px;border-radius:50%;background:#d5ab67;box-shadow:0 0 0 4px rgba(213,171,103,.08);animation:gmCountdownDot 2.4s ease-in-out infinite}
+#team .countdown-main{display:grid;grid-template-columns:auto minmax(0,1fr);gap:17px;align-items:center;position:relative;z-index:1}
+#team .countdown-days{display:flex;align-items:flex-end;gap:7px;min-width:0}
+#team .countdown-days strong{
+  display:block;
+  color:#f3ce83;
+  font-family:'League Spartan','Manrope',sans-serif;
+  font-size:54px;
+  line-height:.78;
+  letter-spacing:-.055em;
+  font-weight:800;
+  text-shadow:0 0 18px rgba(213,171,103,.18);
+  animation:gmCountdownNumber 3s ease-in-out infinite;
+}
+#team .countdown-days span{display:block;color:#fff;font-size:14px;line-height:1;font-weight:900;letter-spacing:.07em;text-transform:uppercase;padding-bottom:3px}
+#team .countdown-copy{min-width:0;padding-left:16px;border-left:1px solid rgba(213,171,103,.18)}
+#team .countdown-copy b{display:block;color:#fff;font-size:16px;line-height:1.15;letter-spacing:-.02em}
+#team .countdown-copy p{margin:6px 0 0;color:#aeb6c0;font-size:10px;line-height:1.45}
+#team .countdown-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);position:relative;z-index:1}
+#team .countdown-footer span{color:#89939e;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+#team .countdown-footer b{color:#e6c47f;font-size:11px;white-space:nowrap}
+#team .countdown-card.urgent{border-color:rgba(222,166,70,.48)}
+#team .countdown-card.urgent .countdown-days strong{color:#ffd58a;text-shadow:0 0 22px rgba(225,174,76,.28)}
+#team .countdown-card.critical{border-color:rgba(205,70,78,.48);background:radial-gradient(circle at 100% 0%,rgba(139,22,47,.34),transparent 46%),linear-gradient(145deg,#15171d,#121216 60%,#180d12)}
+#team .countdown-card.critical .countdown-status i{background:#e25b62;box-shadow:0 0 0 4px rgba(226,91,98,.10)}
+#team .countdown-card.critical .countdown-days strong{color:#f1bf72;text-shadow:0 0 24px rgba(213,89,78,.22)}
+@keyframes gmCountdownNumber{0%,100%{transform:translateY(0) scale(1);filter:brightness(1)}50%{transform:translateY(-2px) scale(1.025);filter:brightness(1.09)}}
+@keyframes gmCountdownDot{0%,100%{opacity:.55;transform:scale(.88)}50%{opacity:1;transform:scale(1.12)}}
+@media(max-width:960px){
+  #team .countdown-main{grid-template-columns:1fr}
+  #team .countdown-copy{padding-left:0;padding-top:10px;border-left:0;border-top:1px solid rgba(213,171,103,.14)}
+  #team .countdown-head{align-items:flex-start}
+}
+@media(max-width:560px){
+  #team .countdown-card{padding:17px}
+  #team .countdown-days strong{font-size:48px}
+  #team .countdown-footer{align-items:flex-start;flex-direction:column;gap:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  #team .countdown-days strong,#team .countdown-status i{animation:none}
+}
+</style>
+
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -2666,7 +2746,33 @@ h2{font-size:34px!important;line-height:.96}
           </div>
         </div>
 
-        <div class="mini-card">
+        <div class="mini-card countdown-card" id="consultantCountdownCard">
+          <div class="countdown-head">
+            <div class="countdown-kicker">
+              <span class="countdown-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"></circle><path d="M12 7.5v5l3.3 2"></path></svg>
+              </span>
+              <span>Contagem regressiva</span>
+            </div>
+            <span class="countdown-status" id="consultantCountdownStatus"><i></i>Mês em andamento</span>
+          </div>
+          <div class="countdown-main">
+            <div class="countdown-days">
+              <strong id="consultantDaysLeft">--</strong>
+              <span id="consultantDaysLabel">dias</span>
+            </div>
+            <div class="countdown-copy">
+              <b id="consultantCountdownTitle">para o fim do mês</b>
+              <p id="consultantCountdownMessage">O mês está correndo. Sua produção precisa reagir agora.</p>
+            </div>
+          </div>
+          <div class="countdown-footer">
+            <span>Meta do mês</span>
+            <b>R$ 5.000.000,00</b>
+          </div>
+        </div>
+
+        <div class="mini-card mix-card-full">
           <div class="mix-header"><h4>Mix comercial</h4><span>Lar x Motors</span></div>
           <div class="mix-wrap-clean">
             <div class="mix-donut" id="consultantPie"><div class="mix-center"><strong id="consultantPiePct">0%</strong><small>classificado</small></div></div>
@@ -3761,7 +3867,63 @@ function renderTeam(){
  document.getElementById('consultantPiePct').textContent=(pieBase?((classified/pieBase)*100).toFixed(1).replace('.',','):0)+'%';
  document.getElementById('consultantMessage').textContent=msg;
  document.getElementById('consultantNextStep').textContent=lvl.next?('Faltam '+money(needs)+' para bater 5MM'):'Meta batida • palco + presente com Leandro Filipak';
+ 
  document.getElementById('consultantPotential').textContent='Meta individual de '+money(target);
+ const countdownCard=document.getElementById('consultantCountdownCard');
+ const daysLeftEl=document.getElementById('consultantDaysLeft');
+ const daysLabelEl=document.getElementById('consultantDaysLabel');
+ const countdownTitleEl=document.getElementById('consultantCountdownTitle');
+ const countdownMessageEl=document.getElementById('consultantCountdownMessage');
+ const countdownStatusEl=document.getElementById('consultantCountdownStatus');
+ if(countdownCard&&daysLeftEl&&daysLabelEl&&countdownTitleEl&&countdownMessageEl&&countdownStatusEl){
+   const parts=String(m||'').split('-').map(Number);
+   const selectedYear=parts[0],selectedMonth=parts[1];
+   const now=new Date();
+   const currentYear=now.getFullYear(),currentMonth=now.getMonth()+1;
+   const daysInSelectedMonth=selectedYear&&selectedMonth?new Date(selectedYear,selectedMonth,0).getDate():0;
+   const selectedIndex=(selectedYear*12)+selectedMonth;
+   const currentIndex=(currentYear*12)+currentMonth;
+   let daysLeft=0;
+   let title='para o fim do mês';
+   let message='O mês está correndo. Sua produção precisa reagir agora.';
+   let status='Mês em andamento';
+   countdownCard.classList.remove('urgent','critical');
+   if(selectedIndex===currentIndex){
+     daysLeft=Math.max(0,daysInSelectedMonth-now.getDate());
+     if(daysLeft===0){
+       title='último dia do mês';
+       message='Hoje é fechamento. Cada movimento conta.';
+       status='Fechamento hoje';
+       countdownCard.classList.add('critical');
+     }else if(daysLeft<=5){
+       message='Reta final. Agora é execução, intensidade e fechamento.';
+       status='Reta final';
+       countdownCard.classList.add('critical');
+     }else if(daysLeft<=10){
+       message='O mês entrou na reta decisiva. Seu ritmo precisa subir agora.';
+       status='Atenção ao ritmo';
+       countdownCard.classList.add('urgent');
+     }else{
+       message='O mês está correndo. Sua produção precisa reagir agora.';
+     }
+   }else if(selectedIndex<currentIndex){
+     daysLeft=0;
+     title='mês encerrado';
+     message='Este período já foi encerrado. Consulte o resultado consolidado acima.';
+     status='Período encerrado';
+   }else{
+     daysLeft=daysInSelectedMonth;
+     title='dias no mês selecionado';
+     message='Este período ainda não começou. A contagem regressiva inicia no primeiro dia.';
+     status='Mês futuro';
+   }
+   daysLeftEl.textContent=String(daysLeft);
+   daysLabelEl.textContent=daysLeft===1?'dia':'dias';
+   countdownTitleEl.textContent=title;
+   countdownMessageEl.textContent=message;
+   countdownStatusEl.innerHTML='<i></i>'+status;
+ }
+
  const pie=document.getElementById('consultantPie'); pie.style.background=pieBase?('conic-gradient(#d52b38 0 '+larPct+'%, #c89c58 '+larPct+'% '+(larPct+motorsPct)+'%, #313b48 '+(larPct+motorsPct)+'% 100%)'):'conic-gradient(#313b48 0 100%)';
  document.getElementById('consultantPieLegend').innerHTML=[{label:'Imóveis (Lar)',value:c.lar,pct:larPct,qty:c.larQty,color:'#d52b38'},{label:'Motors',value:c.motors,pct:motorsPct,qty:c.motorsQty,color:'#c89c58'}].map(item=>'<div class="mix-row"><div class="left"><span class="dot" style="background:'+item.color+'"></span><div><b>'+item.label+'</b><small>'+item.qty+' cota'+(item.qty===1?'':'s')+' • '+item.pct.toFixed(1).replace('.',',')+'% da produção</small></div></div><div class="value">'+money(item.value)+'</div></div>').join('') + (c.unclassified>0?('<div class="mix-row"><div class="left"><span class="dot" style="background:#313b48"></span><div><b>Não classificado</b><small>'+c.unclassifiedQty+' cota'+(c.unclassifiedQty===1?'':'s')+' • '+unPct.toFixed(1).replace('.',',')+'% da produção</small></div></div><div class="value">'+money(c.unclassified)+'</div></div>'):'');
  const teamEditor=document.getElementById('consultantTeamEditor');
