@@ -2326,10 +2326,10 @@ h2{font-size:34px!important;line-height:.96}
         </div>
         <div class="commission-highlight" style="margin-top:4px">
           <div>
-            <strong>Agora imagine bater 5MM todos os meses.</strong>
-            <span>Em 12 meses, seriam R$ 60 milhões em crédito vendido. Mantendo a referência de 2% e os mesmos descontos estimados do simulador, o potencial líquido aproximado no ano seria:</span>
+            <strong>Batendo 5MM no mês, quanto isso representa no bolso?</strong>
+            <span>Com 2% de comissão bruta e os descontos estimados do simulador, a projeção é de <b id="commissionAnnualProjection">R$ 963.240,00 líquidos em 12 meses</b> mantendo essa meta todos os meses.</span>
           </div>
-          <div class="big" id="commissionAnnualNet">R$ 963.240,00</div>
+          <div class="big" id="commissionMonthlyNet">R$ 80.270,00/mês</div>
         </div>
       </div>
 
@@ -3856,10 +3856,13 @@ function renderCommissionSimulator(){
   const taxes=gross*totalTaxRate;
   const net=Math.max(0,gross-taxes);
   const netPct=credit?(net/credit)*100:0;
-  const annualGoalCredit=5000000*12;
-  const annualGoalNet=annualGoalCredit*baseRate*(1-totalTaxRate);
-  const annualGoalEl=document.getElementById('commissionAnnualNet');
-  if(annualGoalEl)annualGoalEl.textContent=money(annualGoalNet);
+  const monthlyGoalCredit=5000000;
+  const monthlyGoalNet=monthlyGoalCredit*baseRate*(1-totalTaxRate);
+  const annualGoalNet=monthlyGoalNet*12;
+  const monthlyGoalEl=document.getElementById('commissionMonthlyNet');
+  if(monthlyGoalEl)monthlyGoalEl.textContent=money(monthlyGoalNet)+'/mês';
+  const annualGoalEl=document.getElementById('commissionAnnualProjection');
+  if(annualGoalEl)annualGoalEl.textContent=money(annualGoalNet)+' líquidos em 12 meses';
   const configs={
     motors13:{count:13,label:'MOTORS • 13x linear',mode:'Distribuição linear',rows:[['Parcelas 01 a 13',baseRate/13,13]]},
     lar100:{count:11,label:'LAR • 100%',mode:'Distribuição linear estimada',rows:[['Parcelas 01 a 11',baseRate/11,11]]},
