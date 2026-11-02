@@ -1,63 +1,97 @@
-const VERSION = "gm-pwa-v3";
+const VERSION = "gm-pwa-v4";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
 const GOAL_STYLE = `
-<style id="gm-goal-card-v3">
+<style id="gm-goal-card-v4">
 .commission-highlight.commission-goal-card{
   display:grid !important;
-  grid-template-columns:minmax(260px,.78fr) minmax(0,1.72fr);
+  grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr);
   align-items:center;
-  column-gap:46px;
-  padding-left:36px !important;
-  padding-right:42px !important;
+  gap:48px;
+  min-height:238px;
+  padding:34px 46px !important;
+  overflow:hidden;
 }
 .commission-goal-card .commission-goal-copy{
   min-width:0;
-  max-width:390px;
+  width:100%;
+  max-width:590px;
 }
 .commission-goal-card .commission-goal-copy strong{
   display:block;
-  max-width:360px;
-  line-height:1.28 !important;
-  margin-bottom:12px !important;
+  max-width:560px;
+  font-size:clamp(22px,2.15vw,30px) !important;
+  line-height:1.18 !important;
+  letter-spacing:-.025em;
+  margin:0 0 16px !important;
 }
 .commission-goal-card .commission-goal-copy span{
   display:block;
-  max-width:360px;
-  line-height:1.48 !important;
+  max-width:590px;
+  font-size:16px !important;
+  line-height:1.55 !important;
 }
 .commission-goal-card #commissionMonthlyNet{
-  display:flex !important;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  white-space:nowrap;
+  min-width:0;
   width:100%;
-  font-size:clamp(46px,6.1vw,76px) !important;
-  line-height:1 !important;
+  display:flex !important;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  text-align:right;
+  white-space:nowrap;
+  font-size:clamp(40px,4.45vw,52px) !important;
+  font-weight:900 !important;
+  line-height:.98 !important;
   letter-spacing:-.035em;
+  transform-origin:right center;
   transition:
     text-shadow .28s ease,
     filter .28s ease,
     transform .28s ease;
 }
+.commission-goal-card #commissionMonthlyNet::before{
+  content:"LÍQUIDO ESTIMADO / MÊS";
+  display:block;
+  margin-bottom:11px;
+  font-size:11px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:.16em;
+  color:rgba(255,255,255,.52);
+  text-shadow:none !important;
+}
 .commission-goal-card #commissionMonthlyNet:hover{
-  transform:scale(1.015);
-  filter:brightness(1.08);
+  transform:scale(1.02);
+  filter:brightness(1.09);
   text-shadow:
-    0 0 8px rgba(247,208,123,.55),
+    0 0 8px rgba(247,208,123,.58),
     0 0 20px rgba(231,174,67,.32),
-    0 0 42px rgba(185,111,27,.18);
+    0 0 40px rgba(185,111,27,.18);
+}
+.commission-goal-card #commissionMonthlyNet:hover::before{
+  text-shadow:none !important;
+}
+@media(max-width:1060px){
+  .commission-highlight.commission-goal-card{
+    grid-template-columns:minmax(0,1fr) minmax(300px,.72fr);
+    gap:30px;
+    padding-left:34px !important;
+    padding-right:34px !important;
+  }
+  .commission-goal-card #commissionMonthlyNet{
+    font-size:clamp(38px,4.2vw,48px) !important;
+  }
 }
 @media(max-width:900px){
   .commission-highlight.commission-goal-card{
     grid-template-columns:1fr;
-    row-gap:24px;
-    padding-left:24px !important;
-    padding-right:24px !important;
+    row-gap:26px;
+    min-height:0;
+    padding:28px 24px !important;
   }
   .commission-goal-card .commission-goal-copy,
   .commission-goal-card .commission-goal-copy strong,
@@ -65,10 +99,12 @@ const GOAL_STYLE = `
     max-width:none;
   }
   .commission-goal-card #commissionMonthlyNet{
+    align-items:flex-start;
     justify-content:flex-start;
     text-align:left;
     white-space:normal;
-    font-size:clamp(40px,10vw,58px) !important;
+    font-size:clamp(36px,9.5vw,50px) !important;
+    transform-origin:left center;
   }
 }
 </style>`;
@@ -81,7 +117,7 @@ function enhanceCommissionGoal(html){
     '<div>\n            <strong>Batendo 5MM no mês, quanto isso representa no bolso?</strong>',
     '<div class="commission-goal-copy">\n            <strong>Batendo 5MM no mês, quanto isso representa no bolso?</strong>'
   );
-  if (!html.includes('gm-goal-card-v3')) {
+  if (!html.includes('gm-goal-card-v4')) {
     html = html.replace('</head>', GOAL_STYLE + '\n</head>');
   }
   return html;
