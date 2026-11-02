@@ -2130,7 +2130,7 @@ h2{font-size:34px!important;line-height:.96}
       <div class="section-head"><h3>Pódio de Performance</h3><span class="badge" id="rankingBadge">0 consultores</span></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Consultor</th><th>Total vendido</th><th>Meta individual</th><th>Progresso até R$ 5 milhões</th><th>Nível atual</th><th>Próximo passo</th><th class="manager-only">Ações</th></tr></thead>
+          <thead><tr><th>#</th><th>Consultor</th><th>Total vendido</th><th>Meta individual</th><th>Progresso até R$ 5 milhões</th><th>Status da meta</th><th>Reconhecimento</th><th class="manager-only">Ações</th></tr></thead>
           <tbody id="rankingBody"></tbody>
         </table>
       </div>
@@ -2323,6 +2323,13 @@ h2{font-size:34px!important;line-height:.96}
         </div>
         <div class="commission-disclaimer">
           <strong>Simulação que aproxima da realidade.</strong> O valor final pode variar conforme grupo, aditivo, parcela furo, situação das parcelas e regras contratuais.
+        </div>
+        <div class="commission-highlight" style="margin-top:4px">
+          <div>
+            <strong>Agora imagine bater 5MM todos os meses.</strong>
+            <span>Em 12 meses, seriam R$ 60 milhões em crédito vendido. Mantendo a referência de 2% e os mesmos descontos estimados do simulador, o potencial líquido aproximado no ano seria:</span>
+          </div>
+          <div class="big" id="commissionAnnualNet">R$ 963.240,00</div>
         </div>
       </div>
 
@@ -2531,7 +2538,7 @@ h2{font-size:34px!important;line-height:.96}
             <div class="hero-total" id="consultantTotal">R$ 0,00</div>
             <div class="hero-pills">
               <div class="hero-pill">Ranking <b id="consultantRank">#1</b></div>
-              <div class="hero-pill">Nível <b id="consultantLevel">Cobre</b></div>
+              <div class="hero-pill">Meta <b id="consultantLevel">Rumo aos 5MM</b></div>
               <div class="hero-pill" id="consultantTeamPill">Equipe <b id="consultantTeamName">Sem equipe</b></div>
               <div class="quota-pill">Cotas vendidas <b id="consultantQuotaTotal">0</b></div>
             </div>
@@ -2605,7 +2612,7 @@ h2{font-size:34px!important;line-height:.96}
         <div class="side-head"><h3>Novo consultor</h3><span class="team-count-badge">gestor</span></div>
         <div class="field"><label>Nome</label><input id="newConsultant" placeholder="Nome completo"/></div>
         <div class="field"><label>Saldo inicial do mês</label><input id="newBalance" data-money="1" inputmode="decimal" placeholder="R$ 0,00"/></div>
-        <div class="field"><label>Meta individual mensal</label><input id="newTarget" data-money="1" inputmode="decimal" placeholder="R$ 5.000.000,00"/></div>
+        <div class="field"><label>Meta individual mensal</label><input id="newTarget" data-money="1" inputmode="decimal" value="R$ 5.000.000,00" disabled/></div>
         <div class="field"><label>Equipe / Responsável</label><select id="newLeader"><option value="">Sem equipe atribuída</option></select></div>
         <div class="form-actions"><button class="btn primary" id="addConsultant">Adicionar consultor</button></div>
       </div>
@@ -2614,16 +2621,13 @@ h2{font-size:34px!important;line-height:.96}
 </section>
 
 <section id="settings" class="view hidden">
-  <div class="topbar"><div><div class="eyebrow">Parâmetros</div><h2>Configurações</h2><div class="sub">Metas e níveis da Gestão Menezes.</div></div></div>
+  <div class="topbar"><div><div class="eyebrow">Parâmetros</div><h2>Configurações</h2><div class="sub">Metas da Gestão Menezes.</div></div></div>
   <div class="card form-card">
-    <div class="settings-note">Os níveis são calculados pelo total vendido, independentemente de Lar ou Motors.</div>
+    <div class="settings-note"><strong>Uma meta. Um marco.</strong> Cada consultor tem como objetivo mensal R$ 5 milhões em vendas. Ao atingir a meta, sobe ao palco para ser reconhecido e presenteado por Leandro Filipak.</div>
     <div class="form-grid">
       <div class="field"><label>Meta mensal da gestão</label><input id="cfgTeamTarget" data-money="1" inputmode="decimal"/></div>
-      <div class="field"><label>Meta individual padrão</label><input id="cfgDefaultTarget" data-money="1" inputmode="decimal"/></div>
-      <div class="field"><label>Cobre (base do nível)</label><input id="cfgCobre" data-money="1" inputmode="decimal" disabled value="R$ 0,00"/></div>
-      <div class="field"><label>Prata a partir de</label><input id="cfgPrata" data-money="1" inputmode="decimal"/></div>
-      <div class="field"><label>Ouro a partir de</label><input id="cfgOuro" data-money="1" inputmode="decimal"/></div>
-      <div class="field"><label>Diamante a partir de</label><input id="cfgDiamante" data-money="1" inputmode="decimal"/></div>
+      <div class="field"><label>Meta individual</label><input id="cfgDefaultTarget" data-money="1" inputmode="decimal" disabled value="R$ 5.000.000,00"/></div>
+      <div class="field"><label>Reconhecimento da meta</label><input value="Palco + presente • Leandro Filipak" disabled/></div>
       <div class="field"><label>WhatsApp da secretária Geovana</label><input id="cfgSecretaryWhatsapp" inputmode="tel" placeholder="Ex.: 5511999999999"/></div>
     </div>
     <div class="form-actions"><button class="btn primary" id="saveSettings">Salvar configurações</button><button class="btn" id="changeManagerPin">Trocar PIN do gestor</button><button class="btn dark" id="exportBackup">Baixar backup completo</button><button class="btn dark" id="importBackup">Importar backup</button><input id="importBackupFile" type="file" accept=".json,application/json" style="display:none"/><button class="btn" id="resetData">Restaurar base inicial</button></div>
@@ -2716,6 +2720,9 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||clone(initialState)}catch(e){return clone(initialState)}}
 let state=load();
 restorePublishedTeamPhotos(state);
+state.settings=state.settings||{};
+state.settings.defaultTarget=5000000;
+(state.consultants||[]).forEach(c=>{c.target=5000000;});
 if(!state._dashboardVersion || state._dashboardVersion < 21){
   state.settings=state.settings||{};
   state.settings.teamTarget=15000000;
@@ -2805,11 +2812,9 @@ function initCurrencyInputs(){document.querySelectorAll('[data-money="1"]').forE
 
 
 function levelInfo(v){
- const s=state.settings;
- if(v>=s.diamante)return{name:'Diamante',cls:'diamante',next:null};
- if(v>=s.ouro)return{name:'Ouro',cls:'ouro',next:{name:'Diamante',value:s.diamante}};
- if(v>=s.prata)return{name:'Prata',cls:'prata',next:{name:'Ouro',value:s.ouro}};
- return{name:'Cobre',cls:'cobre',next:{name:'Prata',value:s.prata}};
+ const goal=5000000;
+ if(Number(v)>=goal)return{name:'Meta 5MM atingida',cls:'diamante',next:null};
+ return{name:'Rumo aos 5MM',cls:'ouro',next:{name:'Meta de R$ 5 milhões',value:goal}};
 }
 function salesForMonth(m){return state.sales.filter(s=>monthKey(s.date)===m)}
 function openingForMonth(c,m){
@@ -3298,7 +3303,7 @@ function render(){
      const champLevel=levelInfo(champ.total);
      const champProg=Math.min(100,champ.total/5000000*100);
      const champShare=total?champ.total/total*100:0;
-     const champNext=champLevel.next?money(Math.max(0,champLevel.next.value-champ.total)):'Topo atingido';
+     const champNext=champLevel.next?money(Math.max(0,champLevel.next.value-champ.total)):'Meta atingida';
      const secondaryCard=(r,place,cls)=>{
        if(!r)return '';
        const lvl=levelInfo(r.total);
@@ -3334,7 +3339,7 @@ function render(){
                <div class="hero-podium-progress"><span style="width:${champProg}%"></span></div>
              </div>
              <div class="hero-podium-stat"><small>Participação</small><b>${champShare.toFixed(1).replace('.',',')}%</b></div>
-             <div class="hero-podium-stat"><small>Próximo nível</small><b>${champNext}</b></div>
+             <div class="hero-podium-stat"><small>Falta para 5MM</small><b>${champNext}</b></div>
            </div>
          </div>
          <div class="hero-podium-secondary">
@@ -3373,8 +3378,8 @@ function render(){
  document.getElementById('rankingBadge').textContent=rows.length?`${rows.length} vendedor${rows.length===1?'':'es'} no ranking`:'Aguardando a primeira venda';
  document.getElementById('rankingBody').innerHTML=rows.map((r,i)=>{
   const prog=Math.min(100,r.total/5000000*100),lvl=levelInfo(r.total);
-  const next=lvl.next?`${lvl.next.name}: ${money(Math.max(0,lvl.next.value-r.total))}`:'Topo atingido';
-  return`<tr class="${i===0?'champion-row':''}"><td class="position"><div class="champion-rank-wrap">${i===0?'<span class="champion-trophy" aria-label="Líder do ranking">🏆</span>':''}<span>${i+1}º</span></div></td><td><div class="person"><div class="avatar">${esc(initials(r.name))}</div><div class="name">${esc(r.name)}</div></div></td><td class="money">${money(r.total)}</td><td>${compact(r.target)}</td><td><div class="bar"><span style="width:${prog}%"></span></div><div style="font-size:9px;color:#96999e;margin-top:4px">${prog.toFixed(1).replace('.',',')}%</div></td><td><span class="level ${lvl.cls}">${lvl.name}</span></td><td>${next}</td><td class="manager-only"><button class="edit-sales-btn" data-edit-sales="${r.id}">Editar vendas</button></td></tr>`
+  const next=lvl.next?`Faltam ${money(Math.max(0,lvl.next.value-r.total))} para 5MM`:'Palco + presente com Leandro Filipak';
+  return`<tr class="${i===0?'champion-row':''}"><td class="position"><div class="champion-rank-wrap">${i===0?'<span class="champion-trophy" aria-label="Líder do ranking">🏆</span>':''}<span>${i+1}º</span></div></td><td><div class="person"><div class="avatar">${esc(initials(r.name))}</div><div class="name">${esc(r.name)}</div></div></td><td class="money">${money(r.total)}</td><td>${compact(r.target)}</td><td><div class="bar"><span style="width:${prog}%"></span></div><div style="font-size:9px;color:#96999e;margin-top:4px">${prog.toFixed(1).replace('.',',')}%</div></td><td><span class="level ${lvl.cls}">${lvl.name}</span></td><td><strong style="color:${lvl.next?'#c9a86a':'#f0d49d'}">${next}</strong></td><td class="manager-only"><button class="edit-sales-btn" data-edit-sales="${r.id}">Editar vendas</button></td></tr>`
  }).join('');
  document.querySelectorAll('[data-edit-sales]').forEach(btn=>btn.onclick=()=>openEditSales(btn.dataset.editSales));
 
@@ -3382,7 +3387,7 @@ function render(){
   const lvl=levelInfo(r.total);
   const prog=Math.min(100,r.total/5000000*100);
   const share=total?((r.total/total)*100):0;
-  const nextText=lvl.next?money(Math.max(0,lvl.next.value-r.total)):'Nível máximo';
+  const nextText=lvl.next?money(Math.max(0,lvl.next.value-r.total)):'Meta atingida';
   return `<div class="showcase-card ${i===0?'champion-card':''}">
     ${i===0?'<div class="showcase-champion-line"><span class="champion-trophy" aria-hidden="true">🏆</span><span>Campeão do mês</span></div>':''}
     <div class="showcase-head">
@@ -3398,7 +3403,7 @@ function render(){
         <b>${share.toFixed(1).replace('.',',')}% do total do mês</b>
       </div>
       <div class="showcase-box">
-        <small>Falta para o próximo nível</small>
+        <small>Falta para 5MM</small>
         <b>${nextText}</b>
       </div>
     </div>
@@ -3591,7 +3596,7 @@ function renderTeam(){
  const msg=c.total<=0
    ? firstName+' ainda não registrou vendas neste mês. O foco agora é abrir o placar e ganhar ritmo comercial.'
    : gap<=0
-     ? firstName+' já bateu a meta individual. Excelente resultado. Agora o objetivo é ampliar produção e buscar o próximo nível.'
+     ? firstName+' bateu a meta de R$ 5 milhões. Excelente resultado. Agora é hora de ampliar a produção e celebrar o reconhecimento no palco com Leandro Filipak.'
      : firstName+' já alcançou '+pct.toFixed(1).replace('.',',')+'% da meta. Faltam '+money(gap)+' para chegar aos '+money(target)+'.';
 
  document.getElementById('consultantName').textContent=c.name;
@@ -3635,7 +3640,7 @@ function renderTeam(){
  document.getElementById('consultantMotors').textContent=money(c.motors);
  document.getElementById('consultantPiePct').textContent=(pieBase?((classified/pieBase)*100).toFixed(1).replace('.',','):0)+'%';
  document.getElementById('consultantMessage').textContent=msg;
- document.getElementById('consultantNextStep').textContent=lvl.next?('Faltam '+money(needs)+' para '+lvl.next.name):'Você já está no nível máximo';
+ document.getElementById('consultantNextStep').textContent=lvl.next?('Faltam '+money(needs)+' para bater 5MM'):'Meta batida • palco + presente com Leandro Filipak';
  document.getElementById('consultantPotential').textContent='Meta individual de '+money(target);
  const pie=document.getElementById('consultantPie'); pie.style.background=pieBase?('conic-gradient(#d52b38 0 '+larPct+'%, #c89c58 '+larPct+'% '+(larPct+motorsPct)+'%, #313b48 '+(larPct+motorsPct)+'% 100%)'):'conic-gradient(#313b48 0 100%)';
  document.getElementById('consultantPieLegend').innerHTML=[{label:'Imóveis (Lar)',value:c.lar,pct:larPct,qty:c.larQty,color:'#d52b38'},{label:'Motors',value:c.motors,pct:motorsPct,qty:c.motorsQty,color:'#c89c58'}].map(item=>'<div class="mix-row"><div class="left"><span class="dot" style="background:'+item.color+'"></span><div><b>'+item.label+'</b><small>'+item.qty+' cota'+(item.qty===1?'':'s')+' • '+item.pct.toFixed(1).replace('.',',')+'% da produção</small></div></div><div class="value">'+money(item.value)+'</div></div>').join('') + (c.unclassified>0?('<div class="mix-row"><div class="left"><span class="dot" style="background:#313b48"></span><div><b>Não classificado</b><small>'+c.unclassifiedQty+' cota'+(c.unclassifiedQty===1?'':'s')+' • '+unPct.toFixed(1).replace('.',',')+'% da produção</small></div></div><div class="value">'+money(c.unclassified)+'</div></div>'):'');
@@ -3763,10 +3768,12 @@ document.getElementById('addConsultant').onclick=()=>{
  state.consultants.push({id:'c'+Date.now(),name,target,opening,openingLar:0,openingMotors:0,openingLarQty:0,openingMotorsQty:0,openingUnclassifiedQty:0,role:'consultor',leaderId,enrollmentStatus:'sem',enrollmentNumber:''});save();
  document.getElementById('newConsultant').value='';document.getElementById('newBalance').value='';document.getElementById('newTarget').value='';if(document.getElementById('newLeader'))document.getElementById('newLeader').value='';render();
 };
-function syncSettings(){const s=state.settings;setCurrencyInputValue('cfgTeamTarget',s.teamTarget);setCurrencyInputValue('cfgDefaultTarget',s.defaultTarget);setCurrencyInputValue('cfgCobre',s.cobre);setCurrencyInputValue('cfgPrata',s.prata);setCurrencyInputValue('cfgOuro',s.ouro);setCurrencyInputValue('cfgDiamante',s.diamante);const w=document.getElementById('cfgSecretaryWhatsapp');if(w)w.value=s.secretaryWhatsapp||''}
+function syncSettings(){const s=state.settings;setCurrencyInputValue('cfgTeamTarget',s.teamTarget);setCurrencyInputValue('cfgDefaultTarget',5000000);const w=document.getElementById('cfgSecretaryWhatsapp');if(w)w.value=s.secretaryWhatsapp||''}
 document.getElementById('saveSettings').onclick=()=>{
  if(!requireManager())return;
- const map={cfgTeamTarget:'teamTarget',cfgDefaultTarget:'defaultTarget',cfgPrata:'prata',cfgOuro:'ouro',cfgDiamante:'diamante'}; state.settings.cobre=0;
+ const map={cfgTeamTarget:'teamTarget'};
+ state.settings.defaultTarget=5000000;
+ (state.consultants||[]).forEach(c=>{c.target=5000000;});
  for(const[id,key]of Object.entries(map)){const v=parseNumber(document.getElementById(id).value);if(v>=0)state.settings[key]=v}
  const secretaryWhatsapp=document.getElementById('cfgSecretaryWhatsapp');if(secretaryWhatsapp)state.settings.secretaryWhatsapp=String(secretaryWhatsapp.value||'').replace(/\D/g,'');
  save();syncSettings();render();fillSimulator();alert('Configurações salvas.');
@@ -3818,7 +3825,7 @@ document.getElementById('resetData').onclick=()=>{if(!requireManager())return;if
 document.getElementById('monthFilter').addEventListener('change',()=>{render();renderTeam();});
 document.getElementById('exportRankCard').onclick=()=>exportRankingCard(false);
 document.getElementById('exportBtn').onclick=()=>{
- const m=document.getElementById('monthFilter').value,{by}=totals(m),rows=[['Posição','Consultor','Total vendido','Meta','Nível']];
+ const m=document.getElementById('monthFilter').value,{by}=totals(m),rows=[['Posição','Consultor','Total vendido','Meta','Status da meta']];
  state.consultants.map(c=>({...c,total:by[c.id]||0})).sort((a,b)=>b.total-a.total).forEach((r,i)=>rows.push([i+1,r.name,r.total,r.target,levelInfo(r.total).name]));
  const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ranking-${m}.csv`;a.click();URL.revokeObjectURL(a.href);
 };
@@ -3849,6 +3856,10 @@ function renderCommissionSimulator(){
   const taxes=gross*totalTaxRate;
   const net=Math.max(0,gross-taxes);
   const netPct=credit?(net/credit)*100:0;
+  const annualGoalCredit=5000000*12;
+  const annualGoalNet=annualGoalCredit*baseRate*(1-totalTaxRate);
+  const annualGoalEl=document.getElementById('commissionAnnualNet');
+  if(annualGoalEl)annualGoalEl.textContent=money(annualGoalNet);
   const configs={
     motors13:{count:13,label:'MOTORS • 13x linear',mode:'Distribuição linear',rows:[['Parcelas 01 a 13',baseRate/13,13]]},
     lar100:{count:11,label:'LAR • 100%',mode:'Distribuição linear estimada',rows:[['Parcelas 01 a 11',baseRate/11,11]]},
