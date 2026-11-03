@@ -4610,5 +4610,162 @@ init();
   }
 })();
 </script>
+
+<style id="gm-champion-direct-v2">
+#team .consultor-card.gm-champion-active{
+  position:relative!important;
+  border-color:rgba(244,198,82,.62)!important;
+  background:
+    radial-gradient(circle at 11% 18%,rgba(244,198,82,.13),transparent 25%),
+    radial-gradient(circle at 90% 12%,rgba(255,222,132,.07),transparent 22%),
+    linear-gradient(180deg,rgba(31,19,18,.98),rgba(13,10,10,.99))!important;
+  box-shadow:
+    0 0 0 1px rgba(244,198,82,.08) inset,
+    0 0 34px rgba(244,198,82,.17),
+    0 0 82px rgba(221,160,30,.10),
+    0 24px 70px rgba(0,0,0,.48)!important;
+  overflow:hidden!important;
+}
+#team .consultor-card.gm-champion-active::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(115deg,transparent 0%,rgba(255,225,145,.03) 38%,rgba(255,225,145,.13) 50%,rgba(255,225,145,.03) 62%,transparent 100%);
+  transform:translateX(-125%);
+  animation:gmChampionDirectSweep 4.6s linear infinite;
+  z-index:0;
+}
+#team .consultor-card.gm-champion-active > *{position:relative;z-index:1}
+#team .consultor-photo-frame.gm-champion-photo{
+  border-radius:34px;
+  padding:5px;
+  background:linear-gradient(145deg,#ffe59a 0%,#e3b64d 35%,#a96d0b 70%,#f5cf68 100%)!important;
+  box-shadow:
+    0 0 0 1px rgba(255,229,154,.25),
+    0 0 22px rgba(255,207,90,.42),
+    0 0 52px rgba(220,159,31,.24)!important;
+}
+#team .consultor-photo-frame.gm-champion-photo .consultant-photo{
+  border-color:rgba(255,225,139,.72)!important;
+}
+#team .hero-pill.gm-champion-rank-pill{
+  border-color:rgba(245,201,86,.48)!important;
+  background:linear-gradient(135deg,rgba(83,55,10,.92),rgba(28,17,7,.98))!important;
+  color:#ffe09a!important;
+  box-shadow:0 0 18px rgba(245,201,86,.16), inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+#team .hero-pill.gm-champion-rank-pill b{color:#ffd76d!important}
+#team .gm-champion-trophy{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:58px;
+  height:58px;
+  flex:0 0 58px;
+  margin-left:10px;
+  border-radius:50%;
+  border:1px solid rgba(255,228,145,.42);
+  background:
+    radial-gradient(circle at 32% 25%,#fff4c8 0%,#f7d36e 31%,#c78a1b 70%,#875506 100%);
+  box-shadow:
+    0 0 18px rgba(255,215,105,.48),
+    0 0 38px rgba(225,166,38,.26),
+    inset 0 2px 5px rgba(255,255,255,.44);
+  font-size:29px;
+  line-height:1;
+  transform-style:preserve-3d;
+  animation:gmChampionDirectSpin 4.2s linear infinite;
+}
+#team .gm-champion-label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-left:10px;
+  padding:9px 14px;
+  border-radius:999px;
+  border:1px solid rgba(245,201,86,.38);
+  background:linear-gradient(135deg,rgba(76,50,9,.9),rgba(24,15,6,.98));
+  color:#ffd976;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  box-shadow:0 0 18px rgba(245,201,86,.13);
+}
+#team .gm-champion-label i{
+  width:7px;height:7px;border-radius:50%;
+  background:#ffd76c;
+  box-shadow:0 0 11px rgba(255,215,108,.8);
+  animation:gmChampionDirectPulse 1.3s ease-in-out infinite;
+}
+@keyframes gmChampionDirectSweep{
+  0%{transform:translateX(-125%)}
+  100%{transform:translateX(125%)}
+}
+@keyframes gmChampionDirectSpin{
+  0%{transform:rotateY(0deg)}
+  100%{transform:rotateY(360deg)}
+}
+@keyframes gmChampionDirectPulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.4);opacity:.7}
+}
+@media(max-width:800px){
+  #team .gm-champion-trophy{width:46px;height:46px;flex-basis:46px;font-size:23px}
+  #team .gm-champion-label{margin-left:0;margin-top:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  #team .consultor-card.gm-champion-active::after,
+  #team .gm-champion-trophy,
+  #team .gm-champion-label i{animation:none!important}
+}
+</style>
+<script id="gm-champion-direct-runtime-v2">
+(function(){
+  function updateChampion(){
+    var team=document.getElementById('team');
+    var rank=document.getElementById('consultantRank');
+    if(!team||!rank)return;
+
+    var isFirst=(rank.textContent||'').trim()==='#1';
+    var card=team.querySelector('.consultor-card');
+    var photoFrame=team.querySelector('.consultor-photo-frame');
+    var rankPill=rank.closest('.hero-pill');
+    var titleRow=team.querySelector('.hero-title-row');
+
+    if(card)card.classList.toggle('gm-champion-active',isFirst);
+    if(photoFrame)photoFrame.classList.toggle('gm-champion-photo',isFirst);
+    if(rankPill)rankPill.classList.toggle('gm-champion-rank-pill',isFirst);
+
+    team.querySelectorAll('.gm-champion-trophy,.gm-champion-label').forEach(function(el){el.remove();});
+
+    if(isFirst&&titleRow){
+      var trophy=document.createElement('span');
+      trophy.className='gm-champion-trophy';
+      trophy.setAttribute('aria-label','Campeão atual');
+      trophy.textContent='🏆';
+
+      var label=document.createElement('span');
+      label.className='gm-champion-label';
+      label.innerHTML='<i></i>Campeão do momento';
+
+      titleRow.appendChild(trophy);
+      titleRow.appendChild(label);
+    }
+  }
+
+  var rank=document.getElementById('consultantRank');
+  if(rank)new MutationObserver(updateChampion).observe(rank,{childList:true,characterData:true,subtree:true});
+
+  var focus=document.getElementById('consultantFocus');
+  if(focus)focus.addEventListener('change',function(){setTimeout(updateChampion,60)});
+
+  document.addEventListener('DOMContentLoaded',updateChampion);
+  window.addEventListener('load',function(){setTimeout(updateChampion,80)});
+  setTimeout(updateChampion,120);
+})();
+</script>
+
 </body>
 </html>
