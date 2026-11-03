@@ -123,6 +123,64 @@ const GOAL_STYLE = `
 }
 </style>`;
 
+
+const MONEY_STYLE = `
+<style id="gm-money-safe-v1">
+#team .commission-countdown-card .commission-money-float{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:auto !important;
+  width:36px !important;
+  height:24px !important;
+  min-width:36px !important;
+  flex:0 0 36px !important;
+  margin:0 2px 0 0 !important;
+  z-index:2 !important;
+  opacity:.82 !important;
+  transform:none;
+  animation:gmMoneyFloatSafe 3.2s ease-in-out infinite !important;
+}
+#team .commission-countdown-card .commission-kicker{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+}
+@keyframes gmMoneyFloatSafe{
+  0%,100%{transform:translateY(1px) rotate(-3deg);opacity:.68}
+  50%{transform:translateY(-4px) rotate(2deg);opacity:1}
+}
+@media(max-width:560px){
+  #team .commission-countdown-card .commission-money-float{
+    width:32px !important;
+    height:21px !important;
+    min-width:32px !important;
+    flex-basis:32px !important;
+    display:grid !important;
+  }
+}
+</style>`;
+
+function moveCommissionMoney(html){
+  if (!html.includes('commission-money-float')) return html;
+
+  html = html.replace(
+    /\s*<span class="commission-money-float" aria-hidden="true">R\$<\/span>/,
+    ''
+  );
+
+  html = html.replace(
+    /(<div class="countdown-kicker commission-kicker">\s*<span class="countdown-icon commission-icon"[^>]*>[\s\S]*?<\/span>)/,
+    '$1<span class="commission-money-float" aria-hidden="true">R$</span>'
+  );
+
+  if (!html.includes('gm-money-safe-v1')) {
+    html = html.replace('</head>', MONEY_STYLE + '\n</head>');
+  }
+  return html;
+}
+
 function enhanceCommissionGoal(html){
   if (!html.includes('Batendo 5MM no mês')) return html;
 
@@ -157,7 +215,8 @@ self.addEventListener("fetch", (event) => {
         const response = await fetch(event.request);
         const type = response.headers.get("content-type") || "";
         if (!type.includes("text/html")) return response;
-        const html = enhanceCommissionGoal(await response.text());
+        let html = enhanceCommissionGoal(await response.text());
+        html = moveCommissionMoney(html);
         const headers = new Headers(response.headers);
         headers.delete("content-length");
         return new Response(html, {
