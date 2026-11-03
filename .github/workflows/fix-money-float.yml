@@ -1,0 +1,75 @@
+name: Ajustar dinheiro flutuante da comissão
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-money-float.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajustar posição do ícone R$
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_text(encoding="utf-8")
+          css = r"""
+<style id="gm-money-float-fix">
+/* Ajuste 03/11/2026 — mantém o dinheiro flutuante sem atravessar o texto */
+#team .commission-countdown-card .commission-copy{
+  padding-right:76px!important;
+}
+#team .commission-money-float{
+  right:22px!important;
+  bottom:72px!important;
+  width:42px!important;
+  height:27px!important;
+  z-index:2!important;
+  animation:gmMoneyFloatSafe 3.2s ease-in-out infinite!important;
+}
+@keyframes gmMoneyFloatSafe{
+  0%,100%{transform:translateY(0) rotate(-3deg);opacity:.58}
+  50%{transform:translateY(-5px) rotate(2deg);opacity:.90}
+}
+@media(max-width:960px){
+  #team .commission-countdown-card .commission-copy{padding-right:68px!important}
+  #team .commission-money-float{right:16px!important;bottom:70px!important}
+}
+@media(max-width:560px){
+  #team .commission-countdown-card .commission-copy{padding-right:58px!important}
+  #team .commission-money-float{
+    right:12px!important;
+    bottom:68px!important;
+    width:38px!important;
+    height:24px!important;
+    font-size:10px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #team .commission-money-float{animation:none!important}
+}
+</style>
+"""
+          marker = '<style id="gm-money-float-fix">'
+          if marker in s:
+              start = s.index(marker)
+              end = s.index("</style>", start) + len("</style>")
+              s = s[:start] + css.strip() + s[end:]
+          else:
+              s = s.replace("</head>", css + "\n</head>", 1)
+          p.write_text(s, encoding="utf-8")
+          PY
+      - name: Publicar ajuste
+        run: |
+          git config user.name "Gestão Menezes Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: reposiciona dinheiro flutuante da comissão [skip ci]"
+          git push
