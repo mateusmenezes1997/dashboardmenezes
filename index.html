@@ -4808,14 +4808,15 @@ init();
   <p id="rankingShareStatus" role="status" aria-live="polite" style="line-height:1.6">Preparando o ranking atualizado…</p>
   <img id="rankingSharePreview" alt="Prévia do ranking atualizado" hidden style="width:100%;border-radius:12px;margin-bottom:16px"/>
   <div style="display:flex;flex-wrap:wrap;gap:10px">
-    <button class="btn" id="rankingShareSend" type="button" disabled style="background:#166534;color:white">Compartilhar no WhatsApp</button>
+    <button class="btn" id="rankingShareSend" type="button" disabled style="background:#166534;color:white">Copiar imagem</button>
+    <a class="btn" id="rankingWhatsAppOpen" href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>
     <button class="btn" id="rankingShareDownload" type="button" disabled>Baixar ranking novamente</button>
     <button class="btn" id="rankingShareClose" type="button">Fechar</button>
   </div>
-  <p style="font-size:12px;color:#b6c6bc;line-height:1.5">O compartilhamento envia somente o arquivo de imagem, sem link ou código. No computador, se necessário, abra o WhatsApp e anexe o PNG baixado usando + ou o clipe → Fotos e vídeos.</p>
+  <p style="font-size:12px;color:#b6c6bc;line-height:1.5">1. Copie a imagem. 2. Abra o WhatsApp e escolha o grupo. 3. Cole com ⌘V ou Ctrl+V, confira a foto e envie. Você também pode anexar o PNG baixado. O site não envia mensagens automaticamente.</p>
 </dialog>
 <script id="ranking-share-runtime">
-let rankingShareFile=null,rankingShareUrl=null,rankingShareText='',rankingShareBusy=false;
+let rankingShareFile=null,rankingShareUrl=null,rankingShareBusy=false;
 function downloadPreparedRanking(){
   if(!rankingShareUrl||!rankingShareFile)return;
   const a=document.createElement('a');a.href=rankingShareUrl;a.download=rankingShareFile.name;
@@ -4837,14 +4838,11 @@ async function prepareRankingShare(){
     const blob=await new Promise((resolve,reject)=>result.canvas.toBlob(b=>b?resolve(b):reject(new Error('PNG indisponível')),'image/png'));
     rankingShareFile=new File([blob],result.filename,{type:'image/png'});
     rankingShareUrl=URL.createObjectURL(blob);
-    rankingShareText='🏆 Ranking atualizado — Gestão Menezes | '+formatMonth(result.month);
     preview.src=rankingShareUrl;preview.hidden=false;
     download.disabled=false;send.disabled=false;
     downloadPreparedRanking();
-    let supportsImageShare=false;
-    try{supportsImageShare=!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[rankingShareFile]}))}catch(error){}
-    send.textContent=supportsImageShare?'Compartilhar imagem':'Baixar imagem para anexar';
-    status.textContent=supportsImageShare?'Ranking pronto. Toque em Compartilhar imagem, escolha WhatsApp e selecione o grupo.':'Ranking pronto e download iniciado. Este navegador não envia imagens direto ao WhatsApp. Abra seu grupo e anexe o PNG baixado em Fotos e vídeos.';
+    send.textContent='Copiar imagem';
+    status.textContent='Ranking atualizado e download iniciado. No computador, copie a imagem, abra o WhatsApp e cole no seu grupo. No celular, anexe o PNG baixado em Fotos e vídeos.';
   }catch(error){
     status.textContent='A venda foi salva, mas não foi possível gerar a imagem. Feche esta janela e tente “Baixar card ranking 4K” no Dashboard. Não lance a venda novamente.';
   }
@@ -4853,20 +4851,19 @@ document.getElementById('rankingShareSend').onclick=async()=>{
   if(!rankingShareFile||rankingShareBusy)return;
   const status=document.getElementById('rankingShareStatus');
   const button=document.getElementById('rankingShareSend');
-  const data={files:[rankingShareFile]};
-  let canShare=false;
-  try{canShare=!!(navigator.share&&navigator.canShare&&navigator.canShare({files:data.files}))}catch(error){}
-  if(!canShare){
-    downloadPreparedRanking();
-    status.textContent='Este navegador não permite compartilhar a imagem diretamente. O PNG foi baixado: abra seu grupo no WhatsApp e use + ou o clipe → Fotos e vídeos para anexar o arquivo. Nenhum texto ou código foi enviado.';
+  if(!navigator.clipboard||!navigator.clipboard.write||typeof ClipboardItem==='undefined'){
+    status.textContent='Este navegador não permite copiar fotos. A imagem já foi baixada: abra o WhatsApp, escolha o grupo e anexe o PNG em Fotos e vídeos.';
     return;
   }
   rankingShareBusy=true;button.disabled=true;
   try{
-    await navigator.share(data);
-    status.textContent='Imagem entregue ao compartilhamento do dispositivo. Confira e confirme o envio no WhatsApp.';
+    // Copy PNG bytes as an image, never a data URL or text.
+    const png=new Blob([rankingShareFile],{type:'image/png'});
+    await navigator.clipboard.write([new ClipboardItem({'image/png':png})]);
+    status.textContent='Foto copiada! Clique em Abrir WhatsApp, escolha seu grupo e cole com ⌘V no Mac ou Ctrl+V no Windows. Confira a prévia da foto e envie.';
+    document.getElementById('rankingWhatsAppOpen').focus();
   }catch(error){
-    status.textContent=error.name==='AbortError'?'Compartilhamento cancelado. A venda continua salva; você pode tentar novamente.':'O dispositivo não conseguiu compartilhar. Use “Baixar ranking novamente” e anexe a imagem no seu grupo do WhatsApp.';
+    status.textContent='Não foi possível copiar a foto. Abra o WhatsApp, escolha seu grupo e anexe o PNG já baixado em Fotos e vídeos. A venda continua salva.';
   }finally{rankingShareBusy=false;button.disabled=false}
 };
 document.getElementById('rankingShareDownload').onclick=downloadPreparedRanking;
