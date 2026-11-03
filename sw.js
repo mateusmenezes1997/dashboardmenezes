@@ -199,6 +199,205 @@ function moveCommissionMoney(html){
   return html;
 }
 
+
+const CHAMPION_STYLE = \`
+<style id="gm-champion-highlight-v1">
+#team .gm-champion-card{
+  position:relative !important;
+  border-color:rgba(244,197,83,.52) !important;
+  box-shadow:
+    0 0 0 1px rgba(244,197,83,.08) inset,
+    0 0 30px rgba(244,197,83,.14),
+    0 0 68px rgba(244,197,83,.08) !important;
+  background:
+    radial-gradient(circle at 10% 18%,rgba(244,197,83,.12),transparent 24%),
+    radial-gradient(circle at 88% 14%,rgba(255,220,128,.06),transparent 20%),
+    linear-gradient(135deg,rgba(32,13,17,.96),rgba(12,10,11,.98)) !important;
+  overflow:hidden !important;
+}
+#team .gm-champion-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(115deg,transparent 0%,rgba(255,223,131,.03) 35%,rgba(255,223,131,.12) 50%,rgba(255,223,131,.03) 65%,transparent 100%);
+  transform:translateX(-120%);
+  animation:gmChampionSweep 4.8s linear infinite;
+  z-index:0;
+}
+#team .gm-champion-card > *{position:relative;z-index:1}
+#team .gm-champion-photo{
+  border-color:rgba(244,197,83,.95) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,230,151,.25),
+    0 0 20px rgba(244,197,83,.30),
+    0 0 42px rgba(206,146,27,.18) !important;
+}
+#team .gm-champion-rank{
+  border-color:rgba(244,197,83,.40) !important;
+  background:linear-gradient(135deg,rgba(91,61,14,.90),rgba(28,17,7,.98)) !important;
+  color:#ffd86f !important;
+  box-shadow:0 0 18px rgba(244,197,83,.14) !important;
+}
+#team .gm-champion-trophy{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:54px;
+  height:54px;
+  margin-left:12px;
+  border-radius:50%;
+  border:1px solid rgba(255,225,139,.36);
+  background:
+    radial-gradient(circle at 34% 28%,#fff0b8 0%,#f6cf6d 30%,#c68a1d 72%,#8d5b0a 100%);
+  box-shadow:
+    0 0 16px rgba(255,211,100,.45),
+    0 0 34px rgba(226,165,37,.22),
+    inset 0 1px 4px rgba(255,255,255,.4);
+  font-size:27px;
+  line-height:1;
+  transform-style:preserve-3d;
+  animation:gmChampionTrophySpin 4.6s linear infinite;
+  vertical-align:middle;
+}
+#team .gm-champion-live{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-left:10px;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(245,201,87,.34);
+  background:linear-gradient(135deg,rgba(76,50,9,.86),rgba(24,16,8,.96));
+  color:#ffd873;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  box-shadow:0 0 18px rgba(245,201,87,.12);
+}
+#team .gm-champion-live i{
+  width:7px;height:7px;border-radius:50%;
+  background:#ffd66a;
+  box-shadow:0 0 10px rgba(255,214,106,.7);
+  animation:gmChampionPulse 1.35s ease-in-out infinite;
+}
+@keyframes gmChampionSweep{
+  0%{transform:translateX(-120%)}
+  100%{transform:translateX(120%)}
+}
+@keyframes gmChampionTrophySpin{
+  0%{transform:rotateY(0deg)}
+  100%{transform:rotateY(360deg)}
+}
+@keyframes gmChampionPulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.35);opacity:.72}
+}
+@media(max-width:700px){
+  #team .gm-champion-trophy{width:44px;height:44px;font-size:22px;margin-left:8px}
+  #team .gm-champion-live{margin:8px 0 0 0}
+}
+@media(prefers-reduced-motion:reduce){
+  #team .gm-champion-card::before,
+  #team .gm-champion-trophy,
+  #team .gm-champion-live i{animation:none!important}
+}
+</style>\`;
+
+function applyChampionVisual(html){
+  if (!html.includes('id="team"')) return html;
+
+  if (!html.includes('gm-champion-highlight-v1')) {
+    html = html.replace('</head>', CHAMPION_STYLE + '\n</head>');
+  }
+
+  const hook = '<script id="gm-champion-runtime-v1">';
+  if (html.includes(hook)) return html;
+
+  const runtime = \`
+<script id="gm-champion-runtime-v1">
+(function(){
+  function text(el){ return (el && el.textContent || '').trim(); }
+  function findRankOne(){
+    var nodes = Array.from(document.querySelectorAll('#team *'));
+    return nodes.find(function(el){
+      var t=text(el);
+      return /^Ranking\\s*#?1$/i.test(t) || /^#1$/i.test(t);
+    }) || null;
+  }
+  function closestUseful(el){
+    if(!el) return null;
+    return el.closest('.consultant-card,.consultant-hero,.consultant-showcase,.consultor-card,.consultor-hero,.team-highlight-card,.team-card,.card,.panel,.mini-card') || el.closest('section') || el.parentElement;
+  }
+  function findPhoto(){
+    var selectors=[
+      '#team .consultant-photo-wrap',
+      '#team .consultant-photo',
+      '#team .consultor-photo',
+      '#team .profile-photo',
+      '#team .hero-photo',
+      '#team img'
+    ];
+    for(var i=0;i<selectors.length;i++){
+      var el=document.querySelector(selectors[i]);
+      if(el) return el.closest('div') || el;
+    }
+    return null;
+  }
+  function findName(){
+    var nodes=Array.from(document.querySelectorAll('#team h1,#team h2,#team h3,#team .consultant-name,#team .consultor-name,#team .highlight-name'));
+    return nodes.find(function(el){
+      var t=text(el);
+      return t && t.length>2 && !/Equipe|Painel|Selecionar|Resultado/i.test(t);
+    }) || null;
+  }
+  function update(){
+    document.querySelectorAll('#team .gm-champion-card').forEach(function(el){el.classList.remove('gm-champion-card')});
+    document.querySelectorAll('#team .gm-champion-photo').forEach(function(el){el.classList.remove('gm-champion-photo')});
+    document.querySelectorAll('#team .gm-champion-rank').forEach(function(el){el.classList.remove('gm-champion-rank')});
+    document.querySelectorAll('#team .gm-champion-trophy,#team .gm-champion-live').forEach(function(el){el.remove()});
+
+    var rank=findRankOne();
+    if(!rank) return;
+
+    rank.classList.add('gm-champion-rank');
+
+    var card=closestUseful(rank);
+    if(card) card.classList.add('gm-champion-card');
+
+    var photo=findPhoto();
+    if(photo) photo.classList.add('gm-champion-photo');
+
+    var name=findName();
+    if(name){
+      var trophy=document.createElement('span');
+      trophy.className='gm-champion-trophy';
+      trophy.setAttribute('aria-label','Campeão atual');
+      trophy.textContent='🏆';
+      name.insertAdjacentElement('afterend',trophy);
+
+      var live=document.createElement('span');
+      live.className='gm-champion-live';
+      live.innerHTML='<i></i>Campeão do momento';
+      trophy.insertAdjacentElement('afterend',live);
+    }
+  }
+  var timer;
+  function schedule(){ clearTimeout(timer); timer=setTimeout(update,80); }
+  document.addEventListener('DOMContentLoaded',schedule);
+  window.addEventListener('load',schedule);
+  var team=document.getElementById('team');
+  if(team){
+    new MutationObserver(schedule).observe(team,{subtree:true,childList:true,characterData:true,attributes:true});
+  }
+  schedule();
+})();
+<\/script>\`;
+
+  return html.replace('</body>', runtime + '\n</body>');
+}
+
 function enhanceCommissionGoal(html){
   if (!html.includes('Batendo 5MM no mês')) return html;
 
@@ -235,6 +434,7 @@ self.addEventListener("fetch", (event) => {
         if (!type.includes("text/html")) return response;
         let html = enhanceCommissionGoal(await response.text());
         html = moveCommissionMoney(html);
+        html = applyChampionVisual(html);
         const headers = new Headers(response.headers);
         headers.delete("content-length");
         return new Response(html, {
