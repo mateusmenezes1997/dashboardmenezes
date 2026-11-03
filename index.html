@@ -2624,7 +2624,7 @@ h2{font-size:34px!important;line-height:.96}
       <div class="field"><label>Data da venda</label><input id="saleDate" type="date"/></div>
       <div class="field" style="grid-column:1/-1"><label>Observação</label><input id="saleNote" placeholder="Cliente, origem ou observação"/></div>
     </div>
-    <div class="form-actions"><button class="btn primary" id="saveSale">Salvar venda</button><button class="btn" data-go="dashboard">Voltar</button></div>
+    <div class="form-actions"><button class="btn primary" id="saveSale">Salvar venda</button><button class="btn" id="saveSaleShare" type="button" style="background:#166534;color:#fff;border-color:#22c55e">Salvar venda e compartilhar ranking</button><button class="btn" data-go="dashboard">Voltar</button></div>
     <div class="note">O valor informado é por cota. Ex.: R$ 100.000,00 × 8 cotas = R$ 800.000,00 no total da venda.</div>
   </div>
 </section>
@@ -3541,7 +3541,7 @@ function roundRectRank(ctx,x,y,w,h,r,fill,stroke){
   if(fill){ctx.fillStyle=fill;ctx.fill()}
   if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
 }
-function exportRankingCard(auto=false){
+function exportRankingCard(auto=false,returnCanvas=false){
   const {m,total,target,rows}=rankCardData();
   const SCALE=2,W=1920,H=1080;
   const canvas=document.createElement('canvas');
@@ -3680,6 +3680,7 @@ function exportRankingCard(auto=false){
 
   const a=document.createElement('a');
   a.download=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
+  if(returnCanvas)return {canvas,filename:a.download,month:m};
   a.href=canvas.toDataURL('image/png');
   a.click();
 }
@@ -4333,7 +4334,7 @@ document.getElementById('saleAmount').addEventListener('blur',updateSaleTotalPre
 document.getElementById('saleQty').addEventListener('input',updateSaleTotalPreview);
 updateSaleTotalPreview();
 
-document.getElementById('saveSale').onclick=()=>{
+function saveSaleEntry(shareRanking=false){
  if(!requireManager())return;
  const consultantId=document.getElementById('saleConsultant').value;
  const product=document.getElementById('saleProduct').value;
@@ -4343,14 +4344,19 @@ document.getElementById('saveSale').onclick=()=>{
  const note=document.getElementById('saleNote').value.trim();
  if(!consultantId||!unitAmount||unitAmount<=0||!qty||!date){alert('Preencha consultor, valor por cota, quantidade de cotas e data.');return}
  const amount=unitAmount*qty;
- state.sales.push({id:'s'+Date.now(),consultantId,product,amount,unitAmount,qty,date,note});save();
+ const sale={id:'s'+Date.now(),consultantId,product,amount,unitAmount,qty,date,note};
+ state.sales.push(sale);
+ try{save()}catch(error){state.sales.pop();alert('Não foi possível salvar a venda. Seus campos foram mantidos. Exporte um backup e verifique o armazenamento do navegador.');return}
  document.getElementById('saleAmount').value='';
  document.getElementById('saleQty').value='1';
  document.getElementById('saleNote').value='';
  updateSaleTotalPreview();
  document.getElementById('monthFilter').value=monthKey(date);
- render();switchView('dashboard');maybeAutoExportRanking();
-};
+ render();switchView('dashboard');
+ if(shareRanking)prepareRankingShare();else maybeAutoExportRanking();
+}
+document.getElementById('saveSale').onclick=()=>saveSaleEntry(false);
+document.getElementById('saveSaleShare').onclick=()=>saveSaleEntry(true);
 document.getElementById('addConsultant').onclick=()=>{
  if(!requireManager())return;
  const name=document.getElementById('newConsultant').value.trim(),opening=Math.max(0,parseNumber(document.getElementById('newBalance').value)||0),target=Math.max(0,parseNumber(document.getElementById('newTarget').value)||state.settings.defaultTarget),leaderId=(document.getElementById('newLeader')?.value||'')||null;
@@ -4794,6 +4800,74 @@ init();
   window.addEventListener('load',function(){setTimeout(updateChampion,80)});
   setTimeout(updateChampion,120);
 })();
+</script>
+
+
+<dialog id="rankingShareDialog" style="width:min(540px,calc(100% - 32px));box-sizing:border-box;border:1px solid #416047;border-radius:20px;background:#111815;color:#fff;padding:24px">
+  <h3 style="margin-top:0">Venda salva • compartilhe a conquista</h3>
+  <p id="rankingShareStatus" role="status" aria-live="polite" style="line-height:1.6">Preparando o ranking atualizado…</p>
+  <img id="rankingSharePreview" alt="Prévia do ranking atualizado" hidden style="width:100%;border-radius:12px;margin-bottom:16px"/>
+  <div style="display:flex;flex-wrap:wrap;gap:10px">
+    <button class="btn" id="rankingShareSend" type="button" disabled style="background:#166534;color:white">Compartilhar no WhatsApp</button>
+    <button class="btn" id="rankingShareDownload" type="button" disabled>Baixar ranking novamente</button>
+    <button class="btn" id="rankingShareClose" type="button">Fechar</button>
+  </div>
+  <p style="font-size:12px;color:#b6c6bc;line-height:1.5">Escolha o WhatsApp, selecione seu grupo e confirme o envio. Se o navegador não compartilhar imagens, anexe o PNG baixado na conversa.</p>
+</dialog>
+<script id="ranking-share-runtime">
+let rankingShareFile=null,rankingShareUrl=null,rankingShareText='',rankingShareBusy=false;
+function downloadPreparedRanking(){
+  if(!rankingShareUrl||!rankingShareFile)return;
+  const a=document.createElement('a');a.href=rankingShareUrl;a.download=rankingShareFile.name;
+  document.body.appendChild(a);a.click();a.remove();
+}
+async function prepareRankingShare(){
+  const dialog=document.getElementById('rankingShareDialog');
+  const status=document.getElementById('rankingShareStatus');
+  const send=document.getElementById('rankingShareSend');
+  const download=document.getElementById('rankingShareDownload');
+  const preview=document.getElementById('rankingSharePreview');
+  rankingShareFile=null;rankingShareBusy=false;send.disabled=true;download.disabled=true;
+  preview.hidden=true;preview.removeAttribute('src');
+  if(rankingShareUrl){URL.revokeObjectURL(rankingShareUrl);rankingShareUrl=null}
+  status.textContent='Venda salva. Preparando o ranking atualizado…';
+  if(!dialog.open)dialog.showModal();
+  try{
+    const result=exportRankingCard(false,true);
+    const blob=await new Promise((resolve,reject)=>result.canvas.toBlob(b=>b?resolve(b):reject(new Error('PNG indisponível')),'image/png'));
+    rankingShareFile=new File([blob],result.filename,{type:'image/png'});
+    rankingShareUrl=URL.createObjectURL(blob);
+    rankingShareText='🏆 Ranking atualizado — Gestão Menezes | '+formatMonth(result.month);
+    preview.src=rankingShareUrl;preview.hidden=false;
+    download.disabled=false;send.disabled=false;
+    downloadPreparedRanking();
+    status.textContent='Ranking atualizado pronto e download iniciado. Toque em compartilhar para escolher o WhatsApp e seu grupo.';
+  }catch(error){
+    status.textContent='A venda foi salva, mas não foi possível gerar a imagem. Feche esta janela e tente “Baixar card ranking 4K” no Dashboard. Não lance a venda novamente.';
+  }
+}
+document.getElementById('rankingShareSend').onclick=async()=>{
+  if(!rankingShareFile||rankingShareBusy)return;
+  const status=document.getElementById('rankingShareStatus');
+  const button=document.getElementById('rankingShareSend');
+  const data={files:[rankingShareFile],title:'Ranking Gestão Menezes',text:rankingShareText};
+  let canShare=false;
+  try{canShare=!!(navigator.share&&navigator.canShare&&navigator.canShare({files:data.files}))}catch(error){}
+  if(!canShare){
+    const opened=window.open('https://wa.me/?text='+encodeURIComponent(rankingShareText),'_blank','noopener,noreferrer');
+    status.textContent='Selecione seu grupo no WhatsApp e anexe o PNG baixado. Se a janela não abrir, abra o WhatsApp manualmente.';
+    return;
+  }
+  rankingShareBusy=true;button.disabled=true;
+  try{
+    await navigator.share(data);
+    status.textContent='Compartilhamento concluído pelo dispositivo. Confira o envio na conversa escolhida.';
+  }catch(error){
+    status.textContent=error.name==='AbortError'?'Compartilhamento cancelado. A venda continua salva; você pode tentar novamente.':'O dispositivo não conseguiu compartilhar. Use “Baixar ranking novamente” e anexe a imagem no seu grupo do WhatsApp.';
+  }finally{rankingShareBusy=false;button.disabled=false}
+};
+document.getElementById('rankingShareDownload').onclick=downloadPreparedRanking;
+document.getElementById('rankingShareClose').onclick=()=>document.getElementById('rankingShareDialog').close();
 </script>
 
 </body>
