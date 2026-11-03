@@ -132,14 +132,24 @@ const MONEY_STYLE = `
   right:auto !important;
   top:auto !important;
   bottom:auto !important;
-  width:36px !important;
-  height:24px !important;
-  min-width:36px !important;
-  flex:0 0 36px !important;
+  width:42px !important;
+  height:26px !important;
+  min-width:42px !important;
+  flex:0 0 42px !important;
   margin:0 2px 0 0 !important;
   z-index:2 !important;
-  opacity:.82 !important;
+  opacity:.92 !important;
   transform:none;
+  border:1px solid rgba(86,238,150,.45) !important;
+  border-radius:9px !important;
+  background:linear-gradient(135deg,rgba(45,210,119,.14),rgba(12,74,45,.18)) !important;
+  box-shadow:
+    0 0 18px rgba(60,226,133,.12),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+  color:#80f4b3 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  letter-spacing:-.02em !important;
   animation:gmMoneyFloatSafe 3.2s ease-in-out infinite !important;
 }
 #team .commission-countdown-card .commission-kicker{
@@ -147,16 +157,24 @@ const MONEY_STYLE = `
   align-items:center !important;
   gap:10px !important;
 }
+#team .commission-countdown-card .commission-icon{
+  display:none !important;
+}
+#team .commission-countdown-card .commission-money-float::before,
+#team .commission-countdown-card .commission-money-float::after{
+  content:none !important;
+  display:none !important;
+}
 @keyframes gmMoneyFloatSafe{
   0%,100%{transform:translateY(1px) rotate(-3deg);opacity:.68}
   50%{transform:translateY(-4px) rotate(2deg);opacity:1}
 }
 @media(max-width:560px){
   #team .commission-countdown-card .commission-money-float{
-    width:32px !important;
-    height:21px !important;
-    min-width:32px !important;
-    flex-basis:32px !important;
+    width:38px !important;
+    height:24px !important;
+    min-width:38px !important;
+    flex-basis:38px !important;
     display:grid !important;
   }
 }
