@@ -4741,14 +4741,21 @@ init();
     team.querySelectorAll('.gm-champion-trophy,.gm-champion-label').forEach(function(el){el.remove();});
 
     if(isFirst&&titleRow){
+      var focusSelect=document.getElementById('consultantFocus');
+      var selectedId=focusSelect?focusSelect.value:'';
+      var selectedConsultant=(typeof state!=='undefined'&&state.consultants)
+        ? state.consultants.find(function(c){return c.id===selectedId;})
+        : null;
+      var championWord=(selectedConsultant&&selectedConsultant.gender==='f')?'Campeã':'Campeão';
+
       var trophy=document.createElement('span');
       trophy.className='gm-champion-trophy';
-      trophy.setAttribute('aria-label','Campeão atual');
+      trophy.setAttribute('aria-label',championWord+' atual');
       trophy.textContent='🏆';
 
       var label=document.createElement('span');
       label.className='gm-champion-label';
-      label.innerHTML='<i></i>Campeão do momento';
+      label.innerHTML='<i></i>'+championWord+' do momento';
 
       titleRow.appendChild(trophy);
       titleRow.appendChild(label);
