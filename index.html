@@ -1263,6 +1263,72 @@ h2{font-size:34px!important;line-height:.96}
 }
 
 
+
+/* Booking — apoio administrativo Geovana */
+.booking-support-wrap{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+  margin-top:18px;
+  position:relative;
+  z-index:1;
+}
+.admin-support-card{
+  grid-column:1/3;
+  min-height:132px;
+  display:grid;
+  grid-template-columns:112px minmax(0,1fr) auto;
+  gap:16px;
+  align-items:center;
+  padding:12px 14px 12px 12px;
+  border-radius:22px;
+  text-decoration:none;
+  color:inherit;
+  border:1px solid rgba(239,212,154,.14);
+  background:
+    radial-gradient(circle at 0 0,rgba(123,27,59,.16),transparent 34%),
+    linear-gradient(135deg,#130c10,#0c090b 72%);
+  box-shadow:0 18px 46px rgba(0,0,0,.26);
+  transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease;
+  overflow:hidden;
+}
+.admin-support-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(239,212,154,.38);
+  box-shadow:0 26px 60px rgba(0,0,0,.38),0 0 28px rgba(201,163,93,.08);
+}
+.admin-support-photo{
+  width:112px;
+  height:112px;
+  border-radius:17px;
+  overflow:hidden;
+  border:1px solid rgba(239,212,154,.18);
+  background:#120c10;
+}
+.admin-support-photo img{width:100%;height:100%;object-fit:cover;object-position:center 34%;display:block;filter:brightness(.95) contrast(1.03)}
+.admin-support-kicker{font-size:8px;text-transform:uppercase;letter-spacing:.15em;font-weight:900;color:#d8bb82;margin-bottom:6px}
+.admin-support-name{font-family:"League Spartan",Sora,sans-serif;font-size:22px;line-height:1;color:#fff;font-weight:800}
+.admin-support-role{margin-top:5px;color:#c6b8be;font-size:10px;font-weight:700;line-height:1.45}
+.admin-support-desc{margin-top:8px;color:#8f858a;font-size:9px;line-height:1.5;max-width:440px}
+.admin-support-action{
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  color:#e4c684;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;
+}
+.admin-support-action .arrow{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(239,212,154,.25);background:rgba(201,163,93,.07);
+  transition:transform .22s ease,background .22s ease;
+}
+.admin-support-card:hover .admin-support-action .arrow{transform:translateX(3px);background:linear-gradient(135deg,#7b1b3b,#b28a49);color:#fff;border-color:transparent}
+@media(max-width:1050px){.booking-support-wrap{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-support-card{grid-column:1/3}}
+@media(max-width:650px){
+  .booking-support-wrap{grid-template-columns:1fr}
+  .admin-support-card{grid-column:1;grid-template-columns:78px minmax(0,1fr);gap:12px;min-height:104px}
+  .admin-support-photo{width:78px;height:78px;border-radius:14px}
+  .admin-support-action{grid-column:1/3;justify-content:flex-end;margin-top:-2px}
+  .admin-support-name{font-size:19px}
+}
+
 /* Commission title icons — executive set */
 .commission-title{
   display:flex!important;
@@ -2610,7 +2676,7 @@ h2{font-size:34px!important;line-height:.96}
       <div>
         <div class="eyebrow">Acompanhamento comercial</div>
         <h2>Agende uma reunião com seu gestor</h2>
-        <div class="sub">Escolha seu gestor abaixo e reserve um horário disponível para sua reunião.</div>
+        <div class="sub">Escolha seu gestor para acompanhamento ou fale com a Geovana para dúvidas administrativas.</div>
       </div>
       <div class="booking-status">Reuniões de acompanhamento</div>
     </div>
@@ -2622,6 +2688,7 @@ h2{font-size:34px!important;line-height:.96}
         <p>Passe o mouse sobre um gestor para destacá-lo. Quando a agenda estiver disponível, clique na foto para abrir os horários.</p>
       </div>
       <div class="manager-select-grid" id="managerBookingGrid"></div>
+      <div class="booking-support-wrap" id="bookingAdminSupport"></div>
       <div class="booking-footnote"><strong>Agenda inteligente:</strong> os horários são gerenciados individualmente pelo Calendly de cada gestor. Selecione um perfil disponível para abrir a agenda.</div>
     </div>
   </div>
@@ -3718,6 +3785,7 @@ const BOOKING_URLS={
   rodrigo:'https://calendly.com/digo-3333/rodrigo-alves'
 };
 const BOOKING_FALLBACK_PHOTOS={};
+const GEOVANA_BOOKING_PHOTO='data:image/jpeg;base64,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';
 
 function renderBookingManagers(){
   const grid=document.getElementById('managerBookingGrid');
@@ -3744,6 +3812,23 @@ function renderBookingManagers(){
       </div>
     </${tag}>`;
   }).join('');
+
+  const support=document.getElementById('bookingAdminSupport');
+  if(support){
+    const whatsapp=String(state?.settings?.secretaryWhatsapp||'').replace(/\D/g,'');
+    const message=encodeURIComponent('Olá, Geovana! Tenho uma dúvida administrativa da Gestão Menezes.');
+    const href=whatsapp?`https://wa.me/${whatsapp}?text=${message}`:'#';
+    support.innerHTML=`<a class="admin-support-card" href="${href}" ${whatsapp?'target="_blank" rel="noopener noreferrer"':''} aria-label="Falar com Geovana Barbosa sobre dúvidas administrativas">
+      <div class="admin-support-photo"><img src="${GEOVANA_BOOKING_PHOTO}" alt="Geovana Barbosa"></div>
+      <div class="admin-support-copy">
+        <div class="admin-support-kicker">Suporte administrativo</div>
+        <div class="admin-support-name">Geovana Barbosa</div>
+        <div class="admin-support-role">Secretária Executiva do Mateus Menezes</div>
+        <div class="admin-support-desc">Documentação, processos, pendências e dúvidas administrativas da operação.</div>
+      </div>
+      <div class="admin-support-action"><span>Falar com Geovana</span><span class="arrow">→</span></div>
+    </a>`;
+  }
 }
 
 function renderTeam(){
