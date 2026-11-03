@@ -2536,7 +2536,7 @@ h2{font-size:34px!important;line-height:.96}
           <select id="simParcel"></select>
         </div>
         <div class="sim-field">
-          <label>Estratégia de lance</label>
+          <label for="simBid">Forma de contemplação</label>
           <select id="simBid"></select>
         </div>
       </div>
@@ -2593,7 +2593,7 @@ h2{font-size:34px!important;line-height:.96}
           <div class="sim-box" style="grid-column:1/-1">
             <span>Parcela pós-contemplação</span>
             <b id="cardPost">R$ 0,00</b>
-            <small>Conforme a estratégia de lance selecionada na tabela.</small>
+            <small id="cardPostNote">Conforme a estratégia de lance selecionada na tabela.</small>
           </div>
         </div>
 
@@ -3332,14 +3332,16 @@ function fillSimulator(){
       <option value="p50">Parcela reduzida 50%</option>`;
     bid.innerHTML=`
       <option value="fix">Lance Fixo - embutido do crédito</option>
-      <option value="limited">Lance Limitado - embutido + bolso</option>`;
+      <option value="limited">Lance Limitado - embutido + bolso</option>
+      <option value="draw">Sorteio - sem lance</option>`;
   }else{
     parcel.innerHTML=`
       <option value="reduced">Parcela reduzida - 24x</option>
       <option value="original">Parcela original</option>`;
     bid.innerHTML=`
       <option value="fix25">Lance Fixo 25% - embutido</option>
-      <option value="fix40">Lance Fixo 40% - embutido + bolso</option>`;
+      <option value="fix40">Lance Fixo 40% - embutido + bolso</option>
+      <option value="draw">Sorteio - sem lance</option>`;
   }
   renderSimulator();
 }
@@ -3350,6 +3352,23 @@ function simulatorValues(){
   const qty=currentSimQty();
   const row=currentSimRow();
   if(!row)return null;
+
+  if(bid==='draw'){
+    const isLar=product==='lar';
+    const parcelMap={p100:['Parcela 100%',row.p100],p85:['Parcela reduzida 85%',row.p85],p70:['Parcela reduzida 70%',row.p70],p50:['Parcela reduzida 50%',row.p50]};
+    const reduced=isLar?parcel!=='p100':parcel!=='original';
+    const pv=isLar?(parcelMap[parcel]||parcelMap.p100):(reduced?['Parcela reduzida por 24x',row.reduced]:['Parcela original',row.original]);
+    const per={credit:row.credit,installment:pv[1],embedded:0,pocket:0,post:null,released:row.credit};
+    return {
+      product:isLar?'Lar':'Motors',qty,per,isDraw:true,
+      credit:per.credit*qty,installmentLabel:pv[0],installment:per.installment*qty,
+      originalInstallment:(isLar?row.p100:row.original)*qty,isReduced:reduced,
+      term:`${row.prazo} meses`,group:isLar?'Tabela Lar':`Grupo ${row.group}`,
+      embedded:0,pocket:0,post:null,released:per.released*qty,
+      bidLabel:'Contemplação por sorteio',
+      pills:[`${qty} cota${qty>1?'s':''}`,`Prazo ${row.prazo} meses`,pv[0],'Sorteio • sem lance']
+    };
+  }
 
   if(product==='lar'){
     const parcelMap={
@@ -3442,7 +3461,9 @@ function renderSimulator(){
   document.getElementById('cardEmbedded').textContent=simMoney(v.embedded);
   document.getElementById('cardBidType').textContent=v.bidLabel;
   document.getElementById('cardPocket').textContent=v.pocket?simMoney(v.pocket):'Sem valor adicional';
-  document.getElementById('cardPost').textContent=simMoney(v.post);
+  document.getElementById('cardPost').textContent=v.isDraw?'A consultar':simMoney(v.post);
+  document.getElementById('cardPostNote').textContent=v.isDraw?'Depende do mês da contemplação, do saldo devedor e das regras do grupo.':'Conforme a estratégia de lance selecionada na tabela.';
+  document.querySelector('#simCard .sim-disclaimer').textContent=v.isDraw?'Simulação por sorteio, sem lance e sem desconto de lance no crédito. Valores sujeitos a reajustes e às regras do grupo. Não há garantia de contemplação nem de prazo.':'Simulação baseada na tabela fornecida. Valores sujeitos a alteração sem aviso prévio. A contemplação depende das regras do grupo e não é garantida.';
   document.getElementById('cardReleased').textContent=simMoney(v.released);
   document.getElementById('cardPills').innerHTML=v.pills.map(p=>`<span class="sim-pill">${esc(p)}</span>`).join('');
 }
