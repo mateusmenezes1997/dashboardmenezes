@@ -2227,6 +2227,146 @@ h2{font-size:34px!important;line-height:.96}
 }
 </style>
 
+
+<style id="gm-commission-countdown-v1">
+#team .consultant-hidden-values{display:none!important}
+#team .commission-countdown-card{
+  border:1px solid rgba(67,224,126,.62)!important;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(38,191,103,.16),transparent 42%),
+    radial-gradient(circle at 100% 100%,rgba(18,94,57,.14),transparent 40%),
+    linear-gradient(145deg,#111a18 0%,#0d1614 55%,#101817 100%)!important;
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.28),
+    0 0 22px rgba(57,226,124,.14),
+    inset 0 1px 0 rgba(255,255,255,.03)!important;
+  animation:gmMoneyBorder 2.7s ease-in-out infinite;
+}
+#team .commission-countdown-card::after{
+  background:radial-gradient(ellipse,rgba(47,220,119,.18),transparent 66%)!important;
+}
+#team .commission-countdown-card:hover{
+  border-color:rgba(100,247,155,.88)!important;
+  box-shadow:
+    0 20px 44px rgba(0,0,0,.32),
+    0 0 30px rgba(62,235,132,.24),
+    inset 0 0 0 1px rgba(100,247,155,.08)!important;
+}
+#team .commission-countdown-card .commission-kicker{color:#70eea7}
+#team .commission-countdown-card .commission-icon{
+  color:#79f0ad;
+  border-color:rgba(74,232,137,.34);
+  background:rgba(48,209,117,.09);
+  box-shadow:0 0 18px rgba(53,225,124,.08);
+}
+#team .commission-countdown-card .commission-status i{
+  background:#47dc86;
+  box-shadow:0 0 0 4px rgba(71,220,134,.11),0 0 14px rgba(71,220,134,.35);
+}
+#team .commission-countdown-card .commission-days strong{
+  color:#73f0aa;
+  text-shadow:0 0 20px rgba(66,226,130,.24);
+}
+#team .commission-countdown-card .commission-copy{
+  border-left-color:rgba(72,223,134,.22);
+}
+#team .commission-countdown-card .commission-footer b{color:#73e9a5}
+#team .commission-money-float{
+  position:absolute;
+  right:24px;
+  bottom:48px;
+  width:46px;
+  height:29px;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  color:#79f2ad;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.03em;
+  border:1px solid rgba(85,240,148,.56);
+  background:linear-gradient(135deg,rgba(37,170,96,.18),rgba(20,82,52,.30));
+  box-shadow:0 0 20px rgba(55,222,124,.18),inset 0 0 0 3px rgba(48,197,106,.05);
+  opacity:.76;
+  pointer-events:none;
+  z-index:0;
+  animation:gmMoneyFloat 3.2s ease-in-out infinite;
+}
+#team .commission-money-float::before,
+#team .commission-money-float::after{
+  content:'';
+  position:absolute;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  border:1px solid rgba(91,239,151,.48);
+}
+#team .commission-money-float::before{left:5px;top:5px}
+#team .commission-money-float::after{right:5px;bottom:5px}
+#team .commission-countdown-card .countdown-head,
+#team .commission-countdown-card .countdown-main,
+#team .commission-countdown-card .countdown-footer{position:relative;z-index:1}
+@keyframes gmMoneyBorder{
+  0%,100%{border-color:rgba(67,224,126,.48);box-shadow:0 16px 36px rgba(0,0,0,.28),0 0 14px rgba(57,226,124,.09),inset 0 1px 0 rgba(255,255,255,.03)}
+  50%{border-color:rgba(91,242,150,.78);box-shadow:0 18px 40px rgba(0,0,0,.30),0 0 28px rgba(57,226,124,.22),inset 0 0 0 1px rgba(91,242,150,.05)}
+}
+@keyframes gmMoneyFloat{
+  0%,100%{transform:translateY(0) rotate(-4deg);opacity:.56}
+  50%{transform:translateY(-8px) rotate(3deg);opacity:.92}
+}
+
+/* Mix comercial: visual mais limpo, sem caixas repetitivas */
+#team .consultor-grid > .mini-card.mix-card-full .mix-wrap-clean{
+  grid-template-columns:minmax(250px,340px) minmax(220px,420px);
+  justify-content:center;
+  gap:54px;
+  padding:8px 12px 14px;
+}
+#team .consultor-grid > .mini-card.mix-card-full .mix-donut{
+  width:280px;
+  height:280px;
+}
+#team .consultor-grid > .mini-card.mix-card-full .mix-donut::after{inset:28px}
+#team .consultor-grid > .mini-card.mix-card-full .mix-center strong{font-size:46px}
+#team .consultor-grid > .mini-card.mix-card-full .mix-legend-clean{gap:0}
+#team .consultor-grid > .mini-card.mix-card-full .mix-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:22px;
+  padding:16px 0;
+  border:0;
+  border-radius:0;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:transparent;
+}
+#team .consultor-grid > .mini-card.mix-card-full .mix-row:last-child{border-bottom:0}
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left .dot{
+  width:11px;
+  height:11px;
+  box-shadow:0 0 12px rgba(255,255,255,.08);
+}
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left b{font-size:15px}
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .left small{font-size:11px;color:#8f99a5}
+#team .consultor-grid > .mini-card.mix-card-full .mix-row .value{
+  font-size:18px;
+  overflow:visible;
+  text-overflow:clip;
+}
+@media(max-width:960px){
+  #team .consultor-grid > .mini-card.mix-card-full .mix-wrap-clean{grid-template-columns:1fr;gap:24px}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-donut{width:230px;height:230px}
+  #team .commission-money-float{right:18px;bottom:52px}
+}
+@media(max-width:560px){
+  #team .commission-countdown-card .commission-copy{border-left:0;border-top:1px solid rgba(72,223,134,.18)}
+  #team .commission-money-float{right:14px;bottom:60px;transform:scale(.9)}
+  #team .consultor-grid > .mini-card.mix-card-full .mix-donut{width:210px;height:210px}
+}
+@media(prefers-reduced-motion:reduce){
+  #team .commission-countdown-card,#team .commission-money-float{animation:none!important}
+}
+</style>
+
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -2805,11 +2945,36 @@ h2{font-size:34px!important;line-height:.96}
       </div>
 
       <div class="consultor-grid">
-        <div class="mini-card">
-          <small class="head">Modalidades vendidas</small>
-          <div class="split-values">
-            <div class="split-box"><small>Imóveis</small><b id="consultantLar">R$ 0,00</b><span id="consultantLarQty">0 cotas Lar</span></div>
-            <div class="split-box"><small>Motors</small><b id="consultantMotors">R$ 0,00</b><span id="consultantMotorsQty">0 cotas Motors</span></div>
+        <div class="mini-card countdown-card commission-countdown-card" id="commissionCountdownCard">
+          <span class="commission-money-float" aria-hidden="true">R$</span>
+          <div class="countdown-head">
+            <div class="countdown-kicker commission-kicker">
+              <span class="countdown-icon commission-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.4"></circle><path d="M6.5 9.5h.01M17.5 14.5h.01"></path></svg>
+              </span>
+              <span>Fechamento de comissão</span>
+            </div>
+            <span class="countdown-status commission-status" id="commissionCountdownStatus"><i></i>Próximo fechamento</span>
+          </div>
+          <div class="countdown-main">
+            <div class="countdown-days commission-days">
+              <strong id="commissionDaysLeft">--</strong>
+              <span id="commissionDaysLabel">dias</span>
+            </div>
+            <div class="countdown-copy commission-copy">
+              <b id="commissionCountdownTitle">para fechar a próxima comissão</b>
+              <p id="commissionCountdownMessage">A janela fecha todo dia 15.</p>
+            </div>
+          </div>
+          <div class="countdown-footer commission-footer">
+            <span>Janela atual</span>
+            <b id="commissionWindowEnd">ATÉ --/--</b>
+          </div>
+          <div class="consultant-hidden-values" aria-hidden="true">
+            <span id="consultantLar">R$ 0,00</span>
+            <span id="consultantMotors">R$ 0,00</span>
+            <span id="consultantLarQty">0 cotas Lar</span>
+            <span id="consultantMotorsQty">0 cotas Motors</span>
           </div>
         </div>
 
@@ -4007,6 +4172,44 @@ function renderTeam(){
    countdownTitleEl.textContent=title;
    countdownMessageEl.textContent=message;
    countdownStatusEl.innerHTML='<i></i>'+status;
+ }
+
+
+ const commissionCard=document.getElementById('commissionCountdownCard');
+ const commissionDaysLeftEl=document.getElementById('commissionDaysLeft');
+ const commissionDaysLabelEl=document.getElementById('commissionDaysLabel');
+ const commissionTitleEl=document.getElementById('commissionCountdownTitle');
+ const commissionMessageEl=document.getElementById('commissionCountdownMessage');
+ const commissionStatusEl=document.getElementById('commissionCountdownStatus');
+ const commissionWindowEndEl=document.getElementById('commissionWindowEnd');
+ if(commissionCard&&commissionDaysLeftEl&&commissionDaysLabelEl&&commissionTitleEl&&commissionMessageEl&&commissionStatusEl&&commissionWindowEndEl){
+   const today=new Date();
+   const todayStart=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+   let closeDate;
+   if(today.getDate()<=15){
+     closeDate=new Date(today.getFullYear(),today.getMonth(),15);
+   }else{
+     closeDate=new Date(today.getFullYear(),today.getMonth()+1,15);
+   }
+   const commissionMonthDate=new Date(closeDate.getFullYear(),closeDate.getMonth()+1,1);
+   const nextWindowStart=new Date(closeDate.getFullYear(),closeDate.getMonth(),16);
+   const nextCloseDate=new Date(closeDate.getFullYear(),closeDate.getMonth()+1,15);
+   const nextCommissionMonthDate=new Date(nextCloseDate.getFullYear(),nextCloseDate.getMonth()+1,1);
+   const oneDay=24*60*60*1000;
+   const commissionDaysLeft=Math.max(0,Math.round((closeDate-todayStart)/oneDay));
+   const fmtDayMonth=(d)=>String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+   const fmtMonth=(d)=>new Intl.DateTimeFormat('pt-BR',{month:'long'}).format(d);
+   const commissionMonth=fmtMonth(commissionMonthDate);
+   const nextCommissionMonth=fmtMonth(nextCommissionMonthDate);
+   const closeLabel=fmtDayMonth(closeDate);
+   const nextStartLabel=fmtDayMonth(nextWindowStart);
+   const nextCloseLabel=fmtDayMonth(nextCloseDate);
+   commissionDaysLeftEl.textContent=String(commissionDaysLeft);
+   commissionDaysLabelEl.textContent=commissionDaysLeft===1?'dia':'dias';
+   commissionTitleEl.textContent=commissionDaysLeft===0?('hoje fecha a comissão de '+commissionMonth):('para fechar a comissão de '+commissionMonth);
+   commissionMessageEl.textContent='Até '+closeLabel+' você ainda pode aumentar sua comissão de '+commissionMonth+'. De '+nextStartLabel+' a '+nextCloseLabel+', passa a valer a comissão de '+nextCommissionMonth+'.';
+   commissionWindowEndEl.textContent='ATÉ '+closeLabel;
+   commissionStatusEl.innerHTML='<i></i>'+(commissionDaysLeft===0?'Fechamento hoje':commissionDaysLeft<=3?'Alerta final':'Próximo fechamento');
  }
 
  const pie=document.getElementById('consultantPie'); pie.style.background=pieBase?('conic-gradient(#d52b38 0 '+larPct+'%, #c89c58 '+larPct+'% '+(larPct+motorsPct)+'%, #313b48 '+(larPct+motorsPct)+'% 100%)'):'conic-gradient(#313b48 0 100%)';
