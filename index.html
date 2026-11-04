@@ -291,7 +291,13 @@ td{padding:13px 12px;border-bottom:1px solid #1d242e;font-size:12px;color:#dde3e
 .access-box{margin-top:auto;padding:14px 10px 8px;border-top:1px solid rgba(255,255,255,.07);display:grid;gap:9px}
 .access-role{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:#8f99a5}.access-role b{color:#fff;font-size:10px}.access-role .dot{width:8px;height:8px;border-radius:50%;background:#67717d;display:inline-block;margin-right:6px}.access-role.manager .dot{background:#d5ab67;box-shadow:0 0 0 4px rgba(213,171,103,.12)}
 .access-btn{height:40px;border-radius:12px;border:1px solid #29333f;background:#11171e;color:#d8dee6;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}.access-btn.primary{background:linear-gradient(135deg,#c89c58,#f0cb8c);color:#101319;border:0}.access-btn:hover{filter:brightness(1.05)}
-body[data-role="viewer"] .manager-only{display:none!important}
+body[data-role="viewer"] .manager-only,body[data-role="trainee"] .manager-only{display:none!important}
+body[data-role="trainee"] [data-view="sale"],body[data-role="trainee"] #saveSale,body[data-role="trainee"] #saveSaleShare{display:inline-flex!important}
+body[data-role="trainee"] [data-view="sale"]{display:flex!important}
+body[data-role="trainee"] .sale-delete-btn,body[data-role="trainee"] .edit-sales-btn{display:none!important}
+.gm-auth{position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at top,rgba(111,20,43,.18),transparent 50%),#08090c;display:flex;align-items:center;justify-content:center;padding:22px}
+.gm-auth.hidden{display:none!important}.gm-auth-card{width:min(420px,100%);padding:32px;border:1px solid rgba(213,171,103,.45);border-radius:24px;background:#10151b;box-shadow:0 26px 75px #000a;color:white;font-family:Manrope,sans-serif}
+.gm-auth-card h2{font-size:23px;margin:0 0 8px}.gm-auth-card p{font-size:12px;color:#a4adba;line-height:1.5}.gm-auth-card label{display:block;margin:18px 0 6px;color:#e8c98f;font-size:11px;font-weight:bold}.gm-auth-card input,.gm-auth-card select{width:100%;padding:13px;background:#0b1016;color:white;border:1px solid #303846;border-radius:11px}.gm-auth-card button{width:100%;margin-top:20px;border:0;border-radius:11px;padding:14px;background:linear-gradient(135deg,#c89c58,#f0cb8c);font-weight:900;color:#17130c}.gm-auth-card .gm-auth-error{min-height:22px;color:#ff9aa3;margin-top:12px;font-size:11px}
 .viewer-note{display:none;margin-bottom:16px;padding:12px 14px;border-radius:14px;background:rgba(213,171,103,.08);border:1px solid rgba(213,171,103,.18);color:#cbb98f;font-size:10px;line-height:1.55}
 body[data-role="viewer"] .viewer-note{display:block}
 
@@ -2390,11 +2396,11 @@ h2{font-size:34px!important;line-height:.96}
     <button data-view="booking"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg></span>Agende com seu gestor</button>
     <button class="manager-only" data-view="settings"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.15.36.38.69.68.94.3.25.68.39 1.07.39H21a2 2 0 1 1 0 4h-.09c-.39 0-.77.14-1.07.39-.3.25-.53.58-.68.94z"/></svg></span>Configurações</button>
   </nav>
-  <div class="side-note">Ranking atualizado em tempo real.<br>Consultores acessam somente leitura; alterações ficam restritas ao gestor.</div>
+  <div class="side-note">Resultados compartilhados entre os acessos.<br>Gestor edita tudo; Trainee cadastra vendas; Consultor visualiza.</div>
   <div class="access-box">
     <div class="access-role" id="accessRoleBox"><span><span class="dot"></span>Modo atual</span><b id="accessRoleLabel">Consultor</b></div>
-    <button class="access-btn primary" id="managerAccessBtn" type="button">Acesso do gestor</button>
-    <button class="access-btn manager-only" id="managerLogoutBtn" type="button">Sair do modo gestor</button>
+    <button class="access-btn primary" id="managerAccessBtn" type="button">Trocar de acesso</button>
+    <button class="access-btn manager-only" id="managerLogoutBtn" type="button">Sair</button>
   </div>
 </aside>
 
@@ -3066,6 +3072,7 @@ h2{font-size:34px!important;line-height:.96}
 </main>
 </div>
 
+<div class="gm-auth" id="gmAuth"><div class="gm-auth-card"><div style="color:#d5ab67;font-size:11px;font-weight:900;letter-spacing:.15em;margin-bottom:9px">GESTÃO MENEZES</div><h2>Acesso ao Dashboard</h2><p>Selecione seu perfil e informe sua senha para entrar.</p><form id="gmAuthForm"><label for="gmAuthRole">Perfil de acesso</label><select id="gmAuthRole"><option value="consultor">Consultor — somente visualizar</option><option value="trainee">Trainee — cadastrar vendas</option><option value="gestor">Gestor — controle total</option></select><label for="gmAuthPassword">Senha</label><input id="gmAuthPassword" type="password" autocomplete="current-password" required/><button id="gmAuthSubmit" type="submit">Entrar no dashboard</button><div id="gmAuthError" class="gm-auth-error" role="alert"></div></form></div></div>
 <div id="editSalesModal" class="edit-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editSalesTitle">
   <div class="edit-modal">
     <div class="edit-modal-head">
@@ -3096,16 +3103,56 @@ h2{font-size:34px!important;line-height:.96}
 <script>
 const KEY='gestao_menezes_v21_editar_vendas';
 
-const ACCESS_KEY='gestao_menezes_access_v1';
 let accessRole='viewer';
+let serverRevision=0;
+let remoteReady=false;
+let saveQueue=Promise.resolve();
 function isManager(){return accessRole==='manager'}
-async function hashPin(pin){const data=new TextEncoder().encode(String(pin));const digest=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('')}
-function getAccessConfig(){try{return JSON.parse(localStorage.getItem(ACCESS_KEY)||'{}')}catch(e){return{}}}
-function setAccessConfig(v){localStorage.setItem(ACCESS_KEY,JSON.stringify(v))}
-function requireManager(){if(isManager())return true;alert('Somente o gestor pode alterar o sistema. Entre no modo gestor para continuar.');return false}
-function applyAccessRole(role){accessRole=role==='manager'?'manager':'viewer';document.body.dataset.role=accessRole;const label=document.getElementById('accessRoleLabel');const box=document.getElementById('accessRoleBox');if(label)label.textContent=accessRole==='manager'?'Gestor':'Consultor';if(box)box.classList.toggle('manager',accessRole==='manager');if(accessRole!=='manager'){const current=[...document.querySelectorAll('.view')].find(v=>!v.classList.contains('hidden'))?.id;if(current==='sale'||current==='settings')switchView('dashboard')}}
-async function requestManagerAccess(){const cfg=getAccessConfig();if(!cfg.pinHash){const pin=prompt('Primeiro acesso do gestor: crie um PIN com 4 a 12 dígitos.');if(pin===null)return;if(!/^\d{4,12}$/.test(pin)){alert('Use um PIN de 4 a 12 dígitos.');return}const confirmPin=prompt('Confirme o PIN do gestor.');if(confirmPin!==pin){alert('Os PINs não conferem.');return}setAccessConfig({pinHash:await hashPin(pin)});sessionStorage.setItem('gestao_menezes_role','manager');applyAccessRole('manager');alert('Acesso do gestor criado.');return}const pin=prompt('Digite o PIN do gestor.');if(pin===null)return;const ok=(await hashPin(pin))===cfg.pinHash;if(!ok){alert('PIN incorreto.');return}sessionStorage.setItem('gestao_menezes_role','manager');applyAccessRole('manager')}
-async function changeManagerPin(){if(!requireManager())return;const cfg=getAccessConfig();if(cfg.pinHash){const current=prompt('Digite o PIN atual.');if(current===null)return;if((await hashPin(current))!==cfg.pinHash){alert('PIN atual incorreto.');return}}const pin=prompt('Digite o novo PIN (4 a 12 dígitos).');if(pin===null)return;if(!/^\d{4,12}$/.test(pin)){alert('Use um PIN de 4 a 12 dígitos.');return}const confirmPin=prompt('Confirme o novo PIN.');if(confirmPin!==pin){alert('Os PINs não conferem.');return}setAccessConfig({pinHash:await hashPin(pin)});alert('PIN do gestor atualizado.')}
+function canAddSale(){return isManager()||accessRole==='trainee'}
+function requireManager(){if(isManager())return true;alert('Somente o gestor pode alterar estes dados.');return false}
+function applyAccessRole(role){
+ accessRole=role==='gestor'?'manager':role==='trainee'?'trainee':'viewer';document.body.dataset.role=accessRole;
+ const label=document.getElementById('accessRoleLabel'),box=document.getElementById('accessRoleBox');
+ if(label)label.textContent=isManager()?'Gestor':accessRole==='trainee'?'Trainee':'Consultor';
+ if(box)box.classList.toggle('manager',isManager());
+ const note=document.querySelector('.viewer-note');if(note)note.textContent=accessRole==='trainee'?'Modo Trainee: permitido apenas cadastrar novas vendas; demais alterações são exclusivas do gestor.':'Modo Consultor: somente visualização.';
+ const current=[...document.querySelectorAll('.view')].find(v=>!v.classList.contains('hidden'))?.id;
+ if((current==='settings'&&!isManager())||(current==='sale'&&!canAddSale()))switchView('dashboard');
+}
+async function apiJSON(url,method='GET',payload){
+ const res=await fetch(url,{method,credentials:'same-origin',headers:{'Content-Type':'application/json'},body:payload?JSON.stringify(payload):undefined,cache:'no-store'});
+ let data={};try{data=await res.json()}catch{}
+ if(!res.ok)throw new Error(data.error||'Erro no servidor');return data;
+}
+async function refreshShared(){
+ const remote=await apiJSON('/api/state');
+ if(remote.state){state=remote.state;serverRevision=remote.revision;remoteReady=true;localStorage.setItem(KEY,JSON.stringify(state));render();return true}
+ return false;
+}
+async function loginWithRole(role,password){
+ await apiJSON('/api/session','POST',{role,password});applyAccessRole(role);
+ const found=await refreshShared();
+ if(!found){
+  if(role==='gestor'){
+   const hasLocal=Boolean(localStorage.getItem(KEY));
+   if(!confirm('Ainda não existe uma base compartilhada. Deseja importar os dados '+(hasLocal?'deste navegador':'iniciais')+' para a equipe agora? Verifique se este é o navegador que contém as vendas corretas.'))throw new Error('Importação inicial necessária para ativar os acessos.');
+   const data=await apiJSON('/api/state','POST',{action:'initialize',state});serverRevision=data.revision;remoteReady=true;
+  }else throw new Error('O gestor precisa importar a base de vendas antes de liberar os acessos.');
+ }
+ document.getElementById('gmAuth').classList.add('hidden');render();
+}
+async function requestManagerAccess(){await logoutAccess()}
+async function logoutAccess(){try{await apiJSON('/api/session','DELETE')}catch{}applyAccessRole('consultor');document.getElementById('gmAuth').classList.remove('hidden');document.getElementById('gmAuthPassword').value='';}
+async function changeManagerPin(){alert('As senhas agora são administradas em Environment Variables na Vercel. Não há PIN salvo no navegador.');}
+async function startAuth(){
+ const auth=document.getElementById('gmAuth'),err=document.getElementById('gmAuthError');auth.classList.remove('hidden');
+ document.getElementById('gmAuthForm').onsubmit=async e=>{
+  e.preventDefault();err.textContent='';const btn=document.getElementById('gmAuthSubmit');btn.disabled=true;btn.textContent='Validando...';
+  try{await loginWithRole(document.getElementById('gmAuthRole').value,document.getElementById('gmAuthPassword').value)}catch(e){err.textContent=e.message;}
+  finally{btn.disabled=false;btn.textContent='Entrar no dashboard'}
+ };
+ try{const s=await apiJSON('/api/session');if(s.role){applyAccessRole(s.role);if(await refreshShared())auth.classList.add('hidden')}}catch(e){err.textContent='O acesso ainda não está configurado. Cadastre as variáveis de ambiente e configure o armazenamento.'}
+}
 
 const MOTORS_TABLE=[{"group":"1654","prazo":90,"credit":40000.0,"original":516.44,"reduced":278.88,"fix25_credit":11620.0,"fix25_post":388.55,"fix40_credit":11620.0,"fix40_pocket":6972.0,"fix40_post":325.36,"released":28380.0},{"group":"1654","prazo":90,"credit":44000.0,"original":568.09,"reduced":306.77,"fix25_credit":12782.0,"fix25_post":427.41,"fix40_credit":12782.0,"fix40_pocket":7669.2,"fix40_post":357.9,"released":31218.0},{"group":"1654","prazo":90,"credit":48000.0,"original":619.73,"reduced":334.67,"fix25_credit":13944.0,"fix25_post":466.26,"fix40_credit":13944.0,"fix40_pocket":8366.4,"fix40_post":390.43,"released":34056.0},{"group":"1654","prazo":90,"credit":52000.0,"original":671.38,"reduced":362.53,"fix25_credit":15106.0,"fix25_post":505.12,"fix40_credit":15106.0,"fix40_pocket":9063.6,"fix40_post":422.97,"released":36894.0},{"group":"1654","prazo":90,"credit":56000.0,"original":723.02,"reduced":390.43,"fix25_credit":16268.0,"fix25_post":543.97,"fix40_credit":16268.0,"fix40_pocket":9760.8,"fix40_post":455.5,"released":39732.0},{"group":"1654","prazo":90,"credit":60000.0,"original":774.67,"reduced":418.32,"fix25_credit":17430.0,"fix25_post":582.83,"fix40_credit":17430.0,"fix40_pocket":10458.0,"fix40_post":488.04,"released":42570.0},{"group":"1654","prazo":90,"credit":64000.0,"original":826.31,"reduced":446.21,"fix25_credit":18592.0,"fix25_post":621.68,"fix40_credit":18592.0,"fix40_pocket":11155.2,"fix40_post":520.58,"released":45408.0},{"group":"1654","prazo":90,"credit":68000.0,"original":877.96,"reduced":474.11,"fix25_credit":19754.0,"fix25_post":660.54,"fix40_credit":19754.0,"fix40_pocket":11852.4,"fix40_post":533.11,"released":48246.0},{"group":"1654","prazo":90,"credit":72000.0,"original":929.6,"reduced":501.97,"fix25_credit":20916.0,"fix25_post":699.39,"fix40_credit":20916.0,"fix40_pocket":12549.6,"fix40_post":585.65,"released":51084.0},{"group":"1654","prazo":90,"credit":76000.0,"original":981.24,"reduced":529.87,"fix25_credit":22078.0,"fix25_post":738.25,"fix40_credit":22078.0,"fix40_pocket":13246.8,"fix40_post":618.18,"released":53922.0},{"group":"1654","prazo":90,"credit":80000.0,"original":1032.89,"reduced":557.76,"fix25_credit":23240.0,"fix25_post":777.1,"fix40_credit":23240.0,"fix40_pocket":13944.0,"fix40_post":650.72,"released":56760.0},{"group":"1650","prazo":89,"credit":91000.0,"original":1045.8,"reduced":649.83,"fix25_credit":26435.5,"fix25_post":893.83,"fix40_credit":26435.5,"fix40_pocket":15861.3,"fix40_post":740.19,"released":64564.5},{"group":"1650","prazo":89,"credit":98000.0,"original":1138.76,"reduced":699.82,"fix25_credit":28469.0,"fix25_post":962.58,"fix40_credit":28469.0,"fix40_pocket":17081.4,"fix40_post":797.13,"released":69531.0},{"group":"1650","prazo":89,"credit":105000.0,"original":1416.28,"reduced":749.81,"fix25_credit":30502.5,"fix25_post":1031.34,"fix40_credit":30502.5,"fix40_pocket":18301.5,"fix40_post":854.07,"released":74497.5},{"group":"1650","prazo":89,"credit":112000.0,"original":1551.16,"reduced":799.79,"fix25_credit":32536.0,"fix25_post":1100.09,"fix40_credit":32536.0,"fix40_pocket":19521.6,"fix40_post":911.01,"released":79464.0},{"group":"1644","prazo":95,"credit":125000.0,"original":1510.42,"reduced":725.01,"fix25_credit":36250.0,"fix25_post":1149.2,"fix40_credit":36250.0,"fix40_pocket":21750.0,"fix40_post":1015.0,"released":88750.0},{"group":"1644","prazo":95,"credit":130000.0,"original":1570.83,"reduced":754.0,"fix25_credit":37700.0,"fix25_post":1195.17,"fix40_credit":37700.0,"fix40_pocket":22620.0,"fix40_post":1055.6,"released":92300.0},{"group":"1644","prazo":95,"credit":135000.0,"original":1631.25,"reduced":783.01,"fix25_credit":39150.0,"fix25_post":1241.14,"fix40_credit":39150.0,"fix40_pocket":23490.0,"fix40_post":1096.2,"released":95850.0},{"group":"1644","prazo":95,"credit":140000.0,"original":1691.67,"reduced":812.0,"fix25_credit":40600.0,"fix25_post":1287.11,"fix40_credit":40600.0,"fix40_pocket":24360.0,"fix40_post":1136.8,"released":99400.0},{"group":"1644","prazo":95,"credit":145000.0,"original":1752.08,"reduced":841.01,"fix25_credit":42050.0,"fix25_post":1333.07,"fix40_credit":42050.0,"fix40_pocket":25230.0,"fix40_post":1177.4,"released":102950.0},{"group":"1644","prazo":95,"credit":160000.0,"original":1933.33,"reduced":928.0,"fix25_credit":46400.0,"fix25_post":1470.98,"fix40_credit":46400.0,"fix40_pocket":27840.0,"fix40_post":1299.2,"released":113600.0},{"group":"1644","prazo":95,"credit":175000.0,"original":2114.58,"reduced":1015.01,"fix25_credit":50750.0,"fix25_post":1608.88,"fix40_credit":50750.0,"fix40_pocket":30450.0,"fix40_post":1421.0,"released":124250.0},{"group":"1644","prazo":95,"credit":190000.0,"original":2295.83,"reduced":1102.0,"fix25_credit":55100.0,"fix25_post":1746.79,"fix40_credit":55100.0,"fix40_pocket":33060.0,"fix40_post":1542.8,"released":134900.0},{"group":"1644","prazo":95,"credit":205000.0,"original":2477.08,"reduced":1189.01,"fix25_credit":59450.0,"fix25_post":1884.69,"fix40_credit":59450.0,"fix40_pocket":35670.0,"fix40_post":1664.6,"released":145550.0},{"group":"1644","prazo":95,"credit":220000.0,"original":2658.33,"reduced":1276.0,"fix25_credit":63800.0,"fix25_post":2022.6,"fix40_credit":63800.0,"fix40_pocket":38280.0,"fix40_post":1786.4,"released":156200.0},{"group":"1644","prazo":95,"credit":235000.0,"original":2839.58,"reduced":1363.01,"fix25_credit":68150.0,"fix25_post":2160.5,"fix40_credit":68150.0,"fix40_pocket":40890.0,"fix40_post":1908.2,"released":166850.0},{"group":"1653","prazo":99,"credit":250000.0,"original":3020.83,"reduced":1486.5,"fix25_credit":72625.0,"fix25_post":2208.05,"fix40_credit":72625.0,"fix40_pocket":43575.0,"fix40_post":2033.5,"released":177375.0},{"group":"1653","prazo":99,"credit":275000.0,"original":3227.78,"reduced":1635.17,"fix25_credit":79887.5,"fix25_post":2428.85,"fix40_credit":79887.5,"fix40_pocket":47932.5,"fix40_post":2236.85,"released":195112.5},{"group":"1653","prazo":99,"credit":300000.0,"original":3521.21,"reduced":1783.8,"fix25_credit":87150.0,"fix25_post":2649.66,"fix40_credit":87150.0,"fix40_pocket":52290.0,"fix40_post":2440.2,"released":212850.0},{"group":"1653","prazo":99,"credit":325000.0,"original":3814.65,"reduced":1932.46,"fix25_credit":94412.5,"fix25_post":2870.46,"fix40_credit":94412.5,"fix40_pocket":56647.5,"fix40_post":2643.55,"released":230587.5},{"group":"1653","prazo":99,"credit":350000.0,"original":4108.08,"reduced":2081.1,"fix25_credit":101675.0,"fix25_post":3091.26,"fix40_credit":101675.0,"fix40_pocket":61005.0,"fix40_post":2846.9,"released":248325.0},{"group":"1653","prazo":99,"credit":375000.0,"original":4401.52,"reduced":2178.75,"fix25_credit":108937.5,"fix25_post":3497.79,"fix40_credit":108937.5,"fix40_pocket":65362.5,"fix40_post":2830.83,"released":266062.5},{"group":"1653","prazo":99,"credit":400000.0,"original":4694.95,"reduced":2324.0,"fix25_credit":116200.0,"fix25_post":3730.98,"fix40_credit":116200.0,"fix40_pocket":69720.0,"fix40_post":3019.55,"released":283800.0},{"group":"1653","prazo":99,"credit":425000.0,"original":4988.38,"reduced":2469.25,"fix25_credit":123462.5,"fix25_post":3964.16,"fix40_credit":123462.5,"fix40_pocket":74077.5,"fix40_post":3208.27,"released":301537.5},{"group":"1653","prazo":99,"credit":450000.0,"original":5281.82,"reduced":2614.5,"fix25_credit":130725.0,"fix25_post":4197.35,"fix40_credit":130725.0,"fix40_pocket":78435.0,"fix40_post":3396.99,"released":319275.0},{"group":"1653","prazo":99,"credit":475000.0,"original":5575.35,"reduced":2759.75,"fix25_credit":137987.5,"fix25_post":4430.54,"fix40_credit":137987.5,"fix40_pocket":82792.5,"fix40_post":3585.72,"released":337012.5},{"group":"1653","prazo":99,"credit":500000.0,"original":5868.69,"reduced":2905.0,"fix25_credit":145250.0,"fix25_post":4663.72,"fix40_credit":145250.0,"fix40_pocket":87150.0,"fix40_post":3744.44,"released":354750.0}];
 const LAR_TABLE=[{"prazo":220,"credit":80000.0,"p100":450.91,"p85":396.36,"p70":341.82,"p50":269.09,"fix_credit":19840.0,"fix_post":360.32,"lim_credit":19840.0,"lim_pocket":19400.0,"lim_post":269.72,"released":60160.0},{"prazo":220,"credit":100000.0,"p100":563.64,"p85":495.45,"p70":427.27,"p50":336.36,"fix_credit":24800.0,"fix_post":450.39,"lim_credit":24800.0,"lim_pocket":24000.0,"lim_post":337.15,"released":75200.0},{"prazo":220,"credit":120000.0,"p100":676.36,"p85":594.55,"p70":512.73,"p50":403.64,"fix_credit":29760.0,"fix_post":540.47,"lim_credit":29760.0,"lim_pocket":29760.0,"lim_post":404.58,"released":90240.0},{"prazo":220,"credit":140000.0,"p100":789.09,"p85":693.64,"p70":598.18,"p50":470.91,"fix_credit":34720.0,"fix_post":630.55,"lim_credit":34720.0,"lim_pocket":34720.0,"lim_post":472.01,"released":105280.0},{"prazo":220,"credit":160000.0,"p100":901.82,"p85":792.73,"p70":683.64,"p50":538.18,"fix_credit":39680.0,"fix_post":720.63,"lim_credit":39680.0,"lim_pocket":39680.0,"lim_post":539.44,"released":120320.0},{"prazo":220,"credit":150000.0,"p100":845.45,"p85":750.0,"p70":646.79,"p50":504.55,"fix_credit":37200.0,"fix_post":681.82,"lim_credit":37200.0,"lim_pocket":37200.0,"lim_post":510.35,"released":112800.0},{"prazo":220,"credit":175000.0,"p100":986.36,"p85":875.0,"p70":754.59,"p50":588.64,"fix_credit":43400.0,"fix_post":795.45,"lim_credit":43400.0,"lim_pocket":43400.0,"lim_post":595.41,"released":131600.0},{"prazo":220,"credit":200000.0,"p100":1127.27,"p85":909.68,"p70":862.39,"p50":672.73,"fix_credit":49600.0,"fix_post":909.09,"lim_credit":49600.0,"lim_pocket":49600.0,"lim_post":680.47,"released":150400.0},{"prazo":220,"credit":225000.0,"p100":1268.18,"p85":1125.0,"p70":970.18,"p50":756.82,"fix_credit":55800.0,"fix_post":1022.73,"lim_credit":55800.0,"lim_pocket":55800.0,"lim_post":765.53,"released":169200.0},{"prazo":220,"credit":250000.0,"p100":1409.09,"p85":1250.0,"p70":1077.98,"p50":840.91,"fix_credit":62000.0,"fix_post":1136.36,"lim_credit":62000.0,"lim_pocket":62000.0,"lim_post":850.59,"released":188000.0},{"prazo":220,"credit":275000.0,"p100":1550.0,"p85":1375.0,"p70":1185.78,"p50":925.0,"fix_credit":68200.0,"fix_post":1250.0,"lim_credit":68200.0,"lim_pocket":68200.0,"lim_post":935.65,"released":206800.0},{"prazo":220,"credit":300000.0,"p100":1690.91,"p85":1500.0,"p70":1293.58,"p50":1009.09,"fix_credit":74400.0,"fix_post":1363.64,"lim_credit":74400.0,"lim_pocket":74400.0,"lim_post":1020.71,"released":225600.0},{"prazo":220,"credit":325000.0,"p100":1831.82,"p85":1632.49,"p70":1407.83,"p50":1093.18,"fix_credit":80600.0,"fix_post":1484.11,"lim_credit":80600.0,"lim_pocket":80600.0,"lim_post":1110.85,"released":244400.0},{"prazo":220,"credit":350000.0,"p100":1972.73,"p85":1758.06,"p70":1516.13,"p50":1177.27,"fix_credit":86800.0,"fix_post":1598.27,"lim_credit":86800.0,"lim_pocket":86800.0,"lim_post":1196.3,"released":263200.0},{"prazo":220,"credit":375000.0,"p100":2113.64,"p85":1883.64,"p70":1624.42,"p50":1261.36,"fix_credit":93000.0,"fix_post":1712.44,"lim_credit":93000.0,"lim_pocket":93000.0,"lim_post":1281.75,"released":282000.0},{"prazo":220,"credit":400000.0,"p100":2254.55,"p85":2009.22,"p70":1732.72,"p50":1345.45,"fix_credit":99200.0,"fix_post":1826.6,"lim_credit":99200.0,"lim_pocket":99200.0,"lim_post":1367.2,"released":300800.0},{"prazo":220,"credit":425000.0,"p100":2395.45,"p85":2134.79,"p70":1841.01,"p50":1429.55,"fix_credit":105400.0,"fix_post":1940.76,"lim_credit":105400.0,"lim_pocket":105400.0,"lim_post":1452.65,"released":319600.0},{"prazo":220,"credit":450000.0,"p100":2536.36,"p85":2260.37,"p70":1949.31,"p50":1513.64,"fix_credit":111600.0,"fix_post":2054.92,"lim_credit":111600.0,"lim_pocket":111600.0,"lim_post":1538.1,"released":338400.0},{"prazo":220,"credit":475000.0,"p100":2677.27,"p85":2385.94,"p70":2057.6,"p50":1597.73,"fix_credit":117800.0,"fix_post":2169.09,"lim_credit":117800.0,"lim_pocket":117800.0,"lim_post":1623.54,"released":357200.0},{"prazo":220,"credit":500000.0,"p100":2818.18,"p85":2511.52,"p70":2165.9,"p50":1681.82,"fix_credit":124000.0,"fix_post":2283.25,"lim_credit":124000.0,"lim_pocket":124000.0,"lim_post":1708.99,"released":376000.0},{"prazo":220,"credit":550000.0,"p100":3100.0,"p85":2762.67,"p70":2382.49,"p50":1850.0,"fix_credit":136400.0,"fix_post":2511.57,"lim_credit":136400.0,"lim_pocket":136400.0,"lim_post":1879.89,"released":413600.0},{"prazo":220,"credit":600000.0,"p100":3381.82,"p85":3013.82,"p70":2599.08,"p50":2018.18,"fix_credit":148800.0,"fix_post":2739.9,"lim_credit":148800.0,"lim_pocket":148800.0,"lim_post":2050.79,"released":451200.0},{"prazo":220,"credit":650000.0,"p100":3663.64,"p85":3264.98,"p70":2815.67,"p50":2186.36,"fix_credit":161200.0,"fix_post":2968.22,"lim_credit":161200.0,"lim_pocket":161200.0,"lim_post":2221.69,"released":488800.0},{"prazo":220,"credit":700000.0,"p100":3945.45,"p85":3516.13,"p70":3032.26,"p50":2354.55,"fix_credit":173600.0,"fix_post":3196.55,"lim_credit":173600.0,"lim_pocket":173600.0,"lim_post":2392.59,"released":526400.0},{"prazo":220,"credit":750000.0,"p100":4227.27,"p85":3767.28,"p70":3248.85,"p50":2522.73,"fix_credit":186000.0,"fix_post":3424.87,"lim_credit":186000.0,"lim_pocket":186000.0,"lim_post":2563.49,"released":564000.0},{"prazo":220,"credit":800000.0,"p100":4509.09,"p85":4018.43,"p70":3465.44,"p50":2690.91,"fix_credit":198400.0,"fix_post":3653.2,"lim_credit":198400.0,"lim_pocket":198400.0,"lim_post":2734.39,"released":601600.0},{"prazo":220,"credit":850000.0,"p100":4790.91,"p85":4269.59,"p70":3682.03,"p50":2859.09,"fix_credit":210800.0,"fix_post":3881.52,"lim_credit":198400.0,"lim_pocket":198400.0,"lim_post":2905.29,"released":639200.0},{"prazo":220,"credit":900000.0,"p100":5072.73,"p85":4520.74,"p70":3898.62,"p50":3027.27,"fix_credit":223200.0,"fix_post":4109.85,"lim_credit":223200.0,"lim_pocket":223200.0,"lim_post":3076.19,"released":676800.0},{"prazo":220,"credit":950000.0,"p100":5354.55,"p85":4771.89,"p70":4115.21,"p50":3195.45,"fix_credit":235600.0,"fix_post":4338.17,"lim_credit":235600.0,"lim_pocket":235600.0,"lim_post":3247.09,"released":714400.0},{"prazo":220,"credit":1000000.0,"p100":5636.36,"p85":5023.04,"p70":4331.8,"p50":3363.64,"fix_credit":248000.0,"fix_post":4566.5,"lim_credit":248000.0,"lim_pocket":248000.0,"lim_post":3417.99,"released":752000.0}];
@@ -3228,7 +3275,14 @@ function ensureHierarchy(){
   });
 }
 ensureHierarchy();
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function save(){
+ if(!isManager()||!remoteReady)throw new Error('Acesso sem permissão para editar a base compartilhada');
+ const snapshot=JSON.parse(JSON.stringify(state));localStorage.setItem(KEY,JSON.stringify(snapshot));
+ saveQueue=saveQueue.then(async()=>{
+  const result=await apiJSON('/api/state','POST',{action:'replace',revision:serverRevision,state:snapshot});serverRevision=result.revision;
+ }).catch(err=>{remoteReady=false;alert('A alteração não foi sincronizada: '+err.message+'\nFaça backup e atualize a página antes de novas edições.');});
+ return saveQueue;
+}
 const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:2}).format(Number(n)||0);
 const compact=n=>{n=Number(n)||0;if(n>=1000000)return'R$ '+(n/1000000).toLocaleString('pt-BR',{maximumFractionDigits:2})+' mi';if(n>=1000)return'R$ '+(n/1000).toLocaleString('pt-BR',{maximumFractionDigits:0})+' mil';return money(n)}
 const monthKey=d=>String(d||'').slice(0,7);
@@ -4315,7 +4369,7 @@ function renderTeam(){
  const editBtn=document.getElementById('consultantEditBtn'); if(editBtn)editBtn.onclick=()=>openEditSales(c.id);
 }
 function fillConsultants(){document.getElementById('saleConsultant').innerHTML=state.consultants.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}
-function switchView(id){if((id==='sale'||id==='settings')&&!isManager()){alert('Esta área é exclusiva do gestor.');return}document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='booking')renderBookingManagers()}
+function switchView(id){if(((id==='sale')&&!canAddSale())||(id==='settings'&&!isManager())){alert('Esta área é exclusiva do gestor.');return}document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='booking')renderBookingManagers()}
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>switchView(b.dataset.go));
 document.getElementById('monthFilter').onchange=render;
@@ -4334,8 +4388,9 @@ document.getElementById('saleAmount').addEventListener('blur',updateSaleTotalPre
 document.getElementById('saleQty').addEventListener('input',updateSaleTotalPreview);
 updateSaleTotalPreview();
 
-function saveSaleEntry(shareRanking=false){
- if(!requireManager())return;
+async function saveSaleEntry(shareRanking=false){
+ if(!canAddSale()){alert('Somente Gestor ou Trainee podem lançar vendas.');return}
+ if(!remoteReady){alert('A base compartilhada não está disponível.');return}
  const consultantId=document.getElementById('saleConsultant').value;
  const product=document.getElementById('saleProduct').value;
  const unitAmount=parseNumber(document.getElementById('saleAmount').value);
@@ -4345,8 +4400,12 @@ function saveSaleEntry(shareRanking=false){
  if(!consultantId||!unitAmount||unitAmount<=0||!qty||!date){alert('Preencha consultor, valor por cota, quantidade de cotas e data.');return}
  const amount=unitAmount*qty;
  const sale={id:'s'+Date.now(),consultantId,product,amount,unitAmount,qty,date,note};
- state.sales.push(sale);
- try{save()}catch(error){state.sales.pop();alert('Não foi possível salvar a venda. Seus campos foram mantidos. Exporte um backup e verifique o armazenamento do navegador.');return}
+ try{
+  await saveQueue;
+  const result=await apiJSON('/api/state','POST',{action:'addSale',sale});
+  state=result.state;serverRevision=result.revision;
+  localStorage.setItem(KEY,JSON.stringify(state));
+ }catch(error){alert('Não foi possível cadastrar a venda: '+error.message);return}
  document.getElementById('saleAmount').value='';
  document.getElementById('saleQty').value='1';
  document.getElementById('saleNote').value='';
@@ -4511,7 +4570,7 @@ document.querySelectorAll('[data-commission-credit]').forEach(btn=>btn.addEventL
 renderCommissionSimulator();
 
 document.getElementById('managerAccessBtn').addEventListener('click',requestManagerAccess);
-document.getElementById('managerLogoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('gestao_menezes_role');applyAccessRole('viewer')});
+document.getElementById('managerLogoutBtn').addEventListener('click',logoutAccess);
 const changePinBtn=document.getElementById('changeManagerPin');if(changePinBtn)changePinBtn.addEventListener('click',changeManagerPin);
 
 function init(){
@@ -4519,7 +4578,7 @@ function init(){
  document.getElementById('monthFilter').value=current;
  document.getElementById('saleDate').value=now.toISOString().slice(0,10);
  syncSettings();render();initCurrencyInputs();
- applyAccessRole(sessionStorage.getItem('gestao_menezes_role')==='manager'?'manager':'viewer');
+ applyAccessRole('consultor');startAuth();
 }
 init();
 </script>
