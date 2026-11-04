@@ -2,7 +2,7 @@ import {get,put,head,BlobPreconditionFailedError} from '@vercel/blob';
 import {configured,json,session} from './_auth.js';
 const PATH='gestao-menezes/state-v1.json';
 async function current(){
- const blob=await get(PATH,{access:'private'});
+ const blob=await get(PATH,{access:'private',useCache:false});
  if(!blob?.stream)return null;
  const text=await new Response(blob.stream).text();
  return {...JSON.parse(text),etag:blob.blob.etag};
