@@ -2373,6 +2373,45 @@ h2{font-size:34px!important;line-height:.96}
 }
 </style>
 
+
+<style id="gm-commission-header-source-fix-v3">
+/* Fonte de verdade: um único ícone R$ inline antes do título. */
+#team .commission-countdown-card .commission-kicker{
+  display:flex!important;
+  align-items:center!important;
+  gap:16px!important;
+  flex-wrap:nowrap!important;
+}
+#team .commission-countdown-card .commission-kicker .commission-money-float{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  display:inline-flex!important;
+  flex:0 0 82px!important;
+  width:82px!important;
+  height:50px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0!important;
+  border-radius:14px!important;
+  font-size:24px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  opacity:1!important;
+  z-index:2!important;
+  transform:none;
+  animation:gmMoneyFloat 3.2s ease-in-out infinite!important;
+}
+#team .commission-countdown-card .commission-kicker .commission-money-float::before,
+#team .commission-countdown-card .commission-kicker .commission-money-float::after{content:none!important;display:none!important;}
+#team .commission-countdown-card .commission-icon{display:none!important;}
+@media(max-width:600px){
+  #team .commission-countdown-card .commission-kicker{gap:9px!important;}
+  #team .commission-countdown-card .commission-kicker .commission-money-float{flex-basis:52px!important;width:52px!important;height:35px!important;border-radius:10px!important;font-size:16px!important;}
+}
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -2952,12 +2991,10 @@ h2{font-size:34px!important;line-height:.96}
 
       <div class="consultor-grid">
         <div class="mini-card countdown-card commission-countdown-card" id="commissionCountdownCard">
-          <span class="commission-money-float" aria-hidden="true">R$</span>
+          
           <div class="countdown-head">
             <div class="countdown-kicker commission-kicker">
-              <span class="countdown-icon commission-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.4"></circle><path d="M6.5 9.5h.01M17.5 14.5h.01"></path></svg>
-              </span>
+              <span class="commission-money-float" aria-hidden="true">R$</span>
               <span>Fechamento de comissão</span>
             </div>
             <span class="countdown-status commission-status" id="commissionCountdownStatus"><i></i>Próximo fechamento</span>
