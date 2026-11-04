@@ -49,6 +49,21 @@ export default async function handler(req,res){
    }
    return json(res,409,{error:'Os dados foram modificados durante o lançamento. Atualize a página e confira se a venda foi registrada antes de tentar novamente.'});
   }
+  if(req.body?.action==='deleteSale'){
+   if(!['gestor','trainee'].includes(user.role))return json(res,403,{error:'Sem permissão para excluir vendas'});
+   const id=req.body.saleId;
+   if(typeof id!=='string'||!id||id.length>200)return json(res,400,{error:'Identificador de venda inválido'});
+   for(let attempt=0;attempt<3;attempt++){
+    const doc=await currentForWrite();
+    if(!doc)return json(res,409,{error:'Base compartilhada não inicializada'});
+    if(!(doc.state.sales||[]).some(s=>s.id===id))return json(res,404,{error:'Venda não encontrada. Atualize a página.'});
+    const updated={...doc.state,sales:doc.state.sales.filter(s=>s.id!==id)};
+    const next={revision:doc.revision+1,state:updated};
+    try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
+    catch(e){if(!conflict(e))throw e;console.warn('Sale delete conflict; retrying',{attempt})}
+   }
+   return json(res,409,{error:'Os dados mudaram durante a exclusão. Atualize a página.'});
+  }
   const doc=await currentForWrite();
   if(user.role!=='gestor')return json(res,403,{error:'Somente o gestor pode editar a base'});
   if(req.body?.action==='initialize'){
