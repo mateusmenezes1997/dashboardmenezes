@@ -3552,7 +3552,7 @@ function exportRankingCard(auto=false,returnCanvas=false){
 
   const monthLabel=formatMonth(m).toUpperCase();
   const list=rows.slice(0,10);
-  const leader=Math.max(1,Number(list[0]?.total)||1);
+  const individualTarget=5000000; // Meta individual fixa para as barras do ranking exportado
   const C={
     bg:'#040304',bg2:'#080507',panel:'#0d090b',panel2:'#120d10',
     wine:'#5b1027',wine2:'#7c1b39',gold:'#b99452',gold2:'#efd9a0',
@@ -3610,7 +3610,7 @@ function exportRankingCard(auto=false,returnCanvas=false){
   list.forEach((r,i)=>{
     const y=boardY+i*rowH;
     const place=i+1;
-    const p=(r.total/leader)*100;
+    const p=Math.max(0,Math.min(100,(Number(r.total)||0)/individualTarget*100));
     const isFirst=place===1,isSecond=place===2,isThird=place===3;
 
     if(isFirst){
@@ -3654,7 +3654,7 @@ function exportRankingCard(auto=false,returnCanvas=false){
     const barA=isSecond?'#777d86':isThird?'#8c593b':C.wine2;
     const barB=isSecond?C.silver:isThird?C.bronze:C.gold2;
     progress(barX,barY,barW,9,p,barA,barB);
-    ctx.textAlign='right';ctx.fillStyle=rankColor;ctx.font='900 10px Arial';ctx.fillText(p.toFixed(0)+'%',barX+barW+48,y+39);ctx.textAlign='left';
+    ctx.textAlign='right';ctx.fillStyle=rankColor;ctx.font='900 10px Arial';ctx.fillText(Number(p.toFixed(1)).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%',barX+barW+48,y+39);ctx.textAlign='left';
 
     // total
     line(boardX+1110,y+18,boardX+1110,y+58,'rgba(239,210,145,.13)');
