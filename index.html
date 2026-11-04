@@ -303,7 +303,7 @@ body[data-role="trainee"] #team .team-assignment-editor.hidden{display:none!impo
 body[data-role="viewer"] .viewer-note,body[data-role="trainee"] .viewer-note{display:none!important}
 body[data-role="trainee"] [data-view="sale"],body[data-role="trainee"] #saveSale,body[data-role="trainee"] #saveSaleShare{display:inline-flex!important}
 body[data-role="trainee"] [data-view="sale"]{display:flex!important}
-body[data-role="trainee"] .sale-delete-btn,body[data-role="trainee"] .edit-sales-btn{display:none!important}
+body[data-role="viewer"] .sale-delete-btn,body[data-role="trainee"] .edit-sales-btn{display:none!important}
 .gm-auth{position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at top,rgba(111,20,43,.18),transparent 50%),#08090c;display:flex;align-items:center;justify-content:center;padding:22px}
 .gm-auth.hidden{display:none!important}.gm-auth-card{width:min(420px,100%);padding:32px;border:1px solid rgba(213,171,103,.45);border-radius:24px;background:#10151b;box-shadow:0 26px 75px #000a;color:white;font-family:Manrope,sans-serif}
 .gm-auth-card h2{font-size:23px;margin:0 0 8px}.gm-auth-card p{font-size:12px;color:#a4adba;line-height:1.5}.gm-auth-card label{display:block;margin:18px 0 6px;color:#e8c98f;font-size:11px;font-weight:bold}.gm-auth-card input,.gm-auth-card select{width:100%;padding:13px;background:#0b1016;color:white;border:1px solid #303846;border-radius:11px}.gm-auth-card button{width:100%;margin-top:20px;border:0;border-radius:11px;padding:14px;background:linear-gradient(135deg,#c89c58,#f0cb8c);font-weight:900;color:#17130c}.gm-auth-card .gm-auth-error{min-height:22px;color:#ff9aa3;margin-top:12px;font-size:11px}
@@ -3155,6 +3155,7 @@ let remoteReady=false;
 let saveQueue=Promise.resolve();
 function isManager(){return accessRole==='manager'}
 function canAddSale(){return isManager()||accessRole==='trainee'}
+function canDeleteSale(){return isManager()||accessRole==='trainee'}
 function requireManager(){if(isManager())return true;alert('Somente o gestor pode alterar estes dados.');return false}
 function applyAccessRole(role){
  accessRole=role==='gestor'?'manager':role==='trainee'?'trainee':'viewer';document.body.dataset.role=accessRole;
@@ -3167,7 +3168,7 @@ function applyAccessRole(role){
     if(isManager()){el.removeAttribute('inert');el.removeAttribute('aria-disabled');}
     else {el.setAttribute('inert','');el.setAttribute('aria-disabled','true');}
   });
- const note=document.querySelector('.viewer-note');if(note)note.textContent=accessRole==='trainee'?'Modo Trainee: permitido apenas cadastrar novas vendas; demais alterações são exclusivas do gestor.':'Modo Consultor: somente visualização.';
+ const note=document.querySelector('.viewer-note');if(note)note.textContent=accessRole==='trainee'?'Modo Trainee: permitido cadastrar e excluir vendas; demais alterações são exclusivas do gestor.':'Modo Consultor: somente visualização.';
  const current=[...document.querySelectorAll('.view')].find(v=>!v.classList.contains('hidden'))?.id;
  if((current==='settings'&&!isManager())||(current==='sale'&&!canAddSale()))switchView('dashboard');
 }
@@ -3983,12 +3984,13 @@ function render(){
  document.getElementById('recent').innerHTML=recent.length?recent.map(s=>{
    const c=state.consultants.find(x=>x.id===s.consultantId);
    const prod=s.product==='lar'?'Lar':s.product==='motors'?'Motors':'Não definido';
-   return`<div class="recentitem"><div style="min-width:0"><b>${esc(c?.name||'Consultor')}</b><small>${esc(prod)} • ${esc(s.date)}</small></div><div class="recentitem-actions"><b>${money(s.amount)}</b><button class="sale-delete-btn manager-only" type="button" data-delete-sale="${esc(s.id)}" data-sale-name="${esc(c?.name||'Consultor')}" data-sale-amount="${Number(s.amount)||0}">Excluir</button></div></div>`
+   return`<div class="recentitem"><div style="min-width:0"><b>${esc(c?.name||'Consultor')}</b><small>${esc(prod)} • ${esc(s.date)}</small></div><div class="recentitem-actions"><b>${money(s.amount)}</b><button class="sale-delete-btn" type="button" data-delete-sale="${esc(s.id)}" data-sale-name="${esc(c?.name||'Consultor')}" data-sale-amount="${Number(s.amount)||0}">Excluir</button></div></div>`
  }).join(''):'<div class="empty">Nenhuma nova venda lançada nesta versão ainda.</div>';
 
  document.querySelectorAll('[data-delete-sale]').forEach(btn=>{
-   btn.onclick=()=>{
-     if(!requireManager())return;
+   btn.onclick=async()=>{
+     if(!canDeleteSale()){alert('Somente Gestor ou Trainee podem excluir vendas.');return}
+     if(!remoteReady){alert('A base compartilhada não está disponível.');return}
      const id=btn.dataset.deleteSale;
      const sale=state.sales.find(s=>s.id===id);
      if(!sale)return;
@@ -3996,10 +3998,16 @@ function render(){
      const name=consultant?.name||btn.dataset.saleName||'Consultor';
      const amount=Number(sale.amount)||Number(btn.dataset.saleAmount)||0;
      if(!confirm(`Excluir a venda de ${name} no valor de ${money(amount)}?\n\nEssa ação removerá o lançamento do dashboard.`))return;
-     state.sales=state.sales.filter(s=>s.id!==id);
-     save();
-     render();
-     maybeAutoExportRanking();
+     btn.disabled=true;
+     try{
+       await saveQueue;
+       const result=await apiJSON('/api/state','POST',{action:'deleteSale',saleId:id});
+       state=result.state;serverRevision=result.revision;
+       localStorage.setItem(KEY,JSON.stringify(state));
+       render();
+       maybeAutoExportRanking();
+     }catch(error){btn.disabled=false;alert('Não foi possível excluir a venda: '+error.message)}
+
    };
  });
 
