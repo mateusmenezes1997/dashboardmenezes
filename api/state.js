@@ -18,6 +18,7 @@ async function currentForWrite(){
   if(!doc)return null;
   const after=await head(PATH);
   if(before.etag===after.etag)return {...doc,etag:after.etag};
+  console.warn('Blob changed during read; retrying stable read', {attempt});
  }
  return null;
 }
@@ -44,7 +45,7 @@ export default async function handler(req,res){
     const updated={...doc.state,sales:[...(doc.state.sales||[]),sale]};
     const next={revision:doc.revision+1,state:updated};
     try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
-    catch(e){if(!conflict(e))throw e}
+    catch(e){if(!conflict(e))throw e;console.warn('Blob conditional write conflict; retrying', {attempt})}
    }
    return json(res,409,{error:'Os dados foram modificados durante o lançamento. Atualize a página e confira se a venda foi registrada antes de tentar novamente.'});
   }
