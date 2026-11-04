@@ -7,6 +7,20 @@ async function current(){
  const text=await new Response(blob.stream).text();
  return {...JSON.parse(text),etag:blob.blob.etag};
 }
+// A blob read's response ETag can differ from metadata returned by head().
+// For writes, use the storage metadata ETag and ensure no update occurred
+// while fetching the uncached document. This avoids false CAS failures.
+async function currentForWrite(){
+ for(let attempt=0;attempt<4;attempt++){
+  const before=await head(PATH);
+  if(!before)return null;
+  const doc=await current();
+  if(!doc)return null;
+  const after=await head(PATH);
+  if(before.etag===after.etag)return {...doc,etag:after.etag};
+ }
+ return null;
+}
 async function write(doc,etag){
  await put(PATH,JSON.stringify(doc),{...(etag?{ifMatch:etag}:{}),access:'private',allowOverwrite:true,contentType:'application/json',addRandomSuffix:false,cacheControlMaxAge:60});
 }
@@ -22,14 +36,11 @@ export default async function handler(req,res){
    if(!['gestor','trainee'].includes(user.role))return json(res,403,{error:'Sem permissão para cadastrar vendas'});
    const sale=req.body.sale;
    for(let attempt=0;attempt<3;attempt++){
-    const doc=await current();
+    const doc=await currentForWrite();
     if(!doc)return json(res,409,{error:'O gestor precisa importar a base inicial antes de cadastrar vendas'});
     const cids=new Set((doc.state.consultants||[]).map(c=>c.id));
     if(!saleOK(sale,cids))return json(res,400,{error:'Venda inválida'});
     if((doc.state.sales||[]).some(s=>s.id===sale.id))return json(res,409,{error:'Venda já cadastrada'});
-    // Confirm the content read is still the latest version, without overwriting newer writes.
-    const latest=await head(PATH);
-    if(latest?.etag!==doc.etag)continue;
     const updated={...doc.state,sales:[...(doc.state.sales||[]),sale]};
     const next={revision:doc.revision+1,state:updated};
     try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
@@ -37,7 +48,7 @@ export default async function handler(req,res){
    }
    return json(res,409,{error:'Os dados foram modificados durante o lançamento. Atualize a página e confira se a venda foi registrada antes de tentar novamente.'});
   }
-  const doc=await current();
+  const doc=await currentForWrite();
   if(user.role!=='gestor')return json(res,403,{error:'Somente o gestor pode editar a base'});
   if(req.body?.action==='initialize'){
    if(doc)return json(res,409,{error:'Base já inicializada'});
@@ -50,8 +61,6 @@ export default async function handler(req,res){
    if(req.body.revision!==doc.revision)return json(res,409,{error:'A base foi atualizada por outra pessoa. Atualize a página antes de editar.'});
    const s=req.body.state;
    if(!s||!Array.isArray(s.consultants)||!Array.isArray(s.sales)||!s.settings)return json(res,400,{error:'Dados inválidos'});
-   const latest=await head(PATH);
-   if(latest?.etag!==doc.etag)return json(res,409,{error:'A base mudou durante a edição. Atualize a página e tente novamente.'});
    const next={revision:doc.revision+1,state:s};await write(next,doc.etag);return json(res,200,{...next,ok:true});
   }
   return json(res,400,{error:'Operação não reconhecida'});
