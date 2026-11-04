@@ -292,6 +292,15 @@ td{padding:13px 12px;border-bottom:1px solid #1d242e;font-size:12px;color:#dde3e
 .access-role{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:#8f99a5}.access-role b{color:#fff;font-size:10px}.access-role .dot{width:8px;height:8px;border-radius:50%;background:#67717d;display:inline-block;margin-right:6px}.access-role.manager .dot{background:#d5ab67;box-shadow:0 0 0 4px rgba(213,171,103,.12)}
 .access-btn{height:40px;border-radius:12px;border:1px solid #29333f;background:#11171e;color:#d8dee6;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}.access-btn.primary{background:linear-gradient(135deg,#c89c58,#f0cb8c);color:#101319;border:0}.access-btn:hover{filter:brightness(1.05)}
 body[data-role="viewer"] .manager-only,body[data-role="trainee"] .manager-only{display:none!important}
+/* Mesma estrutura visual da Equipe em todos os acessos: controles de gestão
+   permanecem presentes para preservar o grid, mas ficam inertes fora do Gestor. */
+body[data-role="viewer"] #team .manager-only:not(.hidden),
+body[data-role="trainee"] #team .manager-only:not(.hidden){display:revert!important}
+body[data-role="viewer"] #team .focus-toolbar-clean > .manager-only,
+body[data-role="trainee"] #team .focus-toolbar-clean > .manager-only{display:flex!important}
+body[data-role="viewer"] #team .team-assignment-editor.hidden,
+body[data-role="trainee"] #team .team-assignment-editor.hidden{display:none!important}
+body[data-role="viewer"] .viewer-note,body[data-role="trainee"] .viewer-note{display:none!important}
 body[data-role="trainee"] [data-view="sale"],body[data-role="trainee"] #saveSale,body[data-role="trainee"] #saveSaleShare{display:inline-flex!important}
 body[data-role="trainee"] [data-view="sale"]{display:flex!important}
 body[data-role="trainee"] .sale-delete-btn,body[data-role="trainee"] .edit-sales-btn{display:none!important}
@@ -3152,6 +3161,12 @@ function applyAccessRole(role){
  const label=document.getElementById('accessRoleLabel'),box=document.getElementById('accessRoleBox');
  if(label)label.textContent=isManager()?'Gestor':accessRole==='trainee'?'Trainee':'Consultor';
  if(box)box.classList.toggle('manager',isManager());
+  // O visual da aba Equipe é o mesmo para os três perfis.
+  // Apenas o Gestor pode interagir com as ferramentas administrativas.
+  document.querySelectorAll('#team .manager-only').forEach(el=>{
+    if(isManager()){el.removeAttribute('inert');el.removeAttribute('aria-disabled');}
+    else {el.setAttribute('inert','');el.setAttribute('aria-disabled','true');}
+  });
  const note=document.querySelector('.viewer-note');if(note)note.textContent=accessRole==='trainee'?'Modo Trainee: permitido apenas cadastrar novas vendas; demais alterações são exclusivas do gestor.':'Modo Consultor: somente visualização.';
  const current=[...document.querySelectorAll('.view')].find(v=>!v.classList.contains('hidden'))?.id;
  if((current==='settings'&&!isManager())||(current==='sale'&&!canAddSale()))switchView('dashboard');
