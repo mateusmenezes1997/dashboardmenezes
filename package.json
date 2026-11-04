@@ -1,1 +1,9 @@
-{"name":"gestao-menezes-dashboard","private":true,"version":"1.0.0","type":"module","dependencies":{"@vercel/blob":"^2.3.0"}}
+{
+  "name": "gestao-menezes-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@vercel/blob": "2.8.2"
+  }
+}
