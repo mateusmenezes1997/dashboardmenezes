@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v6";
+const VERSION = "gm-pwa-v7";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -221,9 +221,7 @@ const COMMISSION_HEADER_FIX_V2 = `
 `;
 
 function moveCommissionMoney(html){
-  if (!html.includes('commission-kicker')) return html;
-  if (!html.includes('gm-money-safe-v1')) html = html.replace('</head>', MONEY_STYLE + '\n</head>');
-  if (!html.includes('gm-commission-header-fix-v2')) html = html.replace('</body>', COMMISSION_HEADER_FIX_V2 + '\n</body>');
+  // O card de comissão agora é definido no index.html, sem reposicionamento pelo service worker.
   return html;
 }
 
