@@ -2540,9 +2540,9 @@ h2{font-size:34px!important;line-height:.96}
           <select id="simBid"></select>
         </div>
         <div class="sim-field hidden" id="simFreeBidField">
-          <label for="simFreeBid">Lance livre (financeiro)</label>
-          <input id="simFreeBid" type="number" min="0" step="100" inputmode="decimal" placeholder="R$ 0,00"/>
-          <small style="display:block;margin-top:6px;color:var(--muted)">Valor total pago com recurso próprio.</small>
+          <label for="simFreeBid">Lance livre (% do crédito)</label>
+          <input id="simFreeBid" type="number" min="0" max="100" step="1" inputmode="decimal" value="65" placeholder="65"/>
+          <small style="display:block;margin-top:6px;color:var(--muted)">Referência usual: 60% a 70% do crédito, pago 100% com recurso próprio.</small>
         </div>
       </div>
 
@@ -3356,8 +3356,10 @@ function fillSimulator(){
 function updateFreeBidVisibility(){
   const bid=document.getElementById('simBid');
   const field=document.getElementById('simFreeBidField');
+  const input=document.getElementById('simFreeBid');
   if(!bid||!field)return;
   field.classList.toggle('hidden',bid.value!=='free');
+  if(bid.value==='free'&&input&&!String(input.value||'').trim())input.value='65';
 }
 function simulatorValues(){
   const product=document.getElementById('simProduct').value;
@@ -3373,8 +3375,8 @@ function simulatorValues(){
     const reduced=isLar?parcel!=='p100':parcel!=='original';
     const pv=isLar?(parcelMap[parcel]||parcelMap.p100):(reduced?['Parcela reduzida por 24x',row.reduced]:['Parcela original',row.original]);
     const credit=row.credit*qty;
-    const freeBid=Math.max(0,Math.min(credit,parseNumber((document.getElementById('simFreeBid')||{}).value)||0));
-    const pct=credit?(freeBid/credit)*100:0;
+    const pct=Math.max(0,Math.min(100,parseNumber((document.getElementById('simFreeBid')||{}).value)||65));
+    const freeBid=credit*(pct/100);
     const per={credit:row.credit,installment:pv[1],embedded:0,pocket:freeBid/qty,post:null,released:row.credit};
     return {
       product:isLar?'Lar':'Motors',qty,per,isFree:true,
@@ -3382,8 +3384,8 @@ function simulatorValues(){
       originalInstallment:(isLar?row.p100:row.original)*qty,isReduced:reduced,
       term:`${row.prazo} meses`,group:isLar?'Tabela Lar':`Grupo ${row.group}`,
       embedded:0,pocket:freeBid,post:null,released:credit,
-      bidLabel:'Lance Livre • financeiro',
-      pills:[`${qty} cota${qty>1?'s':''}`,`Prazo ${row.prazo} meses`,pv[0],`Lance financeiro ${simMoney(freeBid)} • ${pct.toFixed(2).replace('.',',')}%`]
+      bidLabel:'Lance Livre • recurso próprio',
+      pills:[`${qty} cota${qty>1?'s':''}`,`Prazo ${row.prazo} meses`,pv[0],`Lance livre ${simMoney(freeBid)} • ${pct.toFixed(0)}% do crédito • recurso próprio`]
     };
   }
 
@@ -3497,7 +3499,7 @@ function renderSimulator(){
   document.getElementById('cardPocket').textContent=v.pocket?simMoney(v.pocket):'Sem valor adicional';
   document.getElementById('cardPost').textContent=(v.isDraw||v.isFree)?'A consultar':simMoney(v.post);
   document.getElementById('cardPostNote').textContent=v.isDraw?'Depende do mês da contemplação, do saldo devedor e das regras do grupo.':(v.isFree?'No lance livre financeiro, a parcela após contemplação depende do saldo devedor e das regras do grupo.':'Conforme a estratégia de lance selecionada na tabela.');
-  document.querySelector('#simCard .sim-disclaimer').textContent=v.isDraw?'Simulação por sorteio, sem lance e sem desconto de lance no crédito. Valores sujeitos a reajustes e às regras do grupo. Não há garantia de contemplação nem de prazo.':(v.isFree?'Lance livre financeiro informado na simulação. O valor é pago com recursos próprios e não reduz o crédito liberado. A contemplação depende da oferta vencedora e das regras do grupo; não há garantia de contemplação.':'Simulação baseada na tabela fornecida. Valores sujeitos a alteração sem aviso prévio. A contemplação depende das regras do grupo e não é garantida.');
+  document.querySelector('#simCard .sim-disclaimer').textContent=v.isDraw?'Simulação por sorteio, sem lance e sem desconto de lance no crédito. Valores sujeitos a reajustes e às regras do grupo. Não há garantia de contemplação nem de prazo.':(v.isFree?'Lance livre pago 100% com recurso próprio. A simulação usa 65% como referência inicial e indica a faixa usual de 60% a 70%, mas a oferta vencedora varia por grupo e assembleia; não há garantia de contemplação.':'Simulação baseada na tabela fornecida. Valores sujeitos a alteração sem aviso prévio. A contemplação depende das regras do grupo e não é garantida.');
   document.getElementById('cardReleased').textContent=simMoney(v.released);
   document.getElementById('cardPills').innerHTML=v.pills.map(p=>`<span class="sim-pill">${esc(p)}</span>`).join('');
 }
@@ -4471,7 +4473,7 @@ document.getElementById('downloadSimCard').addEventListener('click',downloadSimu
 document.getElementById('resetSimulator').addEventListener('click',()=>{
   document.getElementById('simProduct').value='lar';
   document.getElementById('simQty').value='1';
-  document.getElementById('simFreeBid').value='';
+  document.getElementById('simFreeBid').value='65';
   fillSimulator();
 });
 
