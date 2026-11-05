@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v5";
+const VERSION = "gm-pwa-v7";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -180,25 +180,50 @@ const MONEY_STYLE = `
 }
 </style>`;
 
+const COMMISSION_HEADER_FIX_V2 = `
+<style id="gm-commission-header-fix-v2">
+.commission-countdown-card .commission-kicker{display:flex!important;align-items:center!important;gap:12px!important}
+.commission-countdown-card .commission-kicker .commission-money-float{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  position:relative!important;inset:auto!important;margin:0 2px 0 0!important;
+  flex:0 0 42px!important;width:42px!important;height:28px!important;
+  color:#82f7b5!important;z-index:1!important;
+}
+.commission-countdown-card .commission-kicker .commission-icon{display:none!important}
+</style>
+<script id="gm-commission-header-fix-v2">
+(function(){
+ function fixHeader(){
+  document.querySelectorAll('.commission-countdown-card').forEach(function(card){
+   var kicker=card.querySelector('.commission-kicker');
+   if(!kicker)return;
+   kicker.querySelectorAll('.commission-icon').forEach(function(icon){icon.remove()});
+   var money=card.querySelector('.commission-money-float');
+   if(!money){
+    money=document.createElement('span');money.className='commission-money-float';
+    money.setAttribute('aria-hidden','true');money.textContent='R$';
+   }
+   if(money.parentElement!==kicker||kicker.firstElementChild!==money){kicker.insertBefore(money,kicker.firstChild)}
+   card.querySelectorAll('.commission-money-float').forEach(function(el){if(el!==money)el.remove()});
+  });
+ }
+ var queued=false;
+ function schedule(){
+  if(queued)return;queued=true;
+  requestAnimationFrame(function(){queued=false;fixHeader()});
+ }
+ document.addEventListener('DOMContentLoaded',schedule);
+ window.addEventListener('load',schedule);
+ new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+ schedule();
+})();
+<\/script>
+`;
+
 function moveCommissionMoney(html){
-  if (!html.includes('commission-money-float')) return html;
-
-  html = html.replace(
-    /\s*<span class="commission-money-float" aria-hidden="true">R\$<\/span>/,
-    ''
-  );
-
-  html = html.replace(
-    /(<div class="countdown-kicker commission-kicker">\s*<span class="countdown-icon commission-icon"[^>]*>[\s\S]*?<\/span>)/,
-    '$1<span class="commission-money-float" aria-hidden="true">R$</span>'
-  );
-
-  if (!html.includes('gm-money-safe-v1')) {
-    html = html.replace('</head>', MONEY_STYLE + '\n</head>');
-  }
+  // O card de comissão agora é definido no index.html, sem reposicionamento pelo service worker.
   return html;
 }
-
 
 const CHAMPION_STYLE = \`
 <style id="gm-champion-highlight-v1">
