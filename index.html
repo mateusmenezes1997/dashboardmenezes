@@ -2539,6 +2539,11 @@ h2{font-size:34px!important;line-height:.96}
           <label for="simBid">Forma de contemplação</label>
           <select id="simBid"></select>
         </div>
+        <div class="sim-field hidden" id="simFreeBidField">
+          <label for="simFreeBid">Lance livre (financeiro)</label>
+          <input id="simFreeBid" type="number" min="0" step="100" inputmode="decimal" placeholder="R$ 0,00"/>
+          <small style="display:block;margin-top:6px;color:var(--muted)">Valor total pago com recurso próprio.</small>
+        </div>
       </div>
 
       <div class="sim-source" id="simSource">
@@ -3333,6 +3338,7 @@ function fillSimulator(){
     bid.innerHTML=`
       <option value="fix">Lance Fixo - embutido do crédito</option>
       <option value="limited">Lance Limitado - embutido + bolso</option>
+      <option value="free">Lance Livre - financeiro</option>
       <option value="draw">Sorteio - sem lance</option>`;
   }else{
     parcel.innerHTML=`
@@ -3341,9 +3347,17 @@ function fillSimulator(){
     bid.innerHTML=`
       <option value="fix25">Lance Fixo 25% - embutido</option>
       <option value="fix40">Lance Fixo 40% - embutido + bolso</option>
+      <option value="free">Lance Livre - financeiro</option>
       <option value="draw">Sorteio - sem lance</option>`;
   }
+  updateFreeBidVisibility();
   renderSimulator();
+}
+function updateFreeBidVisibility(){
+  const bid=document.getElementById('simBid');
+  const field=document.getElementById('simFreeBidField');
+  if(!bid||!field)return;
+  field.classList.toggle('hidden',bid.value!=='free');
 }
 function simulatorValues(){
   const product=document.getElementById('simProduct').value;
@@ -3352,6 +3366,26 @@ function simulatorValues(){
   const qty=currentSimQty();
   const row=currentSimRow();
   if(!row)return null;
+
+  if(bid==='free'){
+    const isLar=product==='lar';
+    const parcelMap={p100:['Parcela 100%',row.p100],p85:['Parcela reduzida 85%',row.p85],p70:['Parcela reduzida 70%',row.p70],p50:['Parcela reduzida 50%',row.p50]};
+    const reduced=isLar?parcel!=='p100':parcel!=='original';
+    const pv=isLar?(parcelMap[parcel]||parcelMap.p100):(reduced?['Parcela reduzida por 24x',row.reduced]:['Parcela original',row.original]);
+    const credit=row.credit*qty;
+    const freeBid=Math.max(0,Math.min(credit,parseNumber((document.getElementById('simFreeBid')||{}).value)||0));
+    const pct=credit?(freeBid/credit)*100:0;
+    const per={credit:row.credit,installment:pv[1],embedded:0,pocket:freeBid/qty,post:null,released:row.credit};
+    return {
+      product:isLar?'Lar':'Motors',qty,per,isFree:true,
+      credit,installmentLabel:pv[0],installment:per.installment*qty,
+      originalInstallment:(isLar?row.p100:row.original)*qty,isReduced:reduced,
+      term:`${row.prazo} meses`,group:isLar?'Tabela Lar':`Grupo ${row.group}`,
+      embedded:0,pocket:freeBid,post:null,released:credit,
+      bidLabel:'Lance Livre • financeiro',
+      pills:[`${qty} cota${qty>1?'s':''}`,`Prazo ${row.prazo} meses`,pv[0],`Lance financeiro ${simMoney(freeBid)} • ${pct.toFixed(2).replace('.',',')}%`]
+    };
+  }
 
   if(bid==='draw'){
     const isLar=product==='lar';
@@ -3461,9 +3495,9 @@ function renderSimulator(){
   document.getElementById('cardEmbedded').textContent=simMoney(v.embedded);
   document.getElementById('cardBidType').textContent=v.bidLabel;
   document.getElementById('cardPocket').textContent=v.pocket?simMoney(v.pocket):'Sem valor adicional';
-  document.getElementById('cardPost').textContent=v.isDraw?'A consultar':simMoney(v.post);
-  document.getElementById('cardPostNote').textContent=v.isDraw?'Depende do mês da contemplação, do saldo devedor e das regras do grupo.':'Conforme a estratégia de lance selecionada na tabela.';
-  document.querySelector('#simCard .sim-disclaimer').textContent=v.isDraw?'Simulação por sorteio, sem lance e sem desconto de lance no crédito. Valores sujeitos a reajustes e às regras do grupo. Não há garantia de contemplação nem de prazo.':'Simulação baseada na tabela fornecida. Valores sujeitos a alteração sem aviso prévio. A contemplação depende das regras do grupo e não é garantida.';
+  document.getElementById('cardPost').textContent=(v.isDraw||v.isFree)?'A consultar':simMoney(v.post);
+  document.getElementById('cardPostNote').textContent=v.isDraw?'Depende do mês da contemplação, do saldo devedor e das regras do grupo.':(v.isFree?'No lance livre financeiro, a parcela após contemplação depende do saldo devedor e das regras do grupo.':'Conforme a estratégia de lance selecionada na tabela.');
+  document.querySelector('#simCard .sim-disclaimer').textContent=v.isDraw?'Simulação por sorteio, sem lance e sem desconto de lance no crédito. Valores sujeitos a reajustes e às regras do grupo. Não há garantia de contemplação nem de prazo.':(v.isFree?'Lance livre financeiro informado na simulação. O valor é pago com recursos próprios e não reduz o crédito liberado. A contemplação depende da oferta vencedora e das regras do grupo; não há garantia de contemplação.':'Simulação baseada na tabela fornecida. Valores sujeitos a alteração sem aviso prévio. A contemplação depende das regras do grupo e não é garantida.');
   document.getElementById('cardReleased').textContent=simMoney(v.released);
   document.getElementById('cardPills').innerHTML=v.pills.map(p=>`<span class="sim-pill">${esc(p)}</span>`).join('');
 }
@@ -4429,13 +4463,15 @@ document.getElementById('exportBtn').onclick=()=>{
 
 ['simProduct','simCredit','simParcel','simBid','simQty'].forEach(id=>{
   const el=document.getElementById(id);
-  if(el)el.addEventListener('change',()=>{ if(id==='simProduct')fillSimulator(); else renderSimulator(); });
+  if(el)el.addEventListener('change',()=>{ if(id==='simProduct')fillSimulator(); else { if(id==='simBid')updateFreeBidVisibility(); renderSimulator(); } });
 });
 document.getElementById('simQty').addEventListener('input',renderSimulator);
+document.getElementById('simFreeBid').addEventListener('input',renderSimulator);
 document.getElementById('downloadSimCard').addEventListener('click',downloadSimulatorCard);
 document.getElementById('resetSimulator').addEventListener('click',()=>{
   document.getElementById('simProduct').value='lar';
   document.getElementById('simQty').value='1';
+  document.getElementById('simFreeBid').value='';
   fillSimulator();
 });
 
