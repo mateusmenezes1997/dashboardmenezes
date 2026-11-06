@@ -3113,7 +3113,7 @@ button.brandmark:focus-visible{outline:2px solid #f0cb8c;outline-offset:5px;}
       <div class="field"><label>Reconhecimento da meta</label><input value="Palco + presente • Leandro Filipak" disabled/></div>
       <div class="field"><label>WhatsApp da secretária Geovana</label><input id="cfgSecretaryWhatsapp" inputmode="tel" placeholder="Ex.: 5511999999999"/></div>
     </div>
-    <div class="form-actions"><button class="btn primary" id="saveSettings">Salvar configurações</button><button class="btn" id="changeManagerPin">Trocar PIN do gestor</button><button class="btn dark" id="exportBackup">Baixar backup completo</button><button class="btn dark" id="importBackup">Importar backup</button><input id="importBackupFile" type="file" accept=".json,application/json" style="display:none"/><button class="btn" id="resetData">Restaurar base inicial</button></div>
+    <div class="form-actions"><button class="btn primary" id="saveSettings">Salvar configurações</button><button class="btn dark" id="exportBackup">Baixar backup completo</button><button class="btn dark" id="importBackup">Importar backup</button><input id="importBackupFile" type="file" accept=".json,application/json" style="display:none"/><button class="btn" id="resetData">Restaurar base inicial</button></div>
   </div>
 </section>
 </main>
@@ -3197,7 +3197,6 @@ async function loginWithRole(role,password){
 }
 async function requestManagerAccess(){await logoutAccess()}
 async function logoutAccess(){try{await apiJSON('/api/session','DELETE')}catch{}applyAccessRole('consultor');document.getElementById('gmAuth').classList.remove('hidden');document.getElementById('gmAuthPassword').value='';}
-async function changeManagerPin(){alert('As senhas agora são administradas em Environment Variables na Vercel. Não há PIN salvo no navegador.');}
 async function startAuth(){
  const auth=document.getElementById('gmAuth'),err=document.getElementById('gmAuthError');auth.classList.remove('hidden');
  document.getElementById('gmAuthForm').onsubmit=async e=>{
@@ -4681,7 +4680,6 @@ renderCommissionSimulator();
 
 document.getElementById('managerAccessBtn').addEventListener('click',requestManagerAccess);
 document.getElementById('managerLogoutBtn').addEventListener('click',logoutAccess);
-const changePinBtn=document.getElementById('changeManagerPin');if(changePinBtn)changePinBtn.addEventListener('click',changeManagerPin);
 
 function init(){
  const now=new Date(),current=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
