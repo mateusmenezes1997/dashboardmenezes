@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v7";
+const VERSION = "gm-pwa-v8";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -448,6 +448,107 @@ function enhanceCommissionGoal(html){
   return html;
 }
 
+
+const MANAGER_SALE_DELETE = `
+<style id="gm-manager-sale-delete-style-v1">
+#editSalesModal .gm-sale-list{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px;display:grid;gap:8px}
+#editSalesModal .gm-sale-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#editSalesModal .gm-sale-list-head b{font-size:11px;color:#fff}
+#editSalesModal .gm-sale-list-head small{font-size:9px;color:#8f99a6}
+#editSalesModal .gm-sale-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid rgba(255,255,255,.07);border-radius:11px;background:rgba(255,255,255,.025)}
+#editSalesModal .gm-sale-main{min-width:0;display:grid;gap:2px}
+#editSalesModal .gm-sale-main b{font-size:10px;color:#fff}
+#editSalesModal .gm-sale-main small{font-size:9px;color:#8f99a6}
+#editSalesModal .gm-sale-actions{display:flex;align-items:center;gap:9px;flex:none}
+#editSalesModal .gm-sale-actions strong{font-size:10px;color:#fff;white-space:nowrap}
+#editSalesModal .gm-delete-sale{height:28px;padding:0 10px;border-radius:9px;border:1px solid rgba(239,90,102,.35);background:rgba(239,90,102,.08);color:#ff9aa3;font-size:9px;font-weight:900;cursor:pointer}
+#editSalesModal .gm-delete-sale:hover{background:rgba(239,90,102,.16);border-color:rgba(239,90,102,.6);color:#ffc2c7}
+</style>
+<script id="gm-manager-sale-delete-v1">
+(function(){
+  function fmtDate(v){
+    try{var p=String(v||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:String(v||'');}catch(e){return String(v||'');}
+  }
+  function schedule(){
+    clearTimeout(schedule.t);
+    schedule.t=setTimeout(renderList,80);
+  }
+  function renderList(){
+    var modal=document.getElementById('editSalesModal');
+    if(!modal||modal.classList.contains('hidden'))return;
+    if(typeof editingSalesId==='undefined'||!editingSalesId)return;
+    if(typeof state==='undefined'||!state||!Array.isArray(state.sales))return;
+    var month=document.getElementById('monthFilter')?.value||'';
+    var prefix=month?month+'-':'';
+    var sales=state.sales.filter(function(x){return x.consultantId===editingSalesId&&(!prefix||String(x.date||'').startsWith(prefix));})
+      .sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''));});
+    var body=modal.querySelector('.edit-modal-body');if(!body)return;
+    var box=body.querySelector('.gm-sale-list');
+    if(!box){
+      box=document.createElement('div');box.className='gm-sale-list';
+      var err=document.getElementById('editSalesError');
+      if(err)body.insertBefore(box,err);else body.appendChild(box);
+    }
+    box.replaceChildren();
+    var head=document.createElement('div');head.className='gm-sale-list-head';
+    var title=document.createElement('b');title.textContent='Lançamentos individuais';
+    var count=document.createElement('small');count.textContent=sales.length+' venda'+(sales.length===1?'':'s')+' no mês';
+    head.append(title,count);box.appendChild(head);
+    if(!sales.length){
+      var empty=document.createElement('div');empty.className='empty';empty.textContent='Nenhum lançamento individual neste mês.';box.appendChild(empty);return;
+    }
+    sales.forEach(function(sale){
+      var row=document.createElement('div');row.className='gm-sale-row';
+      var main=document.createElement('div');main.className='gm-sale-main';
+      var prod=document.createElement('b');
+      prod.textContent=(sale.product==='lar'||sale.product==='Lar'?'Lar':sale.product==='motors'||sale.product==='Motors'?'Motors':'Não definido')+' • '+fmtDate(sale.date);
+      var qty=document.createElement('small');qty.textContent=(Number(sale.qty)||1)+' cota'+((Number(sale.qty)||1)===1?'':'s');
+      main.append(prod,qty);
+      var actions=document.createElement('div');actions.className='gm-sale-actions';
+      var value=document.createElement('strong');value.textContent=typeof money==='function'?money(Number(sale.amount)||0):String(sale.amount||0);
+      var del=document.createElement('button');del.type='button';del.className='gm-delete-sale';del.textContent='Excluir';
+      del.onclick=async function(){
+        if(typeof canDeleteSale==='function'&&!canDeleteSale()){alert('Somente Gestor ou Trainee podem excluir vendas.');return;}
+        if(typeof remoteReady!=='undefined'&&!remoteReady){alert('A base compartilhada não está disponível.');return;}
+        var shown=typeof money==='function'?money(Number(sale.amount)||0):String(sale.amount||0);
+        if(!confirm('Excluir esta venda de '+shown+'?\\n\\nEssa ação removerá o lançamento do dashboard.'))return;
+        del.disabled=true;
+        try{
+          if(typeof saveQueue!=='undefined')await saveQueue;
+          var result=await apiJSON('/api/state','POST',{action:'deleteSale',saleId:sale.id});
+          state=result.state;
+          if(typeof serverRevision!=='undefined')serverRevision=result.revision;
+          try{if(typeof KEY!=='undefined')localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+          if(typeof render==='function')render();
+          if(typeof openEditSales==='function')openEditSales(editingSalesId);
+          if(typeof maybeAutoExportRanking==='function')maybeAutoExportRanking();
+          schedule();
+        }catch(error){del.disabled=false;alert('Não foi possível excluir a venda: '+error.message);}
+      };
+      actions.append(value,del);row.append(main,actions);box.appendChild(row);
+    });
+  }
+  document.addEventListener('click',function(e){
+    if(e.target&&e.target.closest&&e.target.closest('[data-edit-sales]'))schedule();
+  },true);
+  document.addEventListener('DOMContentLoaded',schedule);
+  window.addEventListener('load',schedule);
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  schedule();
+})();
+<\/script>
+`;
+
+function enableManagerSaleDelete(html){
+  if (!html.includes('id="editSalesModal"')) return html;
+  if (html.includes('gm-manager-sale-delete-v1')) return html;
+  if (!html.includes('gm-manager-sale-delete-style-v1')) {
+    html = html.replace('</head>', MANAGER_SALE_DELETE.split('<script id="gm-manager-sale-delete-v1">')[0] + '\n</head>');
+  }
+  const script = '<script id="gm-manager-sale-delete-v1">' + MANAGER_SALE_DELETE.split('<script id="gm-manager-sale-delete-v1">')[1];
+  return html.replace('</body>', script + '\n</body>');
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
@@ -460,6 +561,7 @@ self.addEventListener("fetch", (event) => {
         let html = enhanceCommissionGoal(await response.text());
         html = moveCommissionMoney(html);
         html = applyChampionVisual(html);
+        html = enableManagerSaleDelete(html);
         const headers = new Headers(response.headers);
         headers.delete("content-length");
         return new Response(html, {
