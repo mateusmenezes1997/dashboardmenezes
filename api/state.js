@@ -11,14 +11,22 @@ function materializeMateusManual(doc){
  const total=Math.max(0,Number(opening.total)||0);
  const lar=Math.max(0,Number(opening.lar)||0);
  const motors=Math.max(0,Number(opening.motors)||0);
- const manual=Math.max(0,total-lar-motors);
  const existing=state.sales.some(s=>s.id===MATEUS_MANUAL_ID);
- if(manual<=0&&!existing)return doc;
- consultant.monthOpenings['2026-11']={...opening,total:lar+motors,unclassifiedQty:0};
- if(!existing&&manual>0){
-  const qty=Math.max(1,Math.round(Number(opening.unclassifiedQty)||1));
-  state.sales.unshift({id:MATEUS_MANUAL_ID,consultantId:'mateus',product:'nao_definido',amount:manual,qty,date:'2026-11-06'});
+ if(total<=0&&!existing)return doc;
+
+ // Qualquer valor lançado manualmente para o Mateus em novembro vira uma venda
+ // individual real no estado entregue ao dashboard. Assim ele aparece em
+ // "Últimas vitórias" e pode ser excluído pelo mesmo botão das demais vendas.
+ if(!existing&&total>0){
+  const product=lar>0&&motors<=0?'lar':motors>0&&lar<=0?'motors':'nao_definido';
+  const qty=Math.max(1,Math.round(
+   (Number(opening.larQty)||0)+(Number(opening.motorsQty)||0)+(Number(opening.unclassifiedQty)||0)
+  )||1);
+  state.sales.unshift({id:MATEUS_MANUAL_ID,consultantId:'mateus',product,amount:total,qty,date:'2026-11-06'});
  }
+ consultant.monthOpenings['2026-11']={
+  ...opening,total:0,lar:0,motors:0,larQty:0,motorsQty:0,unclassifiedQty:0
+ };
  return doc;
 }
 async function current(){
