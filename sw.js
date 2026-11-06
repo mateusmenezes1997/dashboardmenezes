@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v8";
+const VERSION = "gm-pwa-v9";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -225,7 +225,7 @@ function moveCommissionMoney(html){
   return html;
 }
 
-const CHAMPION_STYLE = \`
+const CHAMPION_STYLE = `
 <style id="gm-champion-highlight-v1">
 #team .gm-champion-card{
   position:relative !important;
@@ -328,7 +328,7 @@ const CHAMPION_STYLE = \`
   #team .gm-champion-trophy,
   #team .gm-champion-live i{animation:none!important}
 }
-</style>\`;
+</style>`;
 
 function applyChampionVisual(html){
   if (!html.includes('id="team"')) return html;
@@ -340,7 +340,7 @@ function applyChampionVisual(html){
   const hook = '<script id="gm-champion-runtime-v1">';
   if (html.includes(hook)) return html;
 
-  const runtime = \`
+  const runtime = `
 <script id="gm-champion-runtime-v1">
 (function(){
   function text(el){ return (el && el.textContent || '').trim(); }
@@ -418,7 +418,7 @@ function applyChampionVisual(html){
   }
   schedule();
 })();
-<\/script>\`;
+<\/script>`;
 
   return html.replace('</body>', runtime + '\n</body>');
 }
