@@ -1,11 +1,31 @@
 import {get,put,head,BlobPreconditionFailedError} from '@vercel/blob';
 import {configured,json,session} from './_auth.js';
 const PATH='gestao-menezes/state-v1.json';
+const MATEUS_MANUAL_ID='mateus-manual-2026-11';
+function materializeMateusManual(doc){
+ const state=doc?.state;
+ if(!state||!Array.isArray(state.consultants)||!Array.isArray(state.sales))return doc;
+ const consultant=state.consultants.find(c=>c.id==='mateus');
+ const opening=consultant?.monthOpenings?.['2026-11'];
+ if(!consultant||!opening)return doc;
+ const total=Math.max(0,Number(opening.total)||0);
+ const lar=Math.max(0,Number(opening.lar)||0);
+ const motors=Math.max(0,Number(opening.motors)||0);
+ const manual=Math.max(0,total-lar-motors);
+ const existing=state.sales.some(s=>s.id===MATEUS_MANUAL_ID);
+ if(manual<=0&&!existing)return doc;
+ consultant.monthOpenings['2026-11']={...opening,total:lar+motors,unclassifiedQty:0};
+ if(!existing&&manual>0){
+  const qty=Math.max(1,Math.round(Number(opening.unclassifiedQty)||1));
+  state.sales.unshift({id:MATEUS_MANUAL_ID,consultantId:'mateus',product:'nao_definido',amount:manual,qty,date:'2026-11-06'});
+ }
+ return doc;
+}
 async function current(){
  const blob=await get(PATH,{access:'private',useCache:false});
  if(!blob?.stream)return null;
  const text=await new Response(blob.stream).text();
- return {...JSON.parse(text),etag:blob.blob.etag};
+ return materializeMateusManual({...JSON.parse(text),etag:blob.blob.etag});
 }
 // A blob read's response ETag can differ from metadata returned by head().
 // For writes, use the storage metadata ETag and ensure no update occurred
