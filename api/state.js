@@ -55,7 +55,26 @@ async function write(doc,etag){
 }
 function saleOK(s,cids){return s&&typeof s.id==='string'&&typeof s.consultantId==='string'&&cids.has(s.consultantId)&&['Lar','Motors','lar','motors','nao_definido'].includes(s.product)&&Number.isFinite(Number(s.amount))&&Number(s.amount)>0&&Number.isInteger(Number(s.qty))&&Number(s.qty)>0&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)}
 function conflict(e){return e instanceof BlobPreconditionFailedError||e?.name==='BlobPreconditionFailedError'}
+async function cleanupMistakenMateusSale(){
+ for(let attempt=0;attempt<3;attempt++){
+  const doc=await currentForWrite();
+  if(!doc)return {removed:false,reason:'no-state'};
+  const target=(doc.state.sales||[]).find(s=>s.id===MATEUS_MANUAL_ID);
+  if(!target)return {removed:false,reason:'absent'};
+  if(target.consultantId!=='mateus'||Number(target.amount)!==5000000)return {removed:false,reason:'mismatch'};
+  const consultants=(doc.state.consultants||[]).map(c=>c.id==='mateus'?{...c,monthOpenings:{...(c.monthOpenings||{}),'2026-11':{...(c.monthOpenings?.['2026-11']||{}),total:0,lar:0,motors:0,larQty:0,motorsQty:0,unclassifiedQty:0}}}:c);
+  const updated={...doc.state,consultants,sales:(doc.state.sales||[]).filter(s=>s.id!==MATEUS_MANUAL_ID)};
+  const next={revision:doc.revision+1,state:updated};
+  try{await write(next,doc.etag);return {removed:true,revision:next.revision}}
+  catch(e){if(!conflict(e))throw e;}
+ }
+ return {removed:false,reason:'conflict'};
+}
+
 export default async function handler(req,res){
+ if(req.method==='GET'){
+  try{await cleanupMistakenMateusSale()}catch(e){console.error('One-time cleanup failed',e)}
+ }
  if(!configured())return json(res,503,{error:'Servidor ainda não configurado'});
  const user=session(req);if(!user)return json(res,401,{error:'Faça login para continuar'});
  try{
