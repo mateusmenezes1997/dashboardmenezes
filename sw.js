@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v9";
+const VERSION = "gm-pwa-v10";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -535,6 +535,124 @@ const MANAGER_SALE_DELETE = `
   window.addEventListener('load',schedule);
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   schedule();
+})();
+
+(function(){
+  var recentObserver=null;
+
+  function monthLabel(month){
+    var parts=String(month||'').split('-');
+    if(parts.length!==2)return String(month||'');
+    var names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    var idx=Math.max(0,Math.min(11,(Number(parts[1])||1)-1));
+    return names[idx]+' '+parts[0];
+  }
+
+  function renderManualRecent(){
+    var host=document.getElementById('recent');
+    if(!host)return;
+
+    var old=host.querySelector('.gm-manual-recent');
+    if(typeof isManager==='function'&&!isManager()){
+      if(old)old.remove();
+      return;
+    }
+    if(typeof state==='undefined'||!state||!Array.isArray(state.consultants)){
+      if(old)old.remove();
+      return;
+    }
+
+    var month=document.getElementById('monthFilter')?.value||'';
+    var consultant=state.consultants.find(function(x){return x.id==='mateus';});
+    var opening=consultant&&consultant.monthOpenings&&consultant.monthOpenings[month];
+    var amount=Number(opening&&opening.total)||0;
+    var signature=month+'|'+amount;
+
+    if(amount<=0){
+      if(old)old.remove();
+      return;
+    }
+    if(old&&old.dataset.signature===signature)return;
+    if(old)old.remove();
+
+    var row=document.createElement('div');
+    row.className='recentitem gm-manual-recent';
+    row.dataset.signature=signature;
+
+    var left=document.createElement('div');
+    left.style.minWidth='0';
+    var name=document.createElement('b');
+    name.textContent=consultant.name||'Mateus Menezes';
+    var meta=document.createElement('small');
+    meta.textContent='Ajuste manual • '+monthLabel(month);
+    left.append(name,meta);
+
+    var actions=document.createElement('div');
+    actions.className='recentitem-actions';
+    var value=document.createElement('b');
+    value.textContent=typeof money==='function'?money(amount):String(amount);
+    var del=document.createElement('button');
+    del.className='sale-delete-btn';
+    del.type='button';
+    del.textContent='Excluir';
+    del.onclick=async function(){
+      if(typeof isManager==='function'&&!isManager()){
+        alert('Somente o Gestor pode excluir este ajuste manual.');
+        return;
+      }
+      if(typeof remoteReady!=='undefined'&&!remoteReady){
+        alert('A base compartilhada não está disponível.');
+        return;
+      }
+      var shown=typeof money==='function'?money(amount):String(amount);
+      if(!confirm('Excluir o ajuste manual de '+shown+' de '+(consultant.name||'Mateus Menezes')+'?\n\nA venda individual de R$ 100 mil não será alterada.'))return;
+
+      del.disabled=true;
+      var backup={
+        total:Number(opening.total)||0,
+        lar:Number(opening.lar)||0,
+        motors:Number(opening.motors)||0,
+        larQty:Number(opening.larQty)||0,
+        motorsQty:Number(opening.motorsQty)||0,
+        unclassifiedQty:Number(opening.unclassifiedQty)||0
+      };
+      try{
+        setOpeningForMonth(consultant,month,{total:0,lar:0,motors:0,larQty:0,motorsQty:0,unclassifiedQty:0});
+        await save();
+        if(typeof render==='function')render();
+        if(typeof maybeAutoExportRanking==='function')maybeAutoExportRanking();
+        setTimeout(renderManualRecent,30);
+      }catch(error){
+        setOpeningForMonth(consultant,month,backup);
+        try{if(typeof KEY!=='undefined')localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+        if(typeof render==='function')render();
+        alert('Não foi possível excluir o ajuste: '+error.message);
+      }
+    };
+
+    actions.append(value,del);
+    row.append(left,actions);
+    host.prepend(row);
+  }
+
+  function bindObserver(){
+    var host=document.getElementById('recent');
+    if(!host||recentObserver)return;
+    recentObserver=new MutationObserver(function(){setTimeout(renderManualRecent,0);});
+    recentObserver.observe(host,{childList:true});
+  }
+
+  function refresh(){
+    renderManualRecent();
+    bindObserver();
+  }
+
+  document.addEventListener('change',function(e){
+    if(e.target&&e.target.id==='monthFilter')setTimeout(refresh,0);
+  },true);
+  document.addEventListener('DOMContentLoaded',refresh);
+  window.addEventListener('load',refresh);
+  setTimeout(refresh,0);
 })();
 <\/script>
 `;
