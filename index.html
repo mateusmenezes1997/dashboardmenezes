@@ -3988,7 +3988,7 @@ function renderLeadersManagement(){
       <small>${i===0?'Líder do ranking':'Performance da estrutura'}</small>
       ${r.leader.photo?`<div class="gm-management-leader-photo"><img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}"></div>`:`<div class="gm-management-leader-photo gm-management-leader-fallback">${esc(initials(r.leader.name))}</div>`}
       <h4>${esc(r.leader.name)}</h4>
-      ${i===0?'<div class="gm-management-champion"><span class="gm-management-trophy" aria-hidden="true">🏆</span> ${r.leader.name?.toLowerCase().includes('gabrielle')?'Campeã':'Campeão'} do momento</div>':''}
+      ${i===0?'<div class="gm-management-champion"><span class="gm-management-trophy" aria-hidden="true">🏆</span> '+(r.leader.gender==='f'?'Campeã':'Campeão')+' do momento</div>':''}
       <div class="leader-rank-value">${money(r.structure)}</div>
       <div class="leader-rank-meta">
         <div><span>Próprio</span><b>${money(r.own)}</b></div>
