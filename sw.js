@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v13";
+const VERSION = "gm-pwa-v14";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -605,7 +605,7 @@ const MANAGER_SALE_DELETE = `
         return;
       }
       var shown=typeof money==='function'?money(amount):String(amount);
-      if(!confirm('Excluir o ajuste manual de '+shown+' de '+(consultant.name||'Mateus Menezes')+'?\n\nA venda individual de R$ 100 mil não será alterada.'))return;
+      if(!confirm('Excluir o ajuste manual de '+shown+' de '+(consultant.name||'Mateus Menezes')+'?\\n\\nA venda individual de R$ 100 mil não será alterada.'))return;
 
       del.disabled=true;
       var backup={
@@ -823,7 +823,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
     event.respondWith((async () => {
       try {
-        const response = await fetch(event.request);
+        const response = await fetch(event.request, {cache:'no-store'});
         const type = response.headers.get("content-type") || "";
         if (!type.includes("text/html")) return response;
         let html = enhanceCommissionGoal(await response.text());
