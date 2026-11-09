@@ -147,3 +147,14 @@ body.gmv-immersive #gmv-ticker{z-index:10002}#gmv-arena:fullscreen #gmv-ticker{d
 .gmv-notification-item{padding:12px 0;border-top:1px solid #303038;color:#afb6bf;font-size:11px;line-height:1.5}
 .gmv-notification-item strong{display:block;color:#f5eee4;font-size:12px}
 .gmv-notification-item small{display:block;color:#b7a18a;margin-top:4px;font-size:10px}
+
+/* Motion polish: visual energy without inventing changes in credit */
+.gmv-path{animation:gmv-track-flow 15s linear infinite}
+.gmv-runner img{animation:gmv-athlete-breathe 2.3s ease-in-out infinite;will-change:transform}
+.gmv-runner{will-change:left;backface-visibility:hidden}
+.gmv-champion[data-place="1"] .gmv-portrait{animation:gmv-champion-beacon 4.2s ease-in-out infinite}
+#gmv-ticker-track{will-change:transform;backface-visibility:hidden}
+@keyframes gmv-track-flow{to{background-position:180px 0,0 0}}
+@keyframes gmv-athlete-breathe{0%,100%{transform:translateX(-1px) scale(1.01)}50%{transform:translateX(2px) scale(1.055)}}
+@keyframes gmv-champion-beacon{0%,100%{box-shadow:0 0 22px #d4ac5844,0 12px 24px #0008}50%{box-shadow:0 0 45px #edd29a73,0 12px 30px #0008}}
+@media(prefers-reduced-motion:reduce){.gmv-path,.gmv-runner img,.gmv-champion[data-place="1"] .gmv-portrait{animation:none!important}}
