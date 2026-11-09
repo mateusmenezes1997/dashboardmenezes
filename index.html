@@ -3268,20 +3268,36 @@ async function apiJSON(url,method='GET',payload){
 }
 async function refreshShared(){
  const remote=await apiJSON('/api/state');
- if(remote.state){state=remote.state;serverRevision=remote.revision;remoteReady=true;localStorage.setItem(KEY,JSON.stringify(state));render();return true}
+ if(remote.state){state=remote.state;serverRevision=remote.revision;remoteReady=true;try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){console.warn('Cache local indisponível',e)}render();return true}
  return false;
 }
 async function loginWithRole(role,password){
- await apiJSON('/api/session','POST',{role,password});applyAccessRole(role);
- const found=await refreshShared();
+ await apiJSON('/api/session','POST',{role,password});
+ const verified=await apiJSON('/api/session');
+ if(verified.role!==role)throw new Error('Senha validada, mas o navegador não manteve a sessão. Habilite cookies para este site ou abra-o em janela privativa.');
+ applyAccessRole(role);
+ let found=false;
+ try{found=await refreshShared()}catch(err){
+  console.error('Falha ao ler base compartilhada após login',err);
+  remoteReady=false;
+  document.getElementById('gmAuth').classList.add('hidden');
+  applyAccessRole('consultor');
+  const host=document.querySelector('.main')||document.body;
+  let warning=document.getElementById('gmSyncOffline');
+  if(!warning){warning=document.createElement('div');warning.id='gmSyncOffline';warning.style.cssText='margin:0 0 20px;padding:16px 18px;border:1px solid #e5b75c;background:#302312;color:#ffe0a5;border-radius:14px;line-height:1.6;font-size:13px;font-weight:650';host.prepend(warning)}
+  warning.textContent='A senha foi aceita, mas a base compartilhada não pôde ser carregada ('+String(err.message||'erro de conexão')+'). Os dados exibidos são somente uma cópia local e podem estar desatualizados. Edição bloqueada. Recarregue a página para tentar sincronizar.';
+  try{render()}catch(e){console.error('Erro ao exibir cópia local',e)}
+  return;
+ }
  if(!found){
   if(role==='gestor'){
-   const hasLocal=Boolean(localStorage.getItem(KEY));
+   let hasLocal=false;try{hasLocal=Boolean(localStorage.getItem(KEY))}catch{}
    if(!confirm('Ainda não existe uma base compartilhada. Deseja importar os dados '+(hasLocal?'deste navegador':'iniciais')+' para a equipe agora? Verifique se este é o navegador que contém as vendas corretas.'))throw new Error('Importação inicial necessária para ativar os acessos.');
    const data=await apiJSON('/api/state','POST',{action:'initialize',state});serverRevision=data.revision;remoteReady=true;
   }else throw new Error('O gestor precisa importar a base de vendas antes de liberar os acessos.');
  }
- document.getElementById('gmAuth').classList.add('hidden');render();
+ document.getElementById('gmAuth').classList.add('hidden');
+ try{render()}catch(e){console.error('Erro ao atualizar dashboard após login',e)}
 }
 async function requestManagerAccess(){await logoutAccess()}
 async function logoutAccess(){try{await apiJSON('/api/session','DELETE')}catch{}applyAccessRole('consultor');document.getElementById('gmAuth').classList.remove('hidden');document.getElementById('gmAuthPassword').value='';}
