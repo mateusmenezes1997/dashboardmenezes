@@ -3962,10 +3962,12 @@ function renderLeadersManagement(){
   document.getElementById('leadersPeopleTotal').textContent=String(peopleTotal);
   document.getElementById('leadersRankingBadge').textContent=rows.length+` líder${rows.length===1?'':'es'}`;
   document.getElementById('leadersPodium').innerHTML=rows.slice(0,3).map((r,i)=>`
-    <div class="leader-rank-card">
+    <div class="leader-rank-card ${i===0?'gm-management-rank-one':''}" style="${i===0?'border-color:rgba(240,203,140,.78);box-shadow:0 0 0 1px rgba(240,203,140,.12) inset,0 0 34px rgba(213,171,103,.22),0 18px 44px rgba(0,0,0,.34);background:radial-gradient(circle at 14% 12%,rgba(240,203,140,.16),transparent 30%),linear-gradient(180deg,#191712,#0e1319);':''}">
       <div class="leader-rank-place">${i+1}º</div>
       <small>${i===0?'Líder do ranking':'Performance da estrutura'}</small>
+      ${r.leader.photo?`<div class="gm-management-leader-photo" style="width:72px;height:72px;border-radius:20px;overflow:hidden;margin:10px 0 12px;border:2px solid ${i===0?'#f0cb8c':'#343c48'};box-shadow:${i===0?'0 0 26px rgba(240,203,140,.38)':'0 10px 24px rgba(0,0,0,.26)'}"><img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block"></div>`:`<div class="gm-management-leader-photo" style="width:72px;height:72px;border-radius:20px;display:grid;place-items:center;margin:10px 0 12px;border:2px solid ${i===0?'#f0cb8c':'#343c48'};background:#151b22;color:#fff;font-weight:900;font-size:18px">${esc(initials(r.leader.name))}</div>`}
       <h4>${esc(r.leader.name)}</h4>
+      ${i===0?'<div class="gm-management-champion" style="display:inline-flex;align-items:center;gap:7px;margin:8px 0 3px;padding:7px 11px;border-radius:999px;border:1px solid rgba(240,203,140,.38);background:rgba(213,171,103,.11);color:#f0cb8c;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 0 18px rgba(240,203,140,.14)">🏆 Campeã do momento</div>':''}
       <div class="leader-rank-value">${money(r.structure)}</div>
       <div class="leader-rank-meta">
         <div><span>Próprio</span><b>${money(r.own)}</b></div>
@@ -3977,7 +3979,7 @@ function renderLeadersManagement(){
   document.getElementById('leadersRankingBody').innerHTML=rows.map((r,i)=>`
     <tr>
       <td class="position"><strong>${i+1}º</strong></td>
-      <td><div class="person"><div class="avatar">${esc(initials(r.leader.name))}</div><div><div class="name">${esc(r.leader.name)}</div><small style="color:#7f8995">Líder • Gestão Menezes</small></div></div></td>
+      <td><div class="person"><div class="avatar" style="overflow:hidden">${r.leader.photo?`<img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block">`:esc(initials(r.leader.name))}</div><div><div class="name">${esc(r.leader.name)}</div><small style="color:#7f8995">Líder • Gestão Menezes</small></div></div></td>
       <td>${money(r.own)}</td><td>${money(r.teamTotal)}</td><td>${money(r.structure)}</td><td>${money(r.lar)}</td><td>${money(r.motors)}</td><td>${r.quotas}</td><td>${r.team.length}</td>
     </tr>`).join('');
 }
@@ -4857,7 +4859,7 @@ function init(){
 init();
 </script>
 
-<!-- deployment-refresh: executive-v62 -->
+<!-- deployment-refresh: leaders-photos-direct-v1 -->
 <script>
 (function(){
   const splash = document.getElementById('gmSplash');
@@ -5204,4 +5206,4 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
 </script>
 
 </body>
-</html><script async data-explicit-opt-in="true" data-deployment-id="dpl_D9ZBidmYPvUY4FpYKVhcbWkhHbBM" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+</html>
