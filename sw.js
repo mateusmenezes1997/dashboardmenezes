@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v12";
+const VERSION = "gm-pwa-v13";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -669,7 +669,7 @@ function enableManagerSaleDelete(html){
 
 
 
-const LEADER_PHOTOS_STYLE = \`
+const LEADER_PHOTOS_STYLE = `
 <style id="gm-leader-photos-v1">
 #leadershipGrid .leader-avatar.gm-leader-photo{
   position:relative!important;
@@ -705,14 +705,14 @@ const LEADER_PHOTOS_STYLE = \`
 @keyframes gmLeaderChampionSweep{0%{transform:translateX(-125%)}100%{transform:translateX(125%)}}
 @keyframes gmLeaderTrophySpin{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
 @media(prefers-reduced-motion:reduce){#leadershipGrid .leader-card.rank-1::after,#leadershipGrid .gm-leader-champion .gm-trophy{animation:none!important}}
-</style>\`;
+</style>`;
 
 function applyLeaderPhotos(html){
   if (!html.includes('</body>')) return html;
   if (!html.includes('gm-leader-photos-v1')) html=html.replace('</head>',LEADER_PHOTOS_STYLE+'\n</head>');
   const hook='<script id="gm-leader-photos-runtime-v1">';
   if(html.includes(hook))return html;
-  const runtime=\`
+  const runtime=`
 <script id="gm-leader-photos-runtime-v1">
 (function(){
   var busy=false;
@@ -813,7 +813,7 @@ function applyLeaderPhotos(html){
   new MutationObserver(function(){setTimeout(refreshLeaders,0)}).observe(document.documentElement,{childList:true,subtree:true});
   setTimeout(refreshLeaders,180);
 })();
-<\/script>\`;
+<\/script>`;
   return html.replace('</body>',runtime+'\n</body>');
 }
 
