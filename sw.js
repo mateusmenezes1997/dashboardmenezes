@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v11";
+const VERSION = "gm-pwa-v12";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -708,7 +708,7 @@ const LEADER_PHOTOS_STYLE = \`
 </style>\`;
 
 function applyLeaderPhotos(html){
-  if (!html.includes('id="leadershipGrid"')) return html;
+  if (!html.includes('</body>')) return html;
   if (!html.includes('gm-leader-photos-v1')) html=html.replace('</head>',LEADER_PHOTOS_STYLE+'\n</head>');
   const hook='<script id="gm-leader-photos-runtime-v1">';
   if(html.includes(hook))return html;
@@ -720,8 +720,8 @@ function applyLeaderPhotos(html){
     if(busy)return;busy=true;
     try{
       var grid=document.getElementById('leadershipGrid');
-      if(!grid||typeof state==='undefined'||!Array.isArray(state.consultants))return;
-      Array.from(grid.querySelectorAll('.leader-card')).forEach(function(card){
+      if(typeof state==='undefined'||!Array.isArray(state.consultants))return;
+      if(grid)Array.from(grid.querySelectorAll('.leader-card')).forEach(function(card){
         var nameEl=card.querySelector('.leader-head b');
         var avatar=card.querySelector('.leader-avatar');
         if(!nameEl||!avatar)return;
@@ -792,13 +792,26 @@ function applyLeaderPhotos(html){
       }
     }finally{busy=false}
   }
-  var grid=document.getElementById('leadershipGrid');
-  if(grid)new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(grid,{childList:true,subtree:true});
-  var mgmt=document.getElementById('leadersExportArea');
-  if(mgmt)new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(mgmt,{childList:true,subtree:true});
-  document.addEventListener('DOMContentLoaded',updateLeaderPhotos);
-  window.addEventListener('load',function(){setTimeout(updateLeaderPhotos,120)});
-  setTimeout(updateLeaderPhotos,180);
+  function bindLeaderObservers(){
+    var grid=document.getElementById('leadershipGrid');
+    if(grid&&!grid.dataset.gmLeaderObserved){
+      grid.dataset.gmLeaderObserved='1';
+      new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(grid,{childList:true,subtree:true});
+    }
+    var mgmt=document.getElementById('leadersExportArea');
+    if(mgmt&&!mgmt.dataset.gmLeaderObserved){
+      mgmt.dataset.gmLeaderObserved='1';
+      new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(mgmt,{childList:true,subtree:true});
+    }
+  }
+  function refreshLeaders(){
+    bindLeaderObservers();
+    updateLeaderPhotos();
+  }
+  document.addEventListener('DOMContentLoaded',refreshLeaders);
+  window.addEventListener('load',function(){setTimeout(refreshLeaders,120)});
+  new MutationObserver(function(){setTimeout(refreshLeaders,0)}).observe(document.documentElement,{childList:true,subtree:true});
+  setTimeout(refreshLeaders,180);
 })();
 <\/script>\`;
   return html.replace('</body>',runtime+'\n</body>');
