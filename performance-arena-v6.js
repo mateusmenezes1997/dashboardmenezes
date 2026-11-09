@@ -4,7 +4,7 @@
 if(window.__gmArenaV6)return;window.__gmArenaV6=true;
 var GOAL=5000000,arena=null,ticker=null,champions=null,lanes=null,news=null,snapshot=null,remoteState=null;
 var previous=new Map(),hasServerBaseline=false,enabledSound=false,duelIndex=0,duelTimer=0,toastTimer=0;
-var latestSignature='',lastTape='',inFlight=false,lastSync=0,sessionDenied=false,lastAuth=false;
+var latestSignature='',lastTape='',inFlight=false,lastSync=0,sessionDenied=false,lastAuth=false,notices=[],unread=0;
 var COLORS=['#eac782','#9de2ed','#d3819d'];
 var money=function(n){return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})};
 var compact=function(n){return (Number(n)||0).toLocaleString('pt-BR',{notation:'compact',maximumFractionDigits:2})};
@@ -61,7 +61,7 @@ function calculate(source){
 function makeUI(){
  if(arena)return;
  ticker=h('div');ticker.id='gmv-ticker';
- ticker.innerHTML='<div id="gmv-ticker-brand"><i class="gmv-live-dot"></i> MENEZES / EXCHANGE</div><div id="gmv-ticker-window"><div id="gmv-ticker-track"></div></div><button type="button" id="gmv-ticker-open">◈ ABRIR ARENA</button>';
+ ticker.innerHTML='<div id="gmv-ticker-brand"><i class="gmv-live-dot"></i> MENEZES / EXCHANGE</div><div id="gmv-ticker-window"><div id="gmv-ticker-track"></div></div><button type="button" id="gmv-notify" aria-label="Notificações">♧ <sup id="gmv-notify-count" hidden>0</sup></button><button type="button" id="gmv-ticker-open">◈ ABRIR ARENA</button>';
  document.body.appendChild(ticker);
  var launcher=h('button');launcher.type='button';launcher.id='gmv-launch';launcher.textContent='◈ ARENA LIVE';launcher.title='Abrir a Arena de Performance';document.body.appendChild(launcher);
  arena=h('section');arena.id='gmv-arena';arena.setAttribute('aria-hidden','true');arena.setAttribute('aria-label','Arena de Performance da Gestão Menezes');
@@ -93,6 +93,8 @@ function makeUI(){
  document.body.appendChild(arena);
  champions=qs('gmv-champions');lanes=qs('gmv-lanes');news=qs('gmv-news');
  qs('gmv-ticker-open').addEventListener('click',open);
+ var nPanel=h('div');nPanel.id='gmv-notify-panel';nPanel.hidden=true;document.body.appendChild(nPanel);
+ qs('gmv-notify').addEventListener('click',function(){nPanel.hidden=!nPanel.hidden;unread=0;renderNotifications()});
  qs('gmv-launch').addEventListener('click',open);
  qs('gmv-close').addEventListener('click',close);
  qs('gmv-sound').addEventListener('click',function(){
@@ -267,7 +269,16 @@ function chime(){
   setTimeout(function(){ctx.close()},900);
  }catch(e){}
 }
+function renderNotifications(){
+ var count=qs('gmv-notify-count'),box=qs('gmv-notify-panel');if(!box)return;
+ if(count){count.hidden=unread<=0;text(count,unread)}
+ box.replaceChildren();
+ var head=h('div','gmv-notification-title');text(head,'NOTIFICAÇÕES / AO VIVO');box.appendChild(head);
+ if(!notices.length){var empty=h('div','gmv-notification-item');text(empty,'Nenhuma nova ultrapassagem ou venda desde que a página foi aberta.');box.appendChild(empty)}
+ else notices.forEach(function(n){var item=h('div','gmv-notification-item'),top=h('strong'),sub=h('small');text(top,n.title);text(sub,n.label+' • '+n.at.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo'}));item.append(top,sub);box.appendChild(item)});
+}
 function event(message,title,id){
+ notices.unshift({label:message,title:title,at:new Date()});notices=notices.slice(0,6);unread=Math.min(99,unread+1);renderNotifications();
  if(!arena||!arena.classList.contains('gmv-open'))return;
  var el=qs('gmv-event');if(!el)return;
  el.replaceChildren();
