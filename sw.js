@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v10";
+const VERSION = "gm-pwa-v6";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -667,6 +667,90 @@ function enableManagerSaleDelete(html){
   return html.replace('</body>', script + '\n</body>');
 }
 
+
+
+const LEADER_PHOTOS_STYLE = \`
+<style id="gm-leader-photos-v1">
+#leadershipGrid .leader-avatar.gm-leader-photo{
+  position:relative!important;
+  width:58px!important;
+  height:58px!important;
+  flex:0 0 58px!important;
+  padding:2px!important;
+  border-radius:18px!important;
+  overflow:hidden!important;
+  background:linear-gradient(145deg,rgba(239,202,119,.95),rgba(120,77,18,.95))!important;
+  border:1px solid rgba(246,216,145,.42)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.34),0 0 18px rgba(213,171,103,.16)!important;
+}
+#leadershipGrid .leader-avatar.gm-leader-photo img{
+  display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:15px!important;
+}
+#leadershipGrid .leader-card.rank-1{
+  border-color:rgba(244,198,82,.68)!important;
+  background:radial-gradient(circle at 12% 14%,rgba(244,198,82,.16),transparent 28%),radial-gradient(circle at 92% 8%,rgba(255,226,142,.08),transparent 22%),linear-gradient(180deg,#1d1711,#0d1014)!important;
+  box-shadow:0 0 0 1px rgba(244,198,82,.09) inset,0 0 34px rgba(244,198,82,.18),0 20px 54px rgba(0,0,0,.34)!important;
+}
+#leadershipGrid .leader-card.rank-1::after{
+  content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0%,rgba(255,229,154,.03) 36%,rgba(255,229,154,.14) 50%,rgba(255,229,154,.03) 64%,transparent 100%);transform:translateX(-125%);animation:gmLeaderChampionSweep 4.8s linear infinite;z-index:0;
+}
+#leadershipGrid .leader-card.rank-1 > *{position:relative;z-index:1}
+#leadershipGrid .leader-card.rank-1 .leader-avatar.gm-leader-photo{
+  background:linear-gradient(145deg,#fff0ae,#e7b849 38%,#9e6509 72%,#f5d475)!important;border-color:rgba(255,231,158,.84)!important;box-shadow:0 0 0 1px rgba(255,233,167,.22),0 0 24px rgba(247,203,93,.42),0 12px 30px rgba(0,0,0,.36)!important;
+}
+#leadershipGrid .gm-leader-champion{
+  display:inline-flex;align-items:center;gap:7px;margin-top:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(245,201,86,.36);background:linear-gradient(135deg,rgba(83,55,10,.92),rgba(26,17,7,.98));color:#ffdc7b;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 0 16px rgba(245,201,86,.12);
+}
+#leadershipGrid .gm-leader-champion .gm-trophy{display:inline-block;transform-style:preserve-3d;animation:gmLeaderTrophySpin 4s linear infinite}
+@keyframes gmLeaderChampionSweep{0%{transform:translateX(-125%)}100%{transform:translateX(125%)}}
+@keyframes gmLeaderTrophySpin{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
+@media(prefers-reduced-motion:reduce){#leadershipGrid .leader-card.rank-1::after,#leadershipGrid .gm-leader-champion .gm-trophy{animation:none!important}}
+</style>\`;
+
+function applyLeaderPhotos(html){
+  if (!html.includes('id="leadershipGrid"')) return html;
+  if (!html.includes('gm-leader-photos-v1')) html=html.replace('</head>',LEADER_PHOTOS_STYLE+'\n</head>');
+  const hook='<script id="gm-leader-photos-runtime-v1">';
+  if(html.includes(hook))return html;
+  const runtime=\`
+<script id="gm-leader-photos-runtime-v1">
+(function(){
+  var busy=false;
+  function updateLeaderPhotos(){
+    if(busy)return;busy=true;
+    try{
+      var grid=document.getElementById('leadershipGrid');
+      if(!grid||typeof state==='undefined'||!Array.isArray(state.consultants))return;
+      Array.from(grid.querySelectorAll('.leader-card')).forEach(function(card){
+        var nameEl=card.querySelector('.leader-head b');
+        var avatar=card.querySelector('.leader-avatar');
+        if(!nameEl||!avatar)return;
+        var name=(nameEl.textContent||'').trim();
+        var person=state.consultants.find(function(c){return String(c.name||'').trim().toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR')});
+        if(person&&person.photo){
+          var img=avatar.querySelector('img');
+          if(!img){img=document.createElement('img');img.alt='Foto de '+name;avatar.textContent='';avatar.appendChild(img);}
+          if(img.src!==person.photo)img.src=person.photo;
+          avatar.classList.add('gm-leader-photo');
+        }
+        card.querySelectorAll('.gm-leader-champion').forEach(function(el){el.remove()});
+        if(card.classList.contains('rank-1')){
+          var meta=card.querySelector('.leader-head > div:last-child');
+          if(meta){var tag=document.createElement('span');tag.className='gm-leader-champion';tag.innerHTML='<span class="gm-trophy">🏆</span> Campeão do momento';meta.appendChild(tag);}
+        }
+      });
+    }finally{busy=false}
+  }
+  var grid=document.getElementById('leadershipGrid');
+  if(grid)new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(grid,{childList:true,subtree:true});
+  document.addEventListener('DOMContentLoaded',updateLeaderPhotos);
+  window.addEventListener('load',function(){setTimeout(updateLeaderPhotos,120)});
+  setTimeout(updateLeaderPhotos,180);
+})();
+<\/script>\`;
+  return html.replace('</body>',runtime+'\n</body>');
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
@@ -679,6 +763,7 @@ self.addEventListener("fetch", (event) => {
         let html = enhanceCommissionGoal(await response.text());
         html = moveCommissionMoney(html);
         html = applyChampionVisual(html);
+        html = applyLeaderPhotos(html);
         html = enableManagerSaleDelete(html);
         const headers = new Headers(response.headers);
         headers.delete("content-length");
