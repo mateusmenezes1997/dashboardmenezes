@@ -1,0 +1,40 @@
+name: Integrar Performance Live na branch de acessos
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/integrar-performance-acessos.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  integrar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: acessos-gestao-menezes
+          persist-credentials: true
+      - name: Integrar painel diretamente
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          let html=fs.readFileSync('index.html','utf8');
+          const sw=fs.readFileSync('sw.js','utf8');
+          const start=sw.indexOf('<style id="gm-live-performance-v2">');
+          const end=sw.indexOf('<\\/script>',start);
+          if(start<0||end<0)throw Error('Template nao encontrado no service worker');
+          const panel=sw.slice(start,end).replace(/<\\\/script>/g,'</script>')+'</script>';
+          if(!html.includes('gm-live-performance-v2'))html=html.replace(/<\/body>/i,panel+'\n</body>');
+          if(!html.includes('/performance-live.js'))html=html.replace(/<\/body>/i,'<script defer src="/performance-live.js?v=5"></script>\n</body>');
+          if(!html.includes('gm-live-performance-v2')||!html.includes('/performance-live.js'))throw Error('HTML final sem painel');
+          fs.writeFileSync('index.html',html);
+          console.log('Arquivo HTML final atualizado:',html.length);
+          NODE
+      - name: Commit
+        run: |
+          git config user.name "Gestao Menezes Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then echo "Sem mudancas"; exit 0; fi
+          git commit -m "Incorpora painel em tela cheia e ranking animado no HTML"
+          git push origin HEAD:acessos-gestao-menezes
