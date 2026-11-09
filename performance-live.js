@@ -13,3 +13,36 @@ function refresh(){var live=document.getElementById('gmLivePerformance');if(!liv
 function init(){var live=document.getElementById('gmLivePerformance'),bars=document.getElementById('gmBars');if(!live||!bars)return false;if(document.getElementById('gmRace'))return true;var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);var title=document.createElement('h3');title.textContent='Ranking dinâmico • corrida de vendas';var root=document.createElement('div');root.id='gmRace';bars.after(title,root);bars.style.display='none';var toast=document.createElement('div');toast.id='gmOvertake';toast.setAttribute('aria-live','polite');document.body.appendChild(toast);var actions=live.querySelector('.gm-live-actions');if(actions){var b=document.createElement('button');b.type='button';b.textContent='♪ Som desligado';b.onclick=function(){sound=!sound;b.textContent=sound?'♪ Som ligado':'♪ Som desligado'};actions.prepend(b)}refresh();return true}
 var attempts=0,boot=setInterval(function(){if(init()||++attempts>60)clearInterval(boot)},500);setInterval(refresh,1800);window.addEventListener('storage',refresh);document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
 })();
+
+/* Bootstrap independente: sempre oferece acesso ao telao, sem depender do service worker. */
+(function(){
+ if(window.__gmLiveLauncherV4)return;window.__gmLiveLauncherV4=true;
+ var style=document.createElement('style');style.textContent='#gmLiveLauncherV4{position:fixed;bottom:22px;right:22px;z-index:9995;border:1px solid #e5bd77;border-radius:16px;background:linear-gradient(115deg,#240d18,#080b0f);color:#f8dfaa;box-shadow:0 12px 34px #0009,0 0 25px #d2a35a33;font:900 12px Manrope,Arial,sans-serif;letter-spacing:.12em;padding:17px 23px;cursor:pointer;transition:transform .2s}#gmLiveLauncherV4:hover{transform:scale(1.05)}#gmLiveLauncherV4 .gm-dot-v4{display:inline-block;width:9px;height:9px;border-radius:50%;background:#32cc8d;box-shadow:0 0 12px #32cc8d;margin-right:9px;vertical-align:middle}#gmLivePerformance.open{display:block!important;visibility:visible!important;opacity:1!important}#gmLivePerformance .gm-live-shell{min-height:100vh}@media(max-width:620px){#gmLiveLauncherV4{bottom:12px;right:12px;padding:12px 14px;font-size:10px}}';
+ document.head.appendChild(style);
+ function ensurePanel(){
+  var el=document.getElementById('gmLivePerformance');
+  if(el)return el;
+  el=document.createElement('section');el.id='gmLivePerformance';el.setAttribute('aria-hidden','true');
+  el.innerHTML='<div class="gm-live-shell"><header class="gm-live-head"><div class="gm-live-brand"><small>GESTÃO MENEZES • PERFORMANCE EXCHANGE</small><h1>Central de Performance ao Vivo</h1></div><div class="gm-live-actions"><button type="button" id="gmLiveFullscreen">⛶ Tela cheia</button><button type="button" id="gmLiveClose">Fechar</button></div></header><div class="gm-market-strip"><div class="gm-market-track" id="gmTicker"></div></div><div class="gm-live-grid"><div class="gm-live-card"><h3>Ranking ao vivo</h3><div id="gmPodium" class="gm-podium"></div><div id="gmBars"></div></div><div><div id="gmKpis" class="gm-kpis"></div><div class="gm-live-card"><h3>Resultados dos líderes</h3><div id="gmLeaders" class="gm-leader-list"></div></div></div></div></div>';
+  var fallback=document.createElement('style');fallback.textContent='#gmLivePerformance{position:fixed;inset:0;z-index:9998;background:#07090e;color:white;display:none;overflow-y:auto}#gmLivePerformance .gm-live-shell{padding:24px;max-width:1800px;margin:auto}#gmLivePerformance .gm-live-head{display:flex;justify-content:space-between;gap:20px;align-items:center}#gmLivePerformance h1{font-size:clamp(24px,3vw,43px)}#gmLivePerformance .gm-live-actions{display:flex;gap:8px}#gmLivePerformance button{cursor:pointer;border:1px solid #d9b06b;background:#15131b;color:#f4d7a0;padding:10px 13px;border-radius:10px}#gmLivePerformance .gm-market-strip{overflow:hidden;margin:20px 0;border-block:1px solid #453b35;padding:14px}#gmLivePerformance .gm-market-track{display:flex;gap:28px;width:max-content;animation:gm-market-move 25s linear infinite}#gmLivePerformance .gm-ticker-item{white-space:nowrap;display:flex;gap:9px}#gmLivePerformance .gm-ticker-item b{color:#ebc37e}#gmLivePerformance .gm-ticker-item em{color:#33c990;font-style:normal}@keyframes gm-market-move{to{transform:translateX(-50%)}}#gmLivePerformance .gm-live-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}#gmLivePerformance .gm-live-card{border:1px solid #43352a;border-radius:18px;padding:20px;background:#111319}#gmLivePerformance .gm-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}#gmLivePerformance .gm-podium-item{border:1px solid #58452c;border-radius:12px;padding:16px}#gmLivePerformance .gm-podium-item.first{border-color:#e4b66a}#gmLivePerformance .gm-money{color:#edc278;font-weight:900}#gmLivePerformance .gm-kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px}#gmLivePerformance .gm-kpi{padding:14px;border:1px solid #383039;border-radius:12px}#gmLivePerformance .gm-kpi small{display:block;color:#999}#gmLivePerformance .gm-kpi b{font-size:20px}#gmLivePerformance .gm-leader-row{padding:10px;border-bottom:1px solid #36313b}@media(max-width:900px){#gmLivePerformance .gm-live-grid{grid-template-columns:1fr}#gmLivePerformance .gm-podium{grid-template-columns:1fr}}';document.head.appendChild(fallback);
+  document.body.appendChild(el);
+  return el;
+ }
+ function open(){
+   var el=ensurePanel();el.classList.add('open');el.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+   try{document.querySelector('#gmLivePerformance #gmLiveFullscreen').onclick=function(){if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()};document.querySelector('#gmLivePerformance #gmLiveClose').onclick=close}catch(e){}
+ }
+ function close(){var el=document.getElementById('gmLivePerformance');if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true')}document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen?.()}
+ function attach(){
+  if(!document.body)return;
+  var launch=document.getElementById('gmLiveLauncherV4');
+  if(!launch){launch=document.createElement('button');launch.type='button';launch.id='gmLiveLauncherV4';launch.innerHTML='<span class="gm-dot-v4"></span> ABRIR TELÃO LIVE';launch.addEventListener('click',open);document.body.appendChild(launch)}
+  var nav=document.querySelector('.sidebar nav,.sidebar .nav,.sidebar');
+  if(nav&&!nav.querySelector('#gmLiveMenuV4')&&!document.querySelector('.gm-live-nav')){
+   var b=document.createElement('button');b.id='gmLiveMenuV4';b.type='button';b.className='gm-live-nav';b.textContent='◉  Telão ao vivo';b.addEventListener('click',open);nav.appendChild(b);
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach);else attach();
+ setInterval(attach,2500);
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.getElementById('gmLivePerformance')?.classList.contains('open'))close()});
+})();
