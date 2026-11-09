@@ -4908,5 +4908,120 @@ document.getElementById('rankingShareDownload').onclick=downloadPreparedRanking;
 document.getElementById('rankingShareClose').onclick=()=>document.getElementById('rankingShareDialog').close();
 </script>
 
+
+<style id="gm-live-performance-style">
+#gmNotifyBtn{position:fixed;right:24px;top:22px;z-index:9996;width:46px;height:46px;border-radius:16px;border:1px solid rgba(213,171,103,.35);background:rgba(12,14,18,.88);backdrop-filter:blur(14px);color:#f0cb8c;display:grid;place-items:center;box-shadow:0 12px 35px rgba(0,0,0,.35);cursor:pointer}
+#gmNotifyBtn:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(213,171,103,.14)}
+#gmNotifyBtn svg{width:22px;height:22px}
+#gmNotifyBadge{position:absolute;right:-4px;top:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#7c1733;color:white;font:800 11px/20px Manrope,sans-serif;border:2px solid #080a0d}
+#gmNotifyPanel{position:fixed;right:24px;top:76px;z-index:9997;width:min(380px,calc(100vw - 28px));max-height:520px;overflow:auto;border:1px solid rgba(213,171,103,.25);border-radius:22px;background:linear-gradient(180deg,rgba(17,20,25,.98),rgba(8,10,13,.98));box-shadow:0 24px 70px rgba(0,0,0,.55);padding:18px;display:none}
+#gmNotifyPanel.open{display:block}
+.gm-notify-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.gm-notify-title b{font:800 16px Manrope}.gm-notify-title span{font-size:11px;color:#d5ab67;text-transform:uppercase;letter-spacing:.15em}
+.gm-note{padding:12px;border-radius:15px;background:#10151b;border:1px solid #202832;margin:8px 0}.gm-note strong{display:block;font-size:13px}.gm-note small{display:block;color:#9aa3af;margin-top:3px}
+.gm-live-nav{margin-top:8px!important;border-color:rgba(213,171,103,.38)!important;background:linear-gradient(90deg,rgba(124,23,51,.28),rgba(213,171,103,.10))!important;color:#f0cb8c!important;position:relative;overflow:hidden}
+.gm-live-nav:after{content:"LIVE";position:absolute;right:12px;top:50%;transform:translateY(-50%);font:800 9px Manrope;letter-spacing:.12em;padding:4px 6px;border-radius:999px;background:#8d1738;color:#fff;box-shadow:0 0 14px rgba(141,23,56,.6)}
+#gmLivePerformance{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 78% 8%,rgba(124,23,51,.28),transparent 27%),radial-gradient(circle at 18% 0%,rgba(213,171,103,.13),transparent 26%),#05070a;color:#f6f2ea;display:none;overflow:auto}
+#gmLivePerformance.open{display:block}
+.gm-live-shell{min-height:100vh;padding:24px 28px 40px}
+.gm-live-head{display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px}
+.gm-live-brand small{display:block;color:#d5ab67;letter-spacing:.2em;text-transform:uppercase;font:800 10px Manrope}.gm-live-brand h1{margin:3px 0 0;font:800 clamp(24px,3vw,44px) Sora,sans-serif;letter-spacing:-.05em}
+.gm-live-actions{display:flex;gap:8px}.gm-live-actions button{background:#0e1319;color:#eee;border:1px solid #252d36;border-radius:13px;padding:10px 13px;cursor:pointer;font-weight:800}
+.gm-live-actions button:hover{border-color:#d5ab67;color:#f0cb8c}
+.gm-market-strip{position:relative;overflow:hidden;border-block:1px solid rgba(213,171,103,.24);background:linear-gradient(90deg,rgba(213,171,103,.05),rgba(124,23,51,.08));padding:12px 0;margin:0 -28px 22px}
+.gm-market-track{display:flex;width:max-content;gap:32px;animation:gmTicker 26s linear infinite;padding-left:28px}.gm-market-strip:hover .gm-market-track{animation-play-state:paused}
+.gm-ticker-item{display:flex;gap:10px;align-items:center;white-space:nowrap;font:800 12px Manrope}.gm-ticker-item b{color:#f0cb8c}.gm-ticker-item em{font-style:normal;color:#2eb67d}.gm-ticker-item .down{color:#f04b56}
+@keyframes gmTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.gm-live-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.gm-live-card{border:1px solid #202832;border-radius:22px;background:linear-gradient(180deg,rgba(15,20,26,.95),rgba(8,11,15,.95));box-shadow:0 18px 50px rgba(0,0,0,.22);padding:20px}
+.gm-live-card h3{margin:0 0 16px;font:800 14px Manrope;letter-spacing:.08em;text-transform:uppercase;color:#cfc6b8}
+.gm-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.gm-podium-item{padding:18px;border-radius:18px;background:#0b1016;border:1px solid #202832;position:relative;overflow:hidden}.gm-podium-item.first{border-color:rgba(213,171,103,.55);box-shadow:inset 0 0 0 1px rgba(213,171,103,.12),0 0 30px rgba(213,171,103,.08)}
+.gm-place{font:900 10px Manrope;letter-spacing:.14em;color:#9aa3af}.gm-podium-item.first .gm-place{color:#f0cb8c}.gm-name{font:800 18px Sora;margin:9px 0 5px}.gm-money{font:800 20px Sora;color:#f0cb8c}.gm-progress{height:7px;border-radius:999px;background:#171d24;margin-top:13px;overflow:hidden}.gm-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7c1733,#d5ab67);box-shadow:0 0 18px rgba(213,171,103,.25)}
+.gm-chart-row{display:grid;grid-template-columns:minmax(110px,1fr) 3fr auto;align-items:center;gap:12px;margin:11px 0}.gm-chart-row span{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gm-chart-bar{height:9px;background:#171d24;border-radius:999px;overflow:hidden}.gm-chart-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#73172f,#d5ab67)}.gm-chart-row b{font:800 11px Manrope;color:#cfc6b8}
+.gm-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}.gm-kpi{padding:16px;border-radius:17px;background:#0b1016;border:1px solid #202832}.gm-kpi small{display:block;color:#8f99a5;text-transform:uppercase;letter-spacing:.11em;font-size:9px;font-weight:800}.gm-kpi b{display:block;font:800 24px Sora;margin-top:7px}.gm-kpi.gold b{color:#f0cb8c}
+.gm-leader-list{display:flex;flex-direction:column;gap:9px}.gm-leader-row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:11px 12px;background:#0b1016;border:1px solid #202832;border-radius:14px}.gm-leader-row .num{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#171d24;font-weight:900;color:#d5ab67}.gm-leader-row b{font-size:12px}.gm-leader-row small{display:block;color:#7f8994;margin-top:2px}.gm-leader-row strong{font-size:12px;color:#f0cb8c}
+.gm-live-pulse{display:inline-flex;align-items:center;gap:7px;font:800 10px Manrope;color:#b7c0ca;letter-spacing:.08em;text-transform:uppercase}.gm-live-pulse i{width:8px;height:8px;border-radius:50%;background:#2eb67d;box-shadow:0 0 0 0 rgba(46,182,125,.5);animation:gmPulse 1.6s infinite}@keyframes gmPulse{70%{box-shadow:0 0 0 9px rgba(46,182,125,0)}100%{box-shadow:0 0 0 0 rgba(46,182,125,0)}}
+@media(max-width:900px){.gm-live-shell{padding:18px}.gm-market-strip{margin-left:-18px;margin-right:-18px}.gm-live-grid{grid-template-columns:1fr}.gm-podium{grid-template-columns:1fr}.gm-live-head{align-items:flex-start}.gm-live-actions{flex-direction:column}.gm-kpis{grid-template-columns:1fr 1fr}}
+</style>
+
+<button id="gmNotifyBtn" type="button" aria-label="Notificações">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+<span id="gmNotifyBadge">3</span></button>
+<div id="gmNotifyPanel"></div>
+
+<section id="gmLivePerformance" aria-hidden="true">
+  <div class="gm-live-shell">
+    <div class="gm-live-head">
+      <div class="gm-live-brand"><small>Gestão Menezes • Performance Exchange</small><h1>Central de Performance ao Vivo</h1></div>
+      <div class="gm-live-actions"><button id="gmLiveFullscreen">⛶ Tela cheia</button><button id="gmLiveClose">Fechar</button></div>
+    </div>
+    <div class="gm-market-strip"><div class="gm-market-track" id="gmTicker"></div></div>
+    <div class="gm-live-grid">
+      <div class="gm-live-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0">Top performance</h3><span class="gm-live-pulse"><i></i> dados atualizados</span></div><div class="gm-podium" id="gmPodium"></div><div style="height:18px"></div><h3>Corrida para 5MM</h3><div id="gmBars"></div></div>
+      <div>
+        <div class="gm-kpis" id="gmKpis"></div>
+        <div class="gm-live-card"><h3>Líderes • resultado das equipes</h3><div class="gm-leader-list" id="gmLeaders"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script id="gm-live-performance-script">
+(function(){
+ const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+ const num=v=>Number(v||0).toLocaleString('pt-BR');
+ function currentMonth(){return new Date().toISOString().slice(0,7)}
+ function consultantTotal(c){
+   const m=currentMonth(), mm=c&&c.monthOpenings&&c.monthOpenings[m];
+   let base=mm&&Number.isFinite(Number(mm.total))?Number(mm.total):Number(c&&c.opening||0);
+   const extras=(state&&Array.isArray(state.sales)?state.sales:[]).filter(x=>{
+     const cid=x.consultantId||x.consultant||x.sellerId||x.consultant_id||x.personId;
+     const d=String(x.date||x.createdAt||x.created_at||'');
+     return String(cid)===String(c.id) && (!d || d.slice(0,7)===m);
+   }).reduce((a,x)=>a+Number(x.total||x.amount||x.value||x.credit||0),0);
+   return base+extras;
+ }
+ function data(){
+   const people=(state&&state.consultants||[]).map(c=>({...c,total:consultantTotal(c)})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);
+   const target=5000000;
+   const total=people.reduce((a,c)=>a+c.total,0);
+   const leaders=(state&&state.consultants||[]).filter(c=>c.role==='trainee'||c.role==='gestor').map(l=>{
+     const own=consultantTotal(l);
+     const team=(state.consultants||[]).filter(c=>String(c.leaderId)===String(l.id)).reduce((a,c)=>a+consultantTotal(c),0);
+     return {...l,total:own+team,teamCount:(state.consultants||[]).filter(c=>String(c.leaderId)===String(l.id)).length};
+   }).filter(l=>l.total>0).sort((a,b)=>b.total-a.total);
+   return {people,leaders,target,total};
+ }
+ function render(){
+   const d=data(), p=d.people, max=Math.max(d.target,p[0]?.total||1);
+   const tickerItems=(p.length?p:[{name:'Aguardando vendas',total:0}]).slice(0,10).map((x,i)=>'<div class="gm-ticker-item"><span>#'+(i+1)+' '+x.name+'</span><b>'+money(x.total)+'</b><em>▲ '+Math.min(999,(x.total/d.target*100)).toFixed(1)+'%</em></div>').join('');
+   const tick=document.getElementById('gmTicker'); if(tick)tick.innerHTML=tickerItems+tickerItems;
+   const pod=document.getElementById('gmPodium'); if(pod)pod.innerHTML=p.slice(0,3).map((x,i)=>'<div class="gm-podium-item '+(i===0?'first':'')+'"><div class="gm-place">'+(i===0?'CAMPEÃO DO MOMENTO':'#'+(i+1)+' COLOCAÇÃO')+'</div><div class="gm-name">'+x.name+'</div><div class="gm-money">'+money(x.total)+'</div><div class="gm-progress"><i style="width:'+Math.min(100,x.total/d.target*100)+'%"></i></div></div>').join('');
+   const bars=document.getElementById('gmBars'); if(bars)bars.innerHTML=p.slice(0,8).map((x,i)=>'<div class="gm-chart-row"><span>#'+(i+1)+' '+x.name+'</span><div class="gm-chart-bar"><i style="width:'+Math.min(100,x.total/max*100)+'%"></i></div><b>'+money(x.total)+'</b></div>').join('');
+   const k=document.getElementById('gmKpis'); if(k)k.innerHTML='<div class="gm-kpi gold"><small>Volume da gestão</small><b>'+money(d.total)+'</b></div><div class="gm-kpi"><small>Vendedores ativos</small><b>'+num(p.length)+'</b></div><div class="gm-kpi"><small>Falta p/ 15MM</small><b>'+money(Math.max(0,15000000-d.total))+'</b></div><div class="gm-kpi"><small>Maior venda/ranking</small><b>'+money(p[0]?.total||0)+'</b></div>';
+   const le=document.getElementById('gmLeaders'); if(le)le.innerHTML=(d.leaders.length?d.leaders:[{name:'Sem líderes com vendas',total:0,teamCount:0}]).map((x,i)=>'<div class="gm-leader-row"><div class="num">'+(i+1)+'</div><div><b>'+x.name+'</b><small>'+x.teamCount+' pessoas na equipe</small></div><strong>'+money(x.total)+'</strong></div>').join('');
+   const notes=[];
+   if(p[0])notes.push('<div class="gm-note"><strong>🏆 '+p[0].name+' lidera agora</strong><small>'+money(p[0].total)+' em produção no período.</small></div>');
+   const near=p.find(x=>x.total>=d.target*.5); if(near)notes.push('<div class="gm-note"><strong>🔥 '+near.name+' acelerando</strong><small>Já ultrapassou 50% da meta de 5MM.</small></div>');
+   if(d.leaders[0])notes.push('<div class="gm-note"><strong>📈 Liderança em destaque</strong><small>'+d.leaders[0].name+' aparece na frente entre os líderes.</small></div>');
+   const np=document.getElementById('gmNotifyPanel'); if(np)np.innerHTML='<div class="gm-notify-title"><b>Notificações</b><span>Performance</span></div>'+notes.join('');
+   const badge=document.getElementById('gmNotifyBadge'); if(badge)badge.textContent=String(notes.length||1);
+ }
+ function openLive(){
+   render(); const el=document.getElementById('gmLivePerformance'); el.classList.add('open'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+ }
+ function closeLive(){const el=document.getElementById('gmLivePerformance');el.classList.remove('open');el.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+ function addNav(){
+   const nav=document.querySelector('.sidebar nav, .sidebar .nav, .sidebar');
+   if(!nav||document.querySelector('.gm-live-nav'))return;
+   const b=document.createElement('button'); b.type='button'; b.className='gm-live-nav'; b.innerHTML='<span class="nav-icon" aria-hidden="true">◫</span> Performance ao Vivo'; b.onclick=openLive;
+   const settings=[...nav.querySelectorAll('button')].find(x=>x.dataset&&x.dataset.view==='settings'); settings?nav.insertBefore(b,settings):nav.appendChild(b);
+ }
+ document.getElementById('gmNotifyBtn')?.addEventListener('click',()=>{render();document.getElementById('gmNotifyPanel')?.classList.toggle('open')});
+ document.getElementById('gmLiveClose')?.addEventListener('click',closeLive);
+ document.getElementById('gmLiveFullscreen')?.addEventListener('click',()=>{const el=document.getElementById('gmLivePerformance'); if(!document.fullscreenElement)el.requestFullscreen?.(); else document.exitFullscreen?.()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLive()});
+ addNav(); render(); setInterval(()=>{if(document.getElementById('gmLivePerformance')?.classList.contains('open'))render()},5000);
+})();
+</script>
+
 </body>
 </html>
