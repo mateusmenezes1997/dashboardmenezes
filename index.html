@@ -3237,6 +3237,11 @@ body[data-role="viewer"] #leaders,body[data-role="trainee"] #leaders{display:non
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
 const KEY='gestao_menezes_v21_editar_vendas';
+// O cache é opcional: fotos grandes podem exceder a cota do navegador.
+function cacheStateLocally(snapshot){
+ try{localStorage.setItem(KEY,JSON.stringify(snapshot));return true}
+ catch(error){console.warn('Cache local indisponível. Dados principais seguem no servidor.',error?.name||error);return false}
+}
 
 let accessRole='viewer';
 let serverRevision=0;
@@ -3268,7 +3273,7 @@ async function apiJSON(url,method='GET',payload){
 }
 async function refreshShared(){
  const remote=await apiJSON('/api/state');
- if(remote.state){state=remote.state;serverRevision=remote.revision;remoteReady=true;try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){console.warn('Cache local indisponível',e)}render();return true}
+ if(remote.state){state=remote.state;serverRevision=remote.revision;remoteReady=true;try{cacheStateLocally(state)}catch(e){console.warn('Cache local indisponível',e)}render();return true}
  return false;
 }
 async function loginWithRole(role,password){
@@ -3416,7 +3421,7 @@ if(state._dashboardVersion < 27){
 }
 if(!state.settings)state.settings={};
 if(!String(state.settings.secretaryWhatsapp||'').trim())state.settings.secretaryWhatsapp='5511932075504';
-localStorage.setItem(KEY,JSON.stringify(state));
+cacheStateLocally(state);
 function ensureHierarchy(){
   const defaults={
     mateus:{role:'gestor',leaderId:null},
@@ -3434,7 +3439,7 @@ function ensureHierarchy(){
 ensureHierarchy();
 function save(){
  if(!isManager()||!remoteReady)throw new Error('Acesso sem permissão para editar a base compartilhada');
- const snapshot=JSON.parse(JSON.stringify(state));localStorage.setItem(KEY,JSON.stringify(snapshot));
+ const snapshot=JSON.parse(JSON.stringify(state));cacheStateLocally(snapshot);
  saveQueue=saveQueue.then(async()=>{
   const result=await apiJSON('/api/state','POST',{action:'replace',revision:serverRevision,state:snapshot});serverRevision=result.revision;
  }).catch(err=>{remoteReady=false;alert('A alteração não foi sincronizada: '+err.message+'\nFaça backup e atualize a página antes de novas edições.');});
@@ -4219,7 +4224,7 @@ function render(){
        await saveQueue;
        const result=await apiJSON('/api/state','POST',{action:'deleteSale',saleId:id});
        state=result.state;serverRevision=result.revision;
-       localStorage.setItem(KEY,JSON.stringify(state));
+       cacheStateLocally(state);
        render();
        maybeAutoExportRanking();
      }catch(error){btn.disabled=false;alert('Não foi possível excluir a venda: '+error.message)}
@@ -4681,7 +4686,7 @@ async function saveSaleEntry(shareRanking=false){
   await saveQueue;
   const result=await apiJSON('/api/state','POST',{action:'addSale',sale});
   state=result.state;serverRevision=result.revision;
-  localStorage.setItem(KEY,JSON.stringify(state));
+  cacheStateLocally(state);
  }catch(error){alert('Não foi possível cadastrar a venda: '+error.message);return}
  document.getElementById('saleAmount').value='';
  document.getElementById('saleQty').value='1';
@@ -4869,8 +4874,11 @@ function init(){
  const now=new Date(),current=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
  document.getElementById('monthFilter').value=current;
  document.getElementById('saleDate').value=now.toISOString().slice(0,10);
- syncSettings();render();initCurrencyInputs();
- applyAccessRole('consultor');startAuth();
+
+  // O login é ativado antes de desenhar o painel.
+  applyAccessRole('consultor');startAuth();
+  try{syncSettings();render();initCurrencyInputs()}
+  catch(error){console.error('Falha visual ao inicializar o painel; login continua ativo',error)}
 }
 init();
 </script>
