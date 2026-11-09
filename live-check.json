@@ -11,5 +11,13 @@
     "gmKpis": true,
     "gmLeaders": true
   },
-  "generated_at": "2026-11-09T23:15:19.898Z"
+  "checks": {
+    "state_const": false,
+    "state_let": true,
+    "state_var": false,
+    "window_state": false,
+    "month_openings": true,
+    "fetch_calls": true
+  },
+  "generated_at": "2026-11-09T23:17:34.033Z"
 }
