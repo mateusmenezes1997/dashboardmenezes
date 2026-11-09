@@ -19,12 +19,12 @@ jobs:
           node <<'NODE'
           const fs=require('fs');
           const s=fs.readFileSync('index.html','utf8');
-          const terms=['monthOpenings','leaderId','photoUrl','photoData','avatar','photo','sales','consultants','function render','const render','let state','sidebar','data-view','recentSales','setInterval',"fetch('/api/"];
+          const terms=['restorePublishedTeamPhotos','PHOTO','PHOTO_MAP','photoMap','teamPhoto','photo:', 'photo=', 'photoSrc','imageUrl','image:', 'const image','getPhoto','renderConsultants','renderTeam','monthlyRows','monthFilter','monthOpenings','function month','function rows','const rows','salesHistory','sales:','saleHistory','openingLar','gm-auth','data-role','function save','async function','function renderAll','function renderDashboard','function renderLeadership'];
           const snippets={};
           for(const term of terms){
             let idx=0,arr=[];
-            while(arr.length<9 && (idx=s.indexOf(term,idx))>=0){
-              const start=Math.max(0,idx-170),end=Math.min(s.length,idx+330);
+            while(arr.length<5 && (idx=s.indexOf(term,idx))>=0){
+              const start=Math.max(0,idx-190),end=Math.min(s.length,idx+650);
               const snippet=s.slice(start,end).replace(/[\r\n]/g,' ');
               // Redact assignments with password-like names before emitting.
               arr.push(snippet.replace(/((?:password|senha|secret|token|pin)[^:=]{0,30}[:=])[^,;\s)}]{1,80}/gi,'$1[redacted]'));
