@@ -30,11 +30,29 @@ jobs:
           fs.writeFileSync('index.html',html);
           console.log('Arquivo HTML final atualizado:',html.length);
           NODE
+      - name: Validar HTML e JavaScript do telao
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),vm=require('vm');
+          const html=fs.readFileSync('index.html','utf8');
+          const js=fs.readFileSync('performance-live.js','utf8');
+          const ids=['gmLivePerformance','gmTicker','gmPodium','gmBars','gmKpis','gmLeaders'];
+          const found=Object.fromEntries(ids.map(id=>[id,html.includes('id="'+id+'"')]));
+          if(Object.values(found).some(x=>!x))throw new Error('Faltam elementos do painel: '+JSON.stringify(found));
+          if(!html.includes('src="/performance-live.js'))throw new Error('Script do telao nao incluido na pagina');
+          new vm.Script(js,{filename:'performance-live.js'});
+          const match=html.match(/<script id="gm-live-performance-runtime-v2">([\s\S]*?)<\/script>/i);
+          if(!match)throw new Error('Runtime principal do painel nao encontrado');
+          new vm.Script(match[1],{filename:'inline-performance.js'});
+          const report={html_has_panel:true,html_has_launch_script:true,inline_runtime_syntax_ok:true,external_runtime_syntax_ok:true,ids:found,generated_at:new Date().toISOString()};
+          fs.writeFileSync('live-check.json',JSON.stringify(report,null,2)+'\n');
+          console.log('PAINEL OK',JSON.stringify(report));
+          NODE
       - name: Commit
         run: |
           git config user.name "Gestao Menezes Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add index.html
+          git add index.html live-check.json
           if git diff --cached --quiet; then echo "Sem mudancas"; exit 0; fi
           git commit -m "Incorpora painel em tela cheia e ranking animado no HTML"
           git push origin HEAD:acessos-gestao-menezes
