@@ -4670,7 +4670,10 @@ document.getElementById('saleAmount').addEventListener('blur',updateSaleTotalPre
 document.getElementById('saleQty').addEventListener('input',updateSaleTotalPreview);
 updateSaleTotalPreview();
 
+let saleSaveInFlight=false;
+let pendingSaleEntry=null;
 async function saveSaleEntry(shareRanking=false){
+ if(saleSaveInFlight)return;
  if(!canAddSale()){alert('Somente Gestor ou Trainee podem lançar vendas.');return}
  if(!remoteReady){alert('A base compartilhada não está disponível.');return}
  const consultantId=document.getElementById('saleConsultant').value;
@@ -4681,13 +4684,23 @@ async function saveSaleEntry(shareRanking=false){
  const note=document.getElementById('saleNote').value.trim();
  if(!consultantId||!unitAmount||unitAmount<=0||!qty||!date){alert('Preencha consultor, valor por cota, quantidade de cotas e data.');return}
  const amount=unitAmount*qty;
- const sale={id:'s'+Date.now(),consultantId,product,amount,unitAmount,qty,date,note};
+ const fields={consultantId,product,amount,unitAmount,qty,date,note};
+ const fingerprint=JSON.stringify(fields);
+ if(!pendingSaleEntry||pendingSaleEntry.fingerprint!==fingerprint){
+  pendingSaleEntry={fingerprint,sale:{id:'s'+crypto.randomUUID(),...fields}};
+ }
+ const sale=pendingSaleEntry.sale;
+ saleSaveInFlight=true;
+ const saveButtons=['saveSale','saveSaleShare'].map(id=>document.getElementById(id));
+ saveButtons.forEach(btn=>{if(btn)btn.disabled=true;});
  try{
   await saveQueue;
   const result=await apiJSON('/api/state','POST',{action:'addSale',sale});
   state=result.state;serverRevision=result.revision;
   cacheStateLocally(state);
- }catch(error){alert('Não foi possível cadastrar a venda: '+error.message);return}
+ }catch(error){alert('Não foi possível confirmar a venda: '+error.message+' Tente novamente sem alterar os campos para conferir o mesmo lançamento.');return}
+ finally{saleSaveInFlight=false;saveButtons.forEach(btn=>{if(btn)btn.disabled=false;});}
+ pendingSaleEntry=null;
  document.getElementById('saleAmount').value='';
  document.getElementById('saleQty').value='1';
  document.getElementById('saleNote').value='';

@@ -69,7 +69,12 @@ export default async function handler(req,res){
     if(!doc)return json(res,409,{error:'O gestor precisa importar a base inicial antes de cadastrar vendas'});
     const cids=new Set((doc.state.consultants||[]).map(c=>c.id));
     if(!saleOK(sale,cids))return json(res,400,{error:'Venda inválida'});
-    if((doc.state.sales||[]).some(s=>s.id===sale.id))return json(res,409,{error:'Venda já cadastrada'});
+    const existing=(doc.state.sales||[]).find(s=>s.id===sale.id);
+    if(existing){
+     const same=['consultantId','product','date'].every(key=>existing[key]===sale[key])&&Number(existing.amount)===Number(sale.amount)&&Number(existing.qty)===Number(sale.qty)&&String(existing.note||'')===String(sale.note||'');
+     if(!same)return json(res,409,{error:'Identificador já usado em outra venda'});
+     return json(res,200,{state:doc.state,revision:doc.revision,ok:true});
+    }
     const updated={...doc.state,sales:[...(doc.state.sales||[]),sale]};
     const next={revision:doc.revision+1,state:updated};
     try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
