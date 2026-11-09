@@ -61,7 +61,7 @@ function calculate(source){
 function makeUI(){
  if(arena)return;
  ticker=h('div');ticker.id='gmv-ticker';
- ticker.innerHTML='<div id="gmv-ticker-brand"><i class="gmv-live-dot"></i> MENEZES / EXCHANGE</div><div id="gmv-ticker-window"><div id="gmv-ticker-track"></div></div><button type="button" id="gmv-notify" aria-label="Notificações">♧ <sup id="gmv-notify-count" hidden>0</sup></button><button type="button" id="gmv-ticker-open">◈ ABRIR ARENA</button>';
+ ticker.innerHTML='<div id="gmv-ticker-brand"><i class="gmv-live-dot"></i> MENEZES / EXCHANGE</div><div id="gmv-ticker-window"><div id="gmv-ticker-track"></div></div><button type="button" id="gmv-notify" aria-label="Notificações"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><sup id="gmv-notify-count" hidden>0</sup></button><button type="button" id="gmv-ticker-open">◈ ABRIR ARENA</button>';
  document.body.appendChild(ticker);
  var launcher=h('button');launcher.type='button';launcher.id='gmv-launch';launcher.textContent='◈ ARENA LIVE';launcher.title='Abrir a Arena de Performance';document.body.appendChild(launcher);
  arena=h('section');arena.id='gmv-arena';arena.setAttribute('aria-hidden','true');arena.setAttribute('aria-label','Arena de Performance da Gestão Menezes');
@@ -159,7 +159,7 @@ function reorder(container,people,paint){
    var rect=el.getBoundingClientRect(),x=a.x-rect.left,y=a.y-rect.top;
    if(Math.abs(x)+Math.abs(y)<2)return;
    el.style.transition='none';el.style.transform='translate('+x+'px,'+y+'px)';
-   requestAnimationFrame(function(){el.style.transition='transform .75s cubic-bezier(.19,.9,.17,1)';el.style.transform='translate(0,0)'});
+   requestAnimationFrame(function(){el.style.transition='transform .75s cubic-bezier(.19,.9,.17,1)';el.style.transform='translate(0,0)';setTimeout(function(){if(el.style.transform==='translate(0px, 0px)'||el.style.transform==='translate(0, 0)'||el.style.transform==='translate(0,0)'){el.style.removeProperty('transform');el.style.removeProperty('transition')}},840)});
   });
  });
 }
@@ -234,7 +234,7 @@ function renderTicker(){
  var key=snapshot.month+'|'+items.map(function(x){return x.id+':'+x.total}).join(';');
  if(lastTape===key)return;lastTape=key;
  var track=qs('gmv-ticker-track');track.replaceChildren();
- for(var pass=0;pass<2;pass++)items.forEach(function(item){
+ for(var pass=0;pass<2;pass++)for(var repeat=0;repeat<Math.max(1,Math.ceil(10/items.length));repeat++)items.forEach(function(item){
   var cell=h('div','gmv-tick');var name=h('span','gmv-tick-name'),value=h('span','gmv-tick-money'),pct=h('span','gmv-tick-pct'),sep=h('span','gmv-tick-sep');
   text(name,item.name);text(value,money(item.total));text(pct,percent(100*item.total/GOAL)+' DA META');text(sep,'◇');
   cell.append(name,value,pct,sep);track.appendChild(cell);
