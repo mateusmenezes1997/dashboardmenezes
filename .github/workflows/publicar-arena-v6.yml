@@ -1,0 +1,96 @@
+name: Publicar Arena LIVE v6 na branch acessos
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publicar-arena-v6.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: acessos-gestao-menezes
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Substituir a tela antiga pela arena
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+          const path='index.html';
+          let html=fs.readFileSync(path,'utf8');
+          const start=html.indexOf('<style id="gm-live-performance-v2">');
+          if(start>=0){
+            const runtime=html.indexOf('<script id="gm-live-performance-runtime-v2">',start);
+            const end=runtime>=0?html.indexOf('</script>',runtime):-1;
+            if(end<0)throw new Error('Nao foi possivel isolar o template antigo');
+            html=html.slice(0,start)+html.slice(end+'</script>'.length);
+          }
+          html=html.replace(/<script[^>]*src=["']\/performance-live\.js[^"']*["'][^>]*><\/script>\s*/gi,'');
+          html=html.replace(/<link[^>]*href=["']\/performance-arena-v6\.css[^"']*["'][^>]*>/gi,'');
+          html=html.replace(/<script[^>]*src=["']\/performance-arena-v6\.js[^"']*["'][^>]*><\/script>\s*/gi,'');
+          html=html.replace(/<meta[^>]*name=["']gm-arena-v6["'][^>]*>/gi,'');
+          assert(html.includes('</head>')&&html.includes('</body>'),'HTML sem estrutura valida');
+          html=html.replace('</head>','<meta id="gm-live-performance-v2" name="gm-arena-v6" content="performance-live.js substituido pela Arena v6">\n<link rel="stylesheet" href="/performance-arena-v6.css?v=6">\n</head>');
+          html=html.replace('</body>','<script defer src="/performance-arena-v6.js?v=6"></script>\n</body>');
+          assert(!html.includes('gm-live-performance-runtime-v2'),'Runtime antigo ainda ativo');
+          assert(html.includes('name="gm-arena-v6"')&&html.includes('/performance-arena-v6.js?v=6')&&html.includes('/performance-arena-v6.css?v=6'),'Falta inclusao de recursos');
+          assert(!/<script[^>]*src=["']\/performance-live\.js/.test(html),'Script antigo ficou ativo');
+          new vm.Script(fs.readFileSync('performance-arena-v6.js','utf8'));
+          const css=fs.readFileSync('performance-arena-v6.css','utf8');
+          assert(css.includes('#gmv-ticker')&&css.includes('.gmv-runner')&&css.includes('.gmv-duel-stage'),'Estilos essenciais ausentes');
+          fs.writeFileSync(path,html);
+          fs.writeFileSync('arena-v6-report.json',JSON.stringify({html_integrated:true,old_interface_removed:true,global_ticker:true,photo_race:true,head_to_head_duels:true,css_bytes:Buffer.byteLength(css),js_bytes:fs.statSync('performance-arena-v6.js').size,checked_at:new Date().toISOString()},null,2));
+          console.log('ARENA V6: HTML integrado e scripts validados');
+          NODE
+      - name: Instalar ambiente do teste visual
+        run: npm install --no-save --no-package-lock --ignore-scripts jsdom@26
+      - name: Testar tela, login, fotos, corrida e ultrapassagem
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import {JSDOM} from 'jsdom';
+          const m=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit'}).format(new Date()).slice(0,7);
+          const make=(a,b,c)=>({settings:{teamTarget:15000000},sales:[],consultants:[
+            {id:'a',name:'Teste Ana',role:'consultor',photo:'',monthOpenings:{[m]:{total:a}}},
+            {id:'b',name:'Teste Beto',role:'trainee',photo:'',monthOpenings:{[m]:{total:b}}},
+            {id:'c',name:'Teste Carla',role:'consultor',photo:'',monthOpenings:{[m]:{total:c}}}
+          ]});
+          let data=make(900000,700000,500000);
+          const dom=new JSDOM('<!doctype html><html><head></head><body data-role="viewer"><aside class="sidebar"><nav class="nav"></nav></aside><div id="gmAuth" class="hidden"></div></body></html>',{url:'https://example.org',runScripts:'outside-only',pretendToBeVisual:true});
+          const win=dom.window;
+          win.fetch=async()=>({ok:true,status:200,json:async()=>({state:data,revision:1})});
+          win.eval(fs.readFileSync('performance-arena-v6.js','utf8'));
+          win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
+          await new Promise(r=>setTimeout(r,130));
+          assert(win.document.getElementById('gmv-ticker'),'Ticker global nao apareceu');
+          assert(win.document.getElementById('gmv-nav'),'Menu arena nao apareceu');
+          assert.equal(win.document.querySelectorAll('.gmv-champion').length,3,'Os 3 campeoes nao foram renderizados');
+          win.document.getElementById('gmv-ticker-open').click();
+          await new Promise(r=>setTimeout(r,30));
+          assert(win.document.getElementById('gmv-arena').classList.contains('gmv-open'),'Arena nao abre');
+          assert.equal(win.document.querySelectorAll('.gmv-lane').length,3,'Pistas nao renderizaram');
+          assert(win.document.getElementById('gmv-duel-content').textContent.includes('Teste Ana'),'Duelo nao exibiu consultores');
+          data=make(900000,1200000,500000);
+          win.dispatchEvent(new win.Event('focus'));
+          await new Promise(r=>setTimeout(r,130));
+          assert(win.document.querySelector('.gmv-champion .gmv-champ-name').textContent.includes('Teste Beto'),'Reordenacao do campeao falhou');
+          assert(win.document.getElementById('gmv-event').textContent.includes('SUBIU NA DISPUTA'),'Aviso de ultrapassagem nao apareceu');
+          assert.equal(win.document.getElementById('gmv-notify-count').textContent,'1','Notificacao nao registrada');
+          console.log('SMOKE TEST OK: ticker / top 3 / arena / duelos / ultrapassagem / notificacoes');
+          win.close();
+          NODE
+      - name: Registrar alteracoes na branch de acessos
+        run: |
+          git config user.name "Gestao Menezes Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html arena-v6-report.json
+          if git diff --cached --quiet; then echo "Nenhuma alteracao pendente"; exit 0; fi
+          git commit -m "Arena LIVE v6: tres campeoes, corrida com fotos e ticker global"
+          git push origin HEAD:acessos-gestao-menezes
