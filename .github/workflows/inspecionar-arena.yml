@@ -1,0 +1,44 @@
+name: Inspecionar estrutura da arena
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspecionar-arena.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: acessos-gestao-menezes
+      - name: Analisar estrutura local sem coletar dados de usuários
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const s=fs.readFileSync('index.html','utf8');
+          const terms=['monthOpenings','leaderId','photoUrl','photoData','avatar','photo','sales','consultants','function render','const render','let state','sidebar','data-view','recentSales','setInterval','fetch('/api/'];
+          const snippets={};
+          for(const term of terms){
+            let idx=0,arr=[];
+            while(arr.length<9 && (idx=s.indexOf(term,idx))>=0){
+              const start=Math.max(0,idx-170),end=Math.min(s.length,idx+330);
+              const snippet=s.slice(start,end).replace(/[\r\n]/g,' ');
+              // Redact assignments with password-like names before emitting.
+              arr.push(snippet.replace(/((?:password|senha|secret|token|pin)[^:=]{0,30}[:=])[^,;\s)}]{1,80}/gi,'$1[redacted]'));
+              idx+=term.length;
+            }
+            snippets[term]=arr;
+          }
+          const htmlInfo={length:s.length,title:(s.match(/<title>([^<]+)/)||[])[1],styles:(s.match(/<style\b/gi)||[]).length,scripts:(s.match(/<script\b/gi)||[]).length,hasPhoto:s.includes('photo'),terms:snippets};
+          fs.writeFileSync('arena-inspect.json',JSON.stringify(htmlInfo,null,2));
+          NODE
+      - name: Commit inspection
+        run: |
+          git config user.name "Gestao Menezes Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add arena-inspect.json
+          git commit -m "Inspecao de estrutura para a arena" || exit 0
+          git push origin HEAD:acessos-gestao-menezes
