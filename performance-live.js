@@ -35,6 +35,7 @@ var attempts=0,boot=setInterval(function(){if(init()||++attempts>60)clearInterva
  function close(){var el=document.getElementById('gmLivePerformance');if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true')}document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen?.()}
  function attach(){
   if(!document.body)return;
+  ensurePanel();
   var launch=document.getElementById('gmLiveLauncherV4');
   if(!launch){launch=document.createElement('button');launch.type='button';launch.id='gmLiveLauncherV4';launch.innerHTML='<span class="gm-dot-v4"></span> ABRIR TELÃO LIVE';launch.addEventListener('click',open);document.body.appendChild(launch)}
   var nav=document.querySelector('.sidebar nav,.sidebar .nav,.sidebar');
