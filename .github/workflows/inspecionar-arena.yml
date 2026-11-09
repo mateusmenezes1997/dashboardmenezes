@@ -19,7 +19,7 @@ jobs:
           node <<'NODE'
           const fs=require('fs');
           const s=fs.readFileSync('index.html','utf8');
-          const terms=['monthOpenings','leaderId','photoUrl','photoData','avatar','photo','sales','consultants','function render','const render','let state','sidebar','data-view','recentSales','setInterval','fetch('/api/'];
+          const terms=['monthOpenings','leaderId','photoUrl','photoData','avatar','photo','sales','consultants','function render','const render','let state','sidebar','data-view','recentSales','setInterval',"fetch('/api/"];
           const snippets={};
           for(const term of terms){
             let idx=0,arr=[];
