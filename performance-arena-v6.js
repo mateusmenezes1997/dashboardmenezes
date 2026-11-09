@@ -119,6 +119,7 @@ function addNav(){
 function open(){
  if(!authenticated())return;
  makeUI();
+ var panel=qs('gmv-notify-panel');if(panel)panel.hidden=true;
  arena.classList.add('gmv-open');arena.setAttribute('aria-hidden','false');
  document.body.classList.add('gmv-immersive');
  if(!document.body.dataset.gmvOldOverflow)document.body.dataset.gmvOldOverflow=document.body.style.overflow||'unset';
@@ -315,7 +316,7 @@ function sync(){
  inFlight=true;
  fetch('/api/state',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}})
  .then(function(r){
-  if(r.status===401||r.status===403){sessionDenied=true;close();document.body.classList.remove('gmv-authenticated');throw new Error('Sessão encerrada')}
+  if(r.status===401||r.status===403){sessionDenied=true;close();var auth=qs('gmAuth');if(auth)auth.classList.remove('hidden');document.body.classList.remove('gmv-authenticated');throw new Error('Sessão encerrada')}
   if(!r.ok)throw new Error('Falha na sincronização');
   return r.json();
  }).then(function(result){
