@@ -70,6 +70,8 @@ jobs:
           win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
           await new Promise(r=>setTimeout(r,130));
           assert(win.document.getElementById('gmv-ticker'),'Ticker global nao apareceu');
+          assert(win.document.querySelectorAll('#gmv-ticker-track .gmv-tick').length>=20,'Ticker nao tem itens suficientes para scroll continuo');
+          assert(win.document.getElementById('gmv-notify'),'O sino de notificacoes nao apareceu');
           assert(win.document.getElementById('gmv-nav'),'Menu arena nao apareceu');
           assert.equal(win.document.querySelectorAll('.gmv-champion').length,3,'Os 3 campeoes nao foram renderizados');
           win.document.getElementById('gmv-ticker-open').click();
