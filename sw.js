@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v14";
+const VERSION = "gm-pwa-v15";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -817,6 +817,69 @@ function applyLeaderPhotos(html){
   return html.replace('</body>',runtime+'\n</body>');
 }
 
+
+
+const LIVE_PERFORMANCE_INJECT = \`
+<style id="gm-live-performance-v2">
+#gmNotifyBtn{position:fixed;right:24px;top:22px;z-index:9996;width:46px;height:46px;border-radius:16px;border:1px solid rgba(213,171,103,.38);background:rgba(10,12,16,.92);backdrop-filter:blur(15px);color:#f0cb8c;display:grid;place-items:center;box-shadow:0 12px 35px rgba(0,0,0,.38);cursor:pointer;transition:.22s ease}
+#gmNotifyBtn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 16px 42px rgba(213,171,103,.16)}
+#gmNotifyBtn svg{width:21px;height:21px}#gmNotifyBadge{position:absolute;right:-5px;top:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#8b1737;color:#fff;font:900 10px/20px Manrope,sans-serif;border:2px solid #080a0d}
+#gmNotifyPanel{position:fixed;right:24px;top:76px;z-index:9997;width:min(390px,calc(100vw - 28px));max-height:520px;overflow:auto;border:1px solid rgba(213,171,103,.25);border-radius:22px;background:linear-gradient(180deg,rgba(17,20,25,.99),rgba(8,10,13,.99));box-shadow:0 24px 70px rgba(0,0,0,.58);padding:18px;display:none}
+#gmNotifyPanel.open{display:block}.gm-notify-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.gm-notify-title b{font:800 16px Manrope}.gm-notify-title span{font:900 9px Manrope;color:#d5ab67;letter-spacing:.14em;text-transform:uppercase}.gm-note{padding:12px;border-radius:15px;background:#10151b;border:1px solid #202832;margin:8px 0}.gm-note strong{display:block;font-size:13px}.gm-note small{display:block;color:#9aa3af;margin-top:4px}
+.gm-live-nav{margin-top:8px!important;border-color:rgba(213,171,103,.38)!important;background:linear-gradient(90deg,rgba(124,23,51,.25),rgba(213,171,103,.09))!important;color:#f0cb8c!important;position:relative;overflow:hidden}.gm-live-nav:after{content:"LIVE";position:absolute;right:12px;top:50%;transform:translateY(-50%);font:900 8px Manrope;letter-spacing:.12em;padding:4px 6px;border-radius:999px;background:#8d1738;color:#fff;box-shadow:0 0 14px rgba(141,23,56,.65)}
+#gmLivePerformance{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 78% 8%,rgba(124,23,51,.27),transparent 27%),radial-gradient(circle at 18% 0%,rgba(213,171,103,.13),transparent 26%),#05070a;color:#f6f2ea;display:none;overflow:auto}#gmLivePerformance.open{display:block}.gm-live-shell{min-height:100vh;padding:24px 28px 40px}.gm-live-head{display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px}.gm-live-brand small{display:block;color:#d5ab67;letter-spacing:.20em;text-transform:uppercase;font:900 9px Manrope}.gm-live-brand h1{margin:4px 0 0;font:800 clamp(24px,3vw,44px) Sora,sans-serif;letter-spacing:-.05em}.gm-live-actions{display:flex;gap:8px}.gm-live-actions button{background:#0e1319;color:#eee;border:1px solid #252d36;border-radius:13px;padding:10px 13px;cursor:pointer;font-weight:800}.gm-live-actions button:hover{border-color:#d5ab67;color:#f0cb8c}
+.gm-market-strip{position:relative;overflow:hidden;border-block:1px solid rgba(213,171,103,.24);background:linear-gradient(90deg,rgba(213,171,103,.05),rgba(124,23,51,.08));padding:12px 0;margin:0 -28px 22px}.gm-market-track{display:flex;width:max-content;gap:32px;animation:gmTicker 24s linear infinite;padding-left:28px}.gm-market-strip:hover .gm-market-track{animation-play-state:paused}.gm-ticker-item{display:flex;gap:10px;align-items:center;white-space:nowrap;font:800 12px Manrope}.gm-ticker-item b{color:#f0cb8c}.gm-ticker-item em{font-style:normal;color:#2eb67d}@keyframes gmTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.gm-live-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.gm-live-card{border:1px solid #202832;border-radius:22px;background:linear-gradient(180deg,rgba(15,20,26,.96),rgba(8,11,15,.96));box-shadow:0 18px 50px rgba(0,0,0,.22);padding:20px}.gm-live-card h3{margin:0 0 16px;font:900 12px Manrope;letter-spacing:.10em;text-transform:uppercase;color:#cfc6b8}.gm-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.gm-podium-item{padding:18px;border-radius:18px;background:#0b1016;border:1px solid #202832;position:relative;overflow:hidden}.gm-podium-item.first{border-color:rgba(213,171,103,.62);box-shadow:inset 0 0 0 1px rgba(213,171,103,.12),0 0 32px rgba(213,171,103,.10)}.gm-place{font:900 9px Manrope;letter-spacing:.12em;color:#9aa3af}.gm-podium-item.first .gm-place{color:#f0cb8c}.gm-name{font:800 17px Sora;margin:9px 0 5px}.gm-money{font:800 20px Sora;color:#f0cb8c}.gm-progress{height:7px;border-radius:999px;background:#171d24;margin-top:13px;overflow:hidden}.gm-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7c1733,#d5ab67);box-shadow:0 0 18px rgba(213,171,103,.25)}
+.gm-chart-row{display:grid;grid-template-columns:minmax(120px,1fr) 3fr auto;align-items:center;gap:12px;margin:11px 0}.gm-chart-row span{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gm-chart-bar{height:9px;background:#171d24;border-radius:999px;overflow:hidden}.gm-chart-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#73172f,#d5ab67)}.gm-chart-row b{font:800 11px Manrope;color:#cfc6b8}.gm-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}.gm-kpi{padding:16px;border-radius:17px;background:#0b1016;border:1px solid #202832}.gm-kpi small{display:block;color:#8f99a5;text-transform:uppercase;letter-spacing:.11em;font-size:9px;font-weight:800}.gm-kpi b{display:block;font:800 22px Sora;margin-top:7px}.gm-kpi.gold b{color:#f0cb8c}.gm-leader-list{display:flex;flex-direction:column;gap:9px}.gm-leader-row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:11px 12px;background:#0b1016;border:1px solid #202832;border-radius:14px}.gm-leader-row .num{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#171d24;font-weight:900;color:#d5ab67}.gm-leader-row b{font-size:12px}.gm-leader-row small{display:block;color:#7f8994;margin-top:2px}.gm-leader-row strong{font-size:12px;color:#f0cb8c}.gm-live-pulse{display:inline-flex;align-items:center;gap:7px;font:900 9px Manrope;color:#b7c0ca;letter-spacing:.08em;text-transform:uppercase}.gm-live-pulse i{width:8px;height:8px;border-radius:50%;background:#2eb67d;box-shadow:0 0 0 0 rgba(46,182,125,.5);animation:gmPulse 1.6s infinite}@keyframes gmPulse{70%{box-shadow:0 0 0 9px rgba(46,182,125,0)}100%{box-shadow:0 0 0 0 rgba(46,182,125,0)}}
+@media(max-width:900px){#gmNotifyBtn{right:14px;top:14px}.gm-live-shell{padding:18px}.gm-market-strip{margin-left:-18px;margin-right:-18px}.gm-live-grid{grid-template-columns:1fr}.gm-podium{grid-template-columns:1fr}.gm-live-head{align-items:flex-start}.gm-live-actions{flex-direction:column}.gm-kpis{grid-template-columns:1fr 1fr}}
+</style>
+<button id="gmNotifyBtn" type="button" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span id="gmNotifyBadge">0</span></button><div id="gmNotifyPanel"></div>
+<section id="gmLivePerformance" aria-hidden="true"><div class="gm-live-shell"><div class="gm-live-head"><div class="gm-live-brand"><small>Gestão Menezes • Performance Exchange</small><h1>Central de Performance ao Vivo</h1></div><div class="gm-live-actions"><button id="gmLiveFullscreen">⛶ Tela cheia</button><button id="gmLiveClose">Fechar</button></div></div><div class="gm-market-strip"><div class="gm-market-track" id="gmTicker"></div></div><div class="gm-live-grid"><div class="gm-live-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0">Top performance</h3><span class="gm-live-pulse"><i></i> atualiza automaticamente</span></div><div class="gm-podium" id="gmPodium"></div><div style="height:18px"></div><h3>Corrida para 5MM</h3><div id="gmBars"></div></div><div><div class="gm-kpis" id="gmKpis"></div><div class="gm-live-card"><h3>Líderes • resultado das equipes</h3><div class="gm-leader-list" id="gmLeaders"></div></div></div></div></div></section>
+<script id="gm-live-performance-runtime-v2">
+(function(){
+ var money=function(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})};
+ var currentMonth=function(){return new Date().toISOString().slice(0,7)};
+ function opening(c){var m=currentMonth(),o=c&&c.monthOpenings&&c.monthOpenings[m];return o&&isFinite(Number(o.total))?Number(o.total):Number(c&&c.opening||0)}
+ function snapshot(){
+   var people=(typeof state!=='undefined'&&Array.isArray(state.consultants)?state.consultants:[]).map(function(c){return Object.assign({},c,{gmTotal:opening(c)})}).filter(function(c){return c.gmTotal>0}).sort(function(a,b){return b.gmTotal-a.gmTotal});
+   var leaders=(typeof state!=='undefined'&&Array.isArray(state.consultants)?state.consultants:[]).filter(function(c){return c.role==='trainee'||c.role==='gestor'}).map(function(l){
+     var team=(state.consultants||[]).filter(function(c){return String(c.leaderId)===String(l.id)});
+     return Object.assign({},l,{gmTotal:opening(l)+team.reduce(function(a,c){return a+opening(c)},0),teamCount:team.length});
+   }).filter(function(x){return x.gmTotal>0}).sort(function(a,b){return b.gmTotal-a.gmTotal});
+   return {people:people,leaders:leaders,total:people.reduce(function(a,c){return a+c.gmTotal},0),target:5000000};
+ }
+ function render(){
+   var d=snapshot(),p=d.people,max=Math.max(d.target,p.length?p[0].gmTotal:1);
+   var items=(p.length?p:[{name:'Aguardando vendas',gmTotal:0}]).slice(0,10).map(function(x,i){return '<div class="gm-ticker-item"><span>#'+(i+1)+' '+x.name+'</span><b>'+money(x.gmTotal)+'</b><em>▲ '+Math.min(999,x.gmTotal/d.target*100).toFixed(1)+'%</em></div>'}).join('');
+   var tick=document.getElementById('gmTicker');if(tick)tick.innerHTML=items+items;
+   var pod=document.getElementById('gmPodium');if(pod)pod.innerHTML=p.slice(0,3).map(function(x,i){return '<div class="gm-podium-item '+(i===0?'first':'')+'"><div class="gm-place">'+(i===0?'🏆 CAMPEÃO DO MOMENTO':'#'+(i+1)+' COLOCAÇÃO')+'</div><div class="gm-name">'+x.name+'</div><div class="gm-money">'+money(x.gmTotal)+'</div><div class="gm-progress"><i style="width:'+Math.min(100,x.gmTotal/d.target*100)+'%"></i></div></div>'}).join('');
+   var bars=document.getElementById('gmBars');if(bars)bars.innerHTML=p.slice(0,8).map(function(x,i){return '<div class="gm-chart-row"><span>#'+(i+1)+' '+x.name+'</span><div class="gm-chart-bar"><i style="width:'+Math.min(100,x.gmTotal/max*100)+'%"></i></div><b>'+money(x.gmTotal)+'</b></div>'}).join('');
+   var k=document.getElementById('gmKpis');if(k)k.innerHTML='<div class="gm-kpi gold"><small>Volume da gestão</small><b>'+money(d.total)+'</b></div><div class="gm-kpi"><small>Vendedores ativos</small><b>'+p.length+'</b></div><div class="gm-kpi"><small>Falta p/ 15MM</small><b>'+money(Math.max(0,15000000-d.total))+'</b></div><div class="gm-kpi"><small>Líder do mês</small><b>'+(p[0]?p[0].name:'—')+'</b></div>';
+   var le=document.getElementById('gmLeaders');if(le)le.innerHTML=(d.leaders.length?d.leaders:[{name:'Sem líderes com produção',gmTotal:0,teamCount:0}]).map(function(x,i){return '<div class="gm-leader-row"><div class="num">'+(i+1)+'</div><div><b>'+x.name+'</b><small>'+x.teamCount+' pessoas na equipe</small></div><strong>'+money(x.gmTotal)+'</strong></div>'}).join('');
+   var notes=[];if(p[0])notes.push('<div class="gm-note"><strong>🏆 '+p[0].name+' lidera agora</strong><small>'+money(p[0].gmTotal)+' no mês.</small></div>');
+   var hot=p.find(function(x){return x.gmTotal>=d.target*.5});if(hot)notes.push('<div class="gm-note"><strong>🔥 '+hot.name+' acelerando</strong><small>Já passou de 50% da meta de 5MM.</small></div>');
+   if(d.leaders[0])notes.push('<div class="gm-note"><strong>📈 Liderança em destaque</strong><small>'+d.leaders[0].name+' está na frente entre os líderes.</small></div>');
+   var panel=document.getElementById('gmNotifyPanel');if(panel)panel.innerHTML='<div class="gm-notify-title"><b>Notificações</b><span>Performance</span></div>'+notes.join('');
+   var badge=document.getElementById('gmNotifyBadge');if(badge)badge.textContent=String(notes.length);
+ }
+ function openLive(){render();var e=document.getElementById('gmLivePerformance');if(!e)return;e.classList.add('open');e.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
+ function closeLive(){var e=document.getElementById('gmLivePerformance');if(!e)return;e.classList.remove('open');e.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+ function addNav(){var nav=document.querySelector('.sidebar nav,.sidebar .nav,.sidebar');if(!nav||document.querySelector('.gm-live-nav'))return;var b=document.createElement('button');b.type='button';b.className='gm-live-nav';b.innerHTML='<span class="nav-icon" aria-hidden="true">◫</span> Performance ao Vivo';b.onclick=openLive;var settings=Array.from(nav.querySelectorAll('button')).find(function(x){return x.dataset&&x.dataset.view==='settings'});settings?nav.insertBefore(b,settings):nav.appendChild(b)}
+ document.getElementById('gmNotifyBtn')?.addEventListener('click',function(){render();document.getElementById('gmNotifyPanel')?.classList.toggle('open')});
+ document.getElementById('gmLiveClose')?.addEventListener('click',closeLive);
+ document.getElementById('gmLiveFullscreen')?.addEventListener('click',function(){var e=document.getElementById('gmLivePerformance');if(!document.fullscreenElement)e.requestFullscreen&&e.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLive()});
+ document.addEventListener('click',function(e){if(!e.target.closest('#gmNotifyPanel,#gmNotifyBtn'))document.getElementById('gmNotifyPanel')?.classList.remove('open')});
+ addNav();render();setInterval(function(){if(document.getElementById('gmLivePerformance')?.classList.contains('open'))render()},4000);
+})();
+<\/script>\`;
+
+function applyLivePerformance(html){
+  if(!html.includes('</body>')) return html;
+  if(html.includes('gm-live-performance-v2')) return html;
+  return html.replace('</body>', LIVE_PERFORMANCE_INJECT + '\n</body>');
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
@@ -831,6 +894,7 @@ self.addEventListener("fetch", (event) => {
         html = applyChampionVisual(html);
         html = applyLeaderPhotos(html);
         html = enableManagerSaleDelete(html);
+        html = applyLivePerformance(html);
         const headers = new Headers(response.headers);
         headers.delete("content-length");
         return new Response(html, {
