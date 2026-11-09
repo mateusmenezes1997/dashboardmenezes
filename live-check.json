@@ -1,0 +1,15 @@
+{
+  "html_has_panel": true,
+  "html_has_launch_script": true,
+  "inline_runtime_syntax_ok": true,
+  "external_runtime_syntax_ok": true,
+  "ids": {
+    "gmLivePerformance": true,
+    "gmTicker": true,
+    "gmPodium": true,
+    "gmBars": true,
+    "gmKpis": true,
+    "gmLeaders": true
+  },
+  "generated_at": "2026-11-09T23:15:19.898Z"
+}
