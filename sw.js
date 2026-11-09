@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v15";
+const VERSION = "gm-pwa-v16";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -877,7 +877,7 @@ const LIVE_PERFORMANCE_INJECT = \`
 function applyLivePerformance(html){
   if(!html.includes('</body>')) return html;
   if(html.includes('gm-live-performance-v2')) return html;
-  return html.replace('</body>', LIVE_PERFORMANCE_INJECT + '\n</body>');
+  return html.replace('</body>', LIVE_PERFORMANCE_INJECT + '\n<script src="/performance-live.js?v=3"></script>\n</body>');
 }
 
 self.addEventListener("fetch", (event) => {
