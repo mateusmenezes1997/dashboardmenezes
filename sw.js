@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-v6";
+const VERSION = "gm-pwa-v11";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -739,10 +739,63 @@ function applyLeaderPhotos(html){
           if(meta){var tag=document.createElement('span');tag.className='gm-leader-champion';tag.innerHTML='<span class="gm-trophy">🏆</span> Campeão do momento';meta.appendChild(tag);}
         }
       });
+
+      // Aba exclusiva do gestor: Líderes - Gestão
+      var podium=document.getElementById('leadersPodium');
+      if(podium){
+        Array.from(podium.querySelectorAll('.leader-rank-card')).forEach(function(card,index){
+          var nameEl=card.querySelector('h4');
+          if(!nameEl)return;
+          var name=(nameEl.textContent||'').trim();
+          var person=state.consultants.find(function(c){return String(c.name||'').trim().toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR')});
+          var existing=card.querySelector('.gm-management-leader-photo');
+          if(person&&person.photo&&!existing){
+            var wrap=document.createElement('div');
+            wrap.className='gm-management-leader-photo';
+            wrap.style.cssText='width:58px;height:58px;border-radius:17px;overflow:hidden;margin:0 0 10px;border:2px solid '+(index===0?'#e8c469':'#343c48')+';box-shadow:'+(index===0?'0 0 22px rgba(232,196,105,.32)':'0 10px 24px rgba(0,0,0,.26)');
+            var img=document.createElement('img');
+            img.src=person.photo;img.alt='Foto de '+name;img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+            wrap.appendChild(img);
+            var small=card.querySelector('small');
+            if(small)card.insertBefore(wrap,small);else card.insertBefore(wrap,card.firstChild);
+          }
+          if(index===0){
+            card.style.borderColor='rgba(240,203,140,.78)';
+            card.style.boxShadow='0 0 0 1px rgba(240,203,140,.12) inset,0 0 30px rgba(213,171,103,.20),0 18px 44px rgba(0,0,0,.32)';
+            card.style.background='radial-gradient(circle at 14% 12%,rgba(240,203,140,.15),transparent 30%),linear-gradient(180deg,#191712,#0e1319)';
+            if(!card.querySelector('.gm-management-champion')){
+              var badge=document.createElement('div');
+              badge.className='gm-management-champion';
+              badge.textContent='🏆 Campeão do momento';
+              badge.style.cssText='display:inline-flex;align-items:center;gap:6px;margin:8px 0 3px;padding:6px 10px;border-radius:999px;border:1px solid rgba(240,203,140,.34);background:rgba(213,171,103,.10);color:#f0cb8c;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase';
+              nameEl.insertAdjacentElement('afterend',badge);
+            }
+          }
+        });
+      }
+
+      var tbody=document.getElementById('leadersRankingBody');
+      if(tbody){
+        Array.from(tbody.querySelectorAll('tr')).forEach(function(row){
+          var nameEl=row.querySelector('.person .name');
+          var avatar=row.querySelector('.person .avatar');
+          if(!nameEl||!avatar)return;
+          var name=(nameEl.textContent||'').trim();
+          var person=state.consultants.find(function(c){return String(c.name||'').trim().toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR')});
+          if(person&&person.photo&&!avatar.querySelector('img')){
+            avatar.textContent='';avatar.style.overflow='hidden';
+            var img=document.createElement('img');
+            img.src=person.photo;img.alt='Foto de '+name;img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+            avatar.appendChild(img);
+          }
+        });
+      }
     }finally{busy=false}
   }
   var grid=document.getElementById('leadershipGrid');
   if(grid)new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(grid,{childList:true,subtree:true});
+  var mgmt=document.getElementById('leadersExportArea');
+  if(mgmt)new MutationObserver(function(){setTimeout(updateLeaderPhotos,0)}).observe(mgmt,{childList:true,subtree:true});
   document.addEventListener('DOMContentLoaded',updateLeaderPhotos);
   window.addEventListener('load',function(){setTimeout(updateLeaderPhotos,120)});
   setTimeout(updateLeaderPhotos,180);
