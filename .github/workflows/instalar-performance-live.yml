@@ -1,0 +1,49 @@
+name: Instalar central de performance diretamente no HTML
+on:
+  push:
+    branches: [acessos-gestao-menezes]
+    paths:
+      - '.github/workflows/instalar-performance-live.yml'
+      - 'performance-live.js'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  instalar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: acessos-gestao-menezes
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inserir HTML real e ativar recursos
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          let html=fs.readFileSync('index.html','utf8');
+          const sw=fs.readFileSync('sw.js','utf8');
+          const m=sw.match(/const LIVE_PERFORMANCE_INJECT = `([\s\S]*?)`;/);
+          if(!m)throw new Error('Template live nao encontrado');
+          if(!html.includes('gm-live-performance-v2')){
+            const panel=Function('return `'+m[1]+'`')();
+            html=html.replace(/<\/body>/i,panel+'\n</body>');
+          }
+          if(!html.includes('src="/performance-live.js')){
+            html=html.replace(/<\/body>/i,'<script defer src="/performance-live.js?v=4"></script>\n</body>');
+          }
+          fs.writeFileSync('index.html',html);
+          NODE
+      - name: Publicar mudanca na branch de acessos
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "HTML ja atualizado"
+            exit 0
+          fi
+          git config user.name "Gestao Menezes Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "Inclui tela de performance direto no HTML principal"
+          git push origin HEAD:acessos-gestao-menezes
