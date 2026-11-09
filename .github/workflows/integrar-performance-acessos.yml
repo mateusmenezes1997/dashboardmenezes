@@ -44,7 +44,7 @@ jobs:
           const match=html.match(/<script id="gm-live-performance-runtime-v2">([\s\S]*?)<\/script>/i);
           if(!match)throw new Error('Runtime principal do painel nao encontrado');
           new vm.Script(match[1],{filename:'inline-performance.js'});
-          const report={html_has_panel:true,html_has_launch_script:true,inline_runtime_syntax_ok:true,external_runtime_syntax_ok:true,ids:found,checks:{state_const:(html.match(/\\bconst\\s+state\\s*=/g)||[]).length,state_let:(html.match(/\\blet\\s+state\\s*=/g)||[]).length,state_var:(html.match(/\\bvar\\s+state\\s*=/g)||[]).length,window_state:(html.match(/window\\.state/g)||[]).length,month_openings:(html.match(/monthOpenings/g)||[]).length,fetch_calls:(html.match(/\\bfetch\\s*\\(/g)||[]).length},generated_at:new Date().toISOString()};
+          const report={html_has_panel:true,html_has_launch_script:true,inline_runtime_syntax_ok:true,external_runtime_syntax_ok:true,ids:found,checks:{state_const:html.includes('const state'),state_let:html.includes('let state'),state_var:html.includes('var state'),window_state:html.includes('window.state'),month_openings:html.includes('monthOpenings'),fetch_calls:html.includes('fetch(')},generated_at:new Date().toISOString()};
           fs.writeFileSync('live-check.json',JSON.stringify(report,null,2)+'\n');
           console.log('PAINEL OK',JSON.stringify(report));
           NODE
