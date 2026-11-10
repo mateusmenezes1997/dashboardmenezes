@@ -50,7 +50,7 @@ jobs:
               if(path==='/api/state')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({revision:1,state})});
               return route.fulfill({status:404,contentType:'application/json',body:'{}'});
             });
-            const response=await page.goto(report.url+'?audit=arena-v6-'+Date.now(),{waitUntil:'domcontentloaded',timeout:45000});
+            const response=await page.goto(report.url+'?utm_source=chatgpt.com&audit=arena-v6-'+Date.now(),{waitUntil:'domcontentloaded',timeout:45000});
             report.httpStatus=response.status();
             await page.waitForTimeout(4500);
             report.steps.push(await page.evaluate(()=>{
@@ -59,6 +59,8 @@ jobs:
               const arena=document.getElementById('gmv-arena');
               return {phase:'afterLoad',isArenaRuntime:!!window.__gmArenaV6,authHidden:!!auth?.classList.contains('hidden'),nav:!!document.getElementById('gmv-nav'),ticker:!!ticker,tickerDisplay:ticker?getComputedStyle(ticker).display:'missing',arena:!!arena,champions:document.querySelectorAll('.gmv-champion').length,jsSrc:[...document.scripts].map(s=>s.src.split('/').slice(-1)[0]).filter(s=>s.includes('arena'))};
             }));
+            assert.equal(report.steps.at(-1).tickerDisplay,'grid','Ticker deveria estar visivel depois do login');
+            assert.equal(report.steps.at(-1).nav,true,'Botao da Arena deveria aparecer na navegacao');
             await page.evaluate(()=>{document.getElementById('gmAuth')?.classList.add('hidden')});
             await page.waitForTimeout(1100);
             report.steps.push(await page.evaluate(()=>{
