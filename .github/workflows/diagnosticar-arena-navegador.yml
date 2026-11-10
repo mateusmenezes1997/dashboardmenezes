@@ -29,6 +29,7 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
+          import assert from 'node:assert/strict';
           import { chromium } from 'playwright';
           const report={url:'https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/',startedAt:new Date().toISOString(),steps:[],errors:[]};
           const month='2026-11';
