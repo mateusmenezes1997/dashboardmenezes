@@ -9,10 +9,11 @@ const date=x=>x?x.split('-').reverse().join('/'):'Sem lançamento datado';
 const monthName=m=>new Intl.DateTimeFormat('pt-BR',{month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(m+'-02T12:00:00Z'));
 const metric=(label,value,sub='')=>`<div class="gmp-metric"><small>${E(label)}</small><strong>${E(value)}</strong><span>${E(sub)}</span></div>`;
 const head=(eyebrow,title,sub='')=>`<div class="gmp-heading"><small>${E(eyebrow)}</small><h3>${E(title)}</h3>${sub?`<p>${E(sub)}</p>`:''}</div>`;
-let data=null,scheduled=false,privateData=null,privateLoading=false,privateError='',privateEpoch=0,arenaMode='elite',arenaIndex=0,autoArena=true,arenaTimer=null;
+let data=null,scheduled=false,privateData=null,privateLoading=false,privateError='',privateEpoch=0,arenaMode='elite',arenaIndex=0,autoArena=true,arenaTimer=null,sessionRole=null;
 function source(){try{return data||state}catch{return null}}
 function allowed(){return $('gmAuth')?.classList.contains('hidden')}
 function manager(){return allowed()&&document.body.dataset.role==='manager'}
+function leadersViewer(){return allowed()&&(manager()||sessionRole==='trainee'||document.body.dataset.role==='editor')}
 function mount(id,parent,before){if($(id))return $(id);const el=document.createElement('div');el.id=id;el.className='gmp-panel';while(before&&before.parentNode!==parent)before=before.parentNode;if(before)parent.insertBefore(el,before);else parent.appendChild(el);return el}
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;refresh()})}
 function showStatus(id,message){const el=$(id);if(el)el.textContent=message}
@@ -35,9 +36,10 @@ function team(s,m){
 function leaders(s,m){
  const parent=$('leaders');if(!parent)return;
  const box=mount('gmp-leaders',parent,parent.querySelector('#leadersExportArea'));
- box.hidden=!manager();if(!manager()){box.replaceChildren();return}
+ box.hidden=!leadersViewer();if(!leadersViewer()){box.replaceChildren();return}
  const rows=M.leadership(s,m),w=M.week(m);
- box.innerHTML=head('DESENVOLVIMENTO DA EQUIPE','Quem está fazendo a equipe crescer?','Participação, distribuição da produção e evolução por liderança.')+`<div class="gmp-leader-grid">${rows.map(r=>`<article class="gmp-leader"><h4>${E(r.leader.name)}</h4><div class="gmp-grid">${metric('Consultores com vendas',r.active+' / '+r.team.length,r.team.length?pct(r.active/r.team.length*100)+' da equipe':'Sem consultores vinculados')}${metric('Média por consultor',cash(r.average),'Produção da equipe, sem o líder')}${metric('Venda própria / estrutura',pct(r.share),'Quanto o resultado depende do líder')}${metric('Semana atual',cash(r.currentWeek),'Semana anterior: '+cash(r.previousWeek))}</div><p class="gmp-note">${r.team.length===0?'Vincule consultores para acompanhar o desenvolvimento.':r.active===r.team.length?'Todos os consultores da equipe têm produção no mês.':(r.team.length-r.active)+' consultor(es) ainda sem produção neste mês. Priorize o acompanhamento.'}</p></article>`).join('')||'<p>Nenhuma liderança cadastrada.</p>'}</div><p class="gmp-note">Semana ${date(w.start)} a ${date(w.end)} comparada aos sete dias anteriores. Semana atual pode estar incompleta; valores semanais incluem apenas lançamentos datados.</p><details class="gmp-details" open><summary>Acompanhamento privado · consultores sem produção ou sem lançamento recente</summary><div class="gmp-table-wrap"><table><thead><tr><th>Consultor</th><th>Liderança</th><th>Última venda datada</th><th>Próxima ação combinada</th></tr></thead><tbody>${attentionRows(s,m,rows)}</tbody></table></div></details>`;
+ const privateBlock=manager()?`<details class="gmp-details" open><summary>Acompanhamento privado · consultores sem produção ou sem lançamento recente</summary><div class="gmp-table-wrap"><table><thead><tr><th>Consultor</th><th>Liderança</th><th>Última venda datada</th><th>Próxima ação combinada</th></tr></thead><tbody>${attentionRows(s,m,rows)}</tbody></table></div></details>`:'';
+ box.innerHTML=head('DESENVOLVIMENTO DA EQUIPE','Quem está fazendo a equipe crescer?','Participação, distribuição da produção e evolução por liderança.')+`<div class="gmp-leader-grid">${rows.map(r=>`<article class="gmp-leader"><h4>${E(r.leader.name)}</h4><div class="gmp-grid">${metric('Consultores com vendas',r.active+' / '+r.team.length,r.team.length?pct(r.active/r.team.length*100)+' da equipe':'Sem consultores vinculados')}${metric('Média por consultor',cash(r.average),'Produção da equipe, sem o líder')}${metric('Venda própria / estrutura',pct(r.share),'Quanto o resultado depende do líder')}${metric('Semana atual',cash(r.currentWeek),'Semana anterior: '+cash(r.previousWeek))}</div><p class="gmp-note">${r.team.length===0?'Vincule consultores para acompanhar o desenvolvimento.':r.active===r.team.length?'Todos os consultores da equipe têm produção no mês.':(r.team.length-r.active)+' consultor(es) ainda sem produção neste mês. Priorize o acompanhamento.'}</p></article>`).join('')||'<p>Nenhuma liderança cadastrada.</p>'}</div><p class="gmp-note">Semana ${date(w.start)} a ${date(w.end)} comparada aos sete dias anteriores. Semana atual pode estar incompleta; valores semanais incluem apenas lançamentos datados.</p>${privateBlock}`;
 }
 function attentionRows(s,m,leaders){
  const until=m===M.today().slice(0,7)?M.today():m+'-'+M.days(m),cut=M.shift(until,-7),seen=new Set(),rows=[];
@@ -125,7 +127,7 @@ function refresh(){
  const m=$('monthFilter').value||M.today().slice(0,7);
  dashboard(s,m);team(s,m);leaders(s,$('leadersMonthFilter')?.value||m);commission(s,m);arena(s);
 }
-function revoke(){privateEpoch++;privateData=null;privateLoading=false;privateError='';$('gmp-private')?.remove();$('gmp-leaders')?.replaceChildren();}
+function revoke(){privateEpoch++;privateData=null;privateLoading=false;privateError='';$('gmp-private')?.remove();if(!leadersViewer())$('gmp-leaders')?.replaceChildren();}
 ['render','renderTeam','renderLeadersManagement','renderCommissionSimulator'].forEach(name=>{const original=window[name];if(typeof original==='function')window[name]=function(...args){const result=original.apply(this,args);try{data=state}catch{}schedule();return result}});
 window.addEventListener('gm:performance-state',event=>{data=event.detail;schedule()});
 document.addEventListener('change',e=>{if(e.target.closest('#dashboard,#leaders,#team,#commission'))schedule()});
@@ -139,5 +141,7 @@ document.addEventListener('click',e=>{
 new MutationObserver(()=>{if(!manager())revoke();schedule()}).observe(document.body,{attributes:true,attributeFilter:['data-role']});
 if($('gmAuth'))new MutationObserver(()=>{if(!allowed())revoke();schedule()}).observe($('gmAuth'),{attributes:true,attributeFilter:['class']});
 window.addEventListener('resize',()=>{if(window.innerWidth<=700){autoArena=false;if(source())paintArena(source())}});
+async function resolveSessionRole(){try{const r=await fetch('/api/session',{credentials:'same-origin',cache:'no-store'});if(r.ok){const x=await r.json();sessionRole=x?.role||null;schedule()}}catch{}}
+resolveSessionRole();
 schedule();
 })();
