@@ -1,8 +1,32 @@
 {
   "url": "https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/",
-  "startedAt": "2026-11-10T00:27:36.370Z",
-  "steps": [],
-  "errors": [],
-  "failure": "browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                   ",
-  "finishedAt": "2026-11-10T00:27:36.380Z"
+  "startedAt": "2026-11-10T00:28:14.218Z",
+  "steps": [
+    {
+      "phase": "afterLoad",
+      "isArenaRuntime": true,
+      "authHidden": true,
+      "nav": false,
+      "ticker": true,
+      "tickerDisplay": "none",
+      "arena": true,
+      "champions": 0,
+      "jsSrc": [
+        "performance-arena-v6.js?v=6"
+      ]
+    },
+    {
+      "phase": "authSimulated",
+      "nav": false,
+      "tickerDisplay": "none",
+      "champions": 0,
+      "bodyAuthenticated": false
+    }
+  ],
+  "errors": [
+    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node."
+  ],
+  "httpStatus": 200,
+  "failure": "locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('#gmv-ticker-open')\n    - locator resolved to <button type=\"button\" id=\"gmv-ticker-open\">◈ ABRIR ARENA</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    9 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 500ms\n",
+  "finishedAt": "2026-11-10T00:28:33.822Z"
 }
