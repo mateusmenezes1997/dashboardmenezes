@@ -47,3 +47,78 @@ var attempts=0,boot=setInterval(function(){if(init()||++attempts>60)clearInterva
  setInterval(attach,2500);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.getElementById('gmLivePerformance')?.classList.contains('open'))close()});
 })();
+
+
+/* Libera a visualizacao de Lideres - Gestao para Trainee, mantendo controles de edicao do Gestor. */
+(function(){
+  if(window.__gmTraineeLeadersAccessV1)return;window.__gmTraineeLeadersAccessV1=true;
+  var trainee=false,observer=null,timer=null;
+
+  function textOf(el){return String(el&&el.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('pt-BR')}
+  function isLeadersControl(el){
+    if(!el||!el.matches)return false;
+    var view=String(el.dataset&&el.dataset.view||'').toLocaleLowerCase('pt-BR');
+    var id=String(el.id||'').toLocaleLowerCase('pt-BR');
+    var txt=textOf(el);
+    return view.includes('leader')||id.includes('leader')||txt.includes('líderes - gestão')||txt.includes('lideres - gestão')||txt.includes('líderes - gestao')||txt.includes('lideres - gestao');
+  }
+  function reveal(el){
+    if(!el)return;
+    el.hidden=false;
+    el.removeAttribute('hidden');
+    el.classList.remove('hidden','manager-only','gestor-only','managerOnly','gestorOnly');
+    el.style.removeProperty('display');
+    el.style.removeProperty('visibility');
+    el.style.removeProperty('opacity');
+    el.setAttribute('data-trainee-leaders-visible','1');
+  }
+  function protectReadOnly(){
+    var roots=[
+      document.getElementById('leadersExportArea'),
+      document.getElementById('leadersView'),
+      document.getElementById('leadersManagement'),
+      document.getElementById('leadersManagementView')
+    ].filter(Boolean);
+    roots.forEach(function(root){
+      root.querySelectorAll('button,input,select,textarea').forEach(function(el){
+        var label=(textOf(el)+' '+String(el.id||'')+' '+String(el.className||'')).toLocaleLowerCase('pt-BR');
+        if(label.includes('baixar')||label.includes('export')||label.includes('download'))return;
+        if(el.matches('input,select,textarea')||label.includes('editar')||label.includes('excluir')||label.includes('salvar')||label.includes('cadastrar')||label.includes('adicionar')){
+          el.disabled=true;
+          el.setAttribute('data-trainee-readonly','1');
+        }
+      });
+    });
+  }
+  function apply(){
+    if(!trainee)return;
+    var candidates=Array.from(document.querySelectorAll('button,a,[data-view],[role="button"],.nav-item,.nav button'));
+    candidates.filter(isLeadersControl).forEach(reveal);
+    var sections=[
+      document.getElementById('leaders'),
+      document.getElementById('leadersView'),
+      document.getElementById('leadersManagement'),
+      document.getElementById('leadersManagementView'),
+      document.getElementById('leadersExportArea')
+    ].filter(Boolean);
+    sections.forEach(function(section){
+      section.classList.remove('manager-only','gestor-only');
+      section.removeAttribute('data-manager-only');
+    });
+    protectReadOnly();
+  }
+  async function boot(){
+    try{
+      var res=await fetch('/api/session',{credentials:'same-origin',cache:'no-store'});
+      if(!res.ok)return;
+      var data=await res.json();
+      trainee=data&&data.role==='trainee';
+      if(!trainee)return;
+      apply();
+      observer=new MutationObserver(function(){apply()});
+      observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden']});
+      timer=setInterval(apply,1200);
+    }catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
