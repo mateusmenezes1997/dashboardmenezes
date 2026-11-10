@@ -112,18 +112,6 @@ function makeUI(){
  arena.querySelectorAll('[data-duel]').forEach(function(b){b.addEventListener('click',function(){duelIndex=Number(b.dataset.duel)||0;renderDuel()})});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&arena.classList.contains('gmv-open'))close()});
  document.addEventListener('fullscreenchange',function(){if(document.fullscreenElement===arena){if(ticker&&ticker.parentElement!==arena)arena.appendChild(ticker)}else if(ticker&&ticker.parentElement!==document.body){document.body.appendChild(ticker)}});
- addNav();
-}
-function addNav(){
- var nav=document.querySelector('.sidebar .nav,.sidebar nav,.sidebar');
- if(!nav||qs('gmv-nav'))return;
- var btn=h('button');btn.type='button';btn.id='gmv-nav';btn.innerHTML='<span class="nav-icon" aria-hidden="true">◈</span> Arena dos Campeões';btn.addEventListener('click',open);
- var ref=nav.querySelector('[data-view="settings"]');
- // Os botoes podem estar dentro de wrappers: insertBefore exige filho direto.
- var direct=ref;
- while(direct && direct.parentNode!==nav)direct=direct.parentNode;
- if(direct&&direct.parentNode===nav)nav.insertBefore(btn,direct);
- else nav.appendChild(btn);
 }
 function open(){
  if(!authenticated())return;
@@ -347,7 +335,6 @@ function checkLogin(){
   sessionDenied=false;refresh();
  }
  lastAuth=active;
- if(active)addNav();
 }
 function boot(){
  try{makeUI()}catch(error){console.error('Arena: falha ao montar navegação',error)}
