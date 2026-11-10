@@ -114,7 +114,11 @@ function addNav(){
  if(!nav||qs('gmv-nav'))return;
  var btn=h('button');btn.type='button';btn.id='gmv-nav';btn.innerHTML='<span class="nav-icon" aria-hidden="true">◈</span> Arena dos Campeões';btn.addEventListener('click',open);
  var ref=nav.querySelector('[data-view="settings"]');
- if(ref)nav.insertBefore(btn,ref);else nav.appendChild(btn);
+ // Os botoes podem estar dentro de wrappers: insertBefore exige filho direto.
+ var direct=ref;
+ while(direct && direct.parentNode!==nav)direct=direct.parentNode;
+ if(direct&&direct.parentNode===nav)nav.insertBefore(btn,direct);
+ else nav.appendChild(btn);
 }
 function open(){
  if(!authenticated())return;
@@ -341,7 +345,8 @@ function checkLogin(){
  if(active)addNav();
 }
 function boot(){
- makeUI();checkLogin();
+ try{makeUI()}catch(error){console.error('Arena: falha ao montar navegação',error)}
+ checkLogin();
  var auth=qs('gmAuth');
  if(auth&&window.MutationObserver){
   var ob=new MutationObserver(function(){if(auth.classList.contains('hidden'))sessionDenied=false;checkLogin()});
