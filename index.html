@@ -2463,591 +2463,6 @@ body[data-role="viewer"] #leaders{display:none!important}
 <meta id="gm-live-performance-v2" name="gm-arena-v6" content="performance-live.js substituido pela Arena v6">
 <link rel="stylesheet" href="/performance-arena-v6.css?v=6">
 <style id="gm-remove-access-box-v2">.access-box{display:none!important;visibility:hidden!important;pointer-events:none!important}</style>
-<style id="leaders-professional-ranking-v2">
-/* Ranking de Líderes — versão profissional */
-#leaders .leaders-export-area{gap:20px}
-#leaders .leaders-export-header{
-  position:relative;
-  overflow:hidden;
-  padding:25px 28px;
-  border-color:rgba(222,183,108,.30);
-  background:
-    radial-gradient(circle at 84% 0%,rgba(119,28,51,.22),transparent 35%),
-    linear-gradient(135deg,#151012 0%,#0b0b0e 58%,#121016 100%);
-  box-shadow:0 18px 55px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025)
-}
-#leaders .leaders-export-header:after{
-  content:"";
-  position:absolute;
-  left:0;right:0;bottom:0;height:2px;
-  background:linear-gradient(90deg,transparent,#9b742f 18%,#f1d18a 50%,#9b742f 82%,transparent);
-  opacity:.75
-}
-#leaders .leaders-export-header h3{font-size:30px;letter-spacing:-.035em}
-#leaders .leaders-private-badge{
-  padding:9px 13px;
-  border-color:rgba(226,190,117,.34);
-  background:linear-gradient(180deg,rgba(222,181,99,.12),rgba(222,181,99,.045));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)
-}
-
-#leaders .leaders-kpis{gap:14px}
-#leaders .leaders-kpi{
-  position:relative;
-  overflow:hidden;
-  min-height:132px;
-  padding:20px;
-  border-color:rgba(255,255,255,.08);
-  background:linear-gradient(160deg,rgba(21,18,20,.98),rgba(10,10,13,.98));
-  box-shadow:0 12px 32px rgba(0,0,0,.20)
-}
-#leaders .leaders-kpi:before{
-  content:"";
-  position:absolute;
-  left:0;top:0;bottom:0;width:3px;
-  background:linear-gradient(180deg,#6c4e1e,#e3bd70,#6c4e1e);
-  opacity:.58
-}
-#leaders .leaders-kpi.featured{
-  border-color:rgba(229,191,111,.42);
-  background:
-    radial-gradient(circle at 90% 10%,rgba(222,181,99,.13),transparent 32%),
-    linear-gradient(160deg,#19150f,#0c0b0c)
-}
-#leaders .leaders-kpi b{font-size:26px}
-#leaders .leaders-kpi.featured b{color:#f3d38e}
-
-#leaders .leaders-ranking-intro{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:18px;
-  padding:4px 4px 0;
-}
-#leaders .leaders-ranking-intro small{
-  display:block;
-  color:#d9b66d;
-  font-size:9px;
-  font-weight:900;
-  letter-spacing:.17em
-}
-#leaders .leaders-ranking-intro h3{
-  margin:5px 0 5px;
-  color:#fff;
-  font-size:22px;
-  letter-spacing:-.025em
-}
-#leaders .leaders-ranking-intro>div>span{
-  color:#818792;
-  font-size:10px
-}
-#leaders .leaders-ranking-legend{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-  justify-content:flex-end
-}
-#leaders .leaders-ranking-legend span{
-  padding:7px 10px;
-  border-radius:999px;
-  font-size:8px;
-  font-weight:900;
-  letter-spacing:.09em;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.025)
-}
-#leaders .leaders-ranking-legend .gold{color:#f2d18b;border-color:rgba(242,209,139,.30)}
-#leaders .leaders-ranking-legend .silver{color:#d7dde5;border-color:rgba(215,221,229,.22)}
-#leaders .leaders-ranking-legend .bronze{color:#d39a72;border-color:rgba(211,154,114,.24)}
-
-#leaders .leaders-podium{
-  display:grid!important;
-  grid-template-columns:.93fr 1.10fr .93fr!important;
-  align-items:end!important;
-  gap:16px!important;
-  padding:18px 0 6px
-}
-#leaders .leaders-podium .gm-management-leader-card{
-  position:relative;
-  min-height:385px;
-  padding:24px 20px 20px!important;
-  border-radius:26px;
-  border:1px solid rgba(255,255,255,.09);
-  background:
-    radial-gradient(circle at 50% -10%,rgba(255,255,255,.055),transparent 36%),
-    linear-gradient(180deg,#131216 0%,#0a0b0e 100%);
-  box-shadow:0 18px 48px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.025);
-  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease
-}
-#leaders .leaders-podium .gm-management-leader-card:before{
-  content:"";
-  position:absolute;
-  left:20px;right:20px;top:0;height:2px;
-  border-radius:0 0 10px 10px;
-  opacity:.9
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(1){
-  order:2;
-  min-height:430px;
-  transform:translateY(-12px);
-  border-color:rgba(239,203,132,.66);
-  background:
-    radial-gradient(circle at 50% 0%,rgba(235,196,111,.16),transparent 34%),
-    radial-gradient(circle at 12% 20%,rgba(109,24,44,.11),transparent 35%),
-    linear-gradient(180deg,#17130d 0%,#0b0b0e 100%);
-  box-shadow:
-    0 0 0 1px rgba(240,207,140,.08) inset,
-    0 24px 70px rgba(0,0,0,.40),
-    0 0 36px rgba(219,174,86,.16)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(1):before{
-  background:linear-gradient(90deg,transparent,#a77b27,#ffe2a0,#a77b27,transparent)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(2){
-  order:1;
-  border-color:rgba(201,208,219,.32);
-  background:
-    radial-gradient(circle at 50% 0%,rgba(205,213,225,.09),transparent 34%),
-    linear-gradient(180deg,#141519,#0a0b0e)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(2):before{
-  background:linear-gradient(90deg,transparent,#7f8791,#dce2e9,#7f8791,transparent)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(3){
-  order:3;
-  border-color:rgba(181,115,73,.36);
-  background:
-    radial-gradient(circle at 50% 0%,rgba(184,111,69,.10),transparent 34%),
-    linear-gradient(180deg,#161311,#0a0b0e)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(3):before{
-  background:linear-gradient(90deg,transparent,#8d5433,#d39a72,#8d5433,transparent)
-}
-#leaders .leaders-podium .gm-management-leader-card:hover{
-  transform:translateY(-7px) scale(1.012)!important;
-  border-color:rgba(240,203,140,.62);
-  box-shadow:0 24px 65px rgba(0,0,0,.44),0 0 30px rgba(215,173,96,.15)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(1):hover{
-  transform:translateY(-18px) scale(1.012)!important
-}
-
-#leaders .leader-rank-place{
-  top:16px;
-  right:16px;
-  display:grid;
-  place-items:center;
-  min-width:48px;
-  height:48px;
-  padding:0 10px;
-  border-radius:15px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(0,0,0,.28);
-  font-size:18px;
-  font-weight:950;
-  letter-spacing:-.04em;
-  color:#b8bdc6
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(1) .leader-rank-place{
-  color:#f5d68f;
-  border-color:rgba(245,214,143,.38);
-  background:linear-gradient(145deg,rgba(101,70,14,.48),rgba(25,18,7,.80));
-  box-shadow:0 0 22px rgba(230,185,91,.17)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(2) .leader-rank-place{
-  color:#d8dee6;
-  border-color:rgba(216,222,230,.25)
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(3) .leader-rank-place{
-  color:#d39a72;
-  border-color:rgba(211,154,114,.28)
-}
-#leaders .leaders-podium .gm-management-leader-card>small{
-  align-self:flex-start;
-  color:#777e89;
-  font-size:8px;
-  letter-spacing:.14em
-}
-#leaders .leaders-podium .gm-management-leader-card .gm-management-leader-photo{
-  width:116px!important;
-  height:132px!important;
-  max-width:none!important;
-  margin:20px auto 15px!important;
-  border-radius:22px!important;
-  border-width:2px!important;
-  background:#0d0e11!important
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(1) .gm-management-leader-photo{
-  width:142px!important;
-  height:158px!important;
-  border-color:#e6bf6f!important;
-  box-shadow:0 0 0 5px rgba(228,188,110,.06),0 0 28px rgba(228,188,110,.25),0 20px 40px rgba(0,0,0,.36)!important
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(2) .gm-management-leader-photo{
-  border-color:#adb5c1!important;
-  box-shadow:0 0 0 4px rgba(197,205,216,.045),0 18px 36px rgba(0,0,0,.34)!important
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(3) .gm-management-leader-photo{
-  border-color:#b77b57!important;
-  box-shadow:0 0 0 4px rgba(183,123,87,.045),0 18px 36px rgba(0,0,0,.34)!important
-}
-#leaders .leaders-podium .gm-management-leader-card .gm-management-leader-photo img{
-  object-position:center 20%!important
-}
-#leaders .leaders-podium .gm-management-leader-card h4{
-  min-height:auto!important;
-  margin:0!important;
-  color:#fff;
-  font-size:18px!important;
-  letter-spacing:-.025em
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(1) h4{font-size:21px!important}
-#leaders .leaders-podium .gm-management-champion{
-  margin-top:9px!important;
-  padding:7px 12px!important;
-  border-color:rgba(240,203,140,.44)!important;
-  background:linear-gradient(180deg,rgba(105,74,17,.28),rgba(57,38,8,.20))!important;
-  color:#f4d78f!important;
-  box-shadow:0 0 22px rgba(240,203,140,.12)!important
-}
-#leaders .leaders-podium .leader-rank-value{
-  width:100%;
-  margin-top:17px!important;
-  padding-top:15px;
-  border-top:1px solid rgba(255,255,255,.075);
-  color:#f0cf91;
-  font-size:29px!important;
-  line-height:1;
-  text-align:left
-}
-#leaders .leaders-podium .leader-rank-value:before{
-  content:"TOTAL DA ESTRUTURA";
-  display:block;
-  margin-bottom:7px;
-  color:#747b86;
-  font-size:7px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.15em
-}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(2) .leader-rank-value{color:#d7dde5}
-#leaders .leaders-podium .gm-management-leader-card:nth-child(3) .leader-rank-value{color:#d39a72}
-#leaders .leaders-podium .leader-rank-meta{
-  gap:9px!important;
-  padding-top:14px!important
-}
-#leaders .leaders-podium .leader-rank-meta div{
-  min-height:54px;
-  padding:10px 11px!important;
-  border-color:rgba(255,255,255,.07)!important;
-  background:rgba(0,0,0,.20)!important
-}
-#leaders .leaders-podium .leader-rank-meta span{font-size:7px!important;letter-spacing:.05em;text-transform:uppercase}
-#leaders .leaders-podium .leader-rank-meta b{font-size:11px!important}
-
-#leaders .leaders-table-card{
-  margin-top:2px;
-  border-color:rgba(226,187,110,.18);
-  border-radius:24px!important;
-  background:linear-gradient(180deg,rgba(19,15,16,.98),rgba(8,8,10,.99));
-  box-shadow:0 22px 60px rgba(0,0,0,.30)
-}
-#leaders .leaders-table-card .section-head{
-  padding:20px 22px 14px;
-  border-bottom:1px solid rgba(255,255,255,.065)
-}
-#leaders .leaders-table-card .section-head h3{
-  font-size:19px;
-  letter-spacing:-.02em
-}
-#leaders .leaders-table-card .table-wrap{
-  padding:0 14px 14px;
-  overflow:auto
-}
-#leaders .leaders-table{
-  min-width:1460px!important;
-  width:100%;
-  table-layout:fixed;
-  border-collapse:separate!important;
-  border-spacing:0 8px!important
-}
-#leaders .leaders-table thead th{
-  position:relative;
-  padding:11px 13px 10px!important;
-  background:#0d0b0d!important;
-  border-top:1px solid rgba(255,255,255,.055)!important;
-  border-bottom:1px solid rgba(226,187,110,.18)!important;
-  color:#ddc58f!important;
-  opacity:1!important;
-  visibility:visible!important;
-  font-size:9px!important;
-  font-weight:900!important;
-  line-height:1.15!important;
-  letter-spacing:.07em!important;
-  text-transform:uppercase!important;
-  white-space:normal!important;
-  vertical-align:middle!important
-}
-#leaders .leaders-table thead th:first-child{border-left:1px solid rgba(255,255,255,.055);border-radius:12px 0 0 12px}
-#leaders .leaders-table thead th:last-child{border-right:1px solid rgba(255,255,255,.055);border-radius:0 12px 12px 0}
-#leaders .leaders-table thead th span{
-  display:block!important;
-  color:#ead5a5!important;
-  opacity:1!important
-}
-#leaders .leaders-table thead th small{
-  display:block!important;
-  margin-top:4px;
-  color:#676d77!important;
-  font-size:7px!important;
-  font-weight:700!important;
-  letter-spacing:.02em!important;
-  text-transform:none!important;
-  opacity:1!important
-}
-#leaders .leaders-table th:nth-child(1){width:62px}
-#leaders .leaders-table th:nth-child(2){width:270px}
-#leaders .leaders-table th:nth-child(3){width:170px}
-#leaders .leaders-table th:nth-child(4){width:180px}
-#leaders .leaders-table th:nth-child(5){width:190px}
-#leaders .leaders-table th:nth-child(6){width:160px}
-#leaders .leaders-table th:nth-child(7){width:160px}
-#leaders .leaders-table th:nth-child(8){width:95px}
-#leaders .leaders-table th:nth-child(9){width:120px}
-#leaders .leaders-table tbody tr{
-  background:rgba(11,10,12,.92)!important;
-  transition:transform .2s ease,filter .2s ease
-}
-#leaders .leaders-table tbody tr:hover{
-  transform:translateY(-1px);
-  filter:brightness(1.08)
-}
-#leaders .leaders-table tbody td{
-  padding:15px 13px!important;
-  border-top:1px solid rgba(255,255,255,.055)!important;
-  border-bottom:1px solid rgba(255,255,255,.055)!important;
-  color:#d4d6dc!important;
-  background:rgba(10,10,12,.88)!important;
-  font-size:11px!important;
-  vertical-align:middle!important
-}
-#leaders .leaders-table tbody td:first-child{
-  border-left:3px solid #6d747e!important;
-  border-radius:13px 0 0 13px
-}
-#leaders .leaders-table tbody td:last-child{
-  border-right:1px solid rgba(255,255,255,.055)!important;
-  border-radius:0 13px 13px 0
-}
-#leaders .leaders-table tbody tr:nth-child(1) td{
-  background:
-    linear-gradient(90deg,rgba(108,74,15,.15),rgba(18,13,12,.94) 38%,rgba(10,10,12,.94))!important;
-  border-top-color:rgba(239,203,132,.22)!important;
-  border-bottom-color:rgba(239,203,132,.16)!important
-}
-#leaders .leaders-table tbody tr:nth-child(1) td:first-child{border-left-color:#e4bd6f!important}
-#leaders .leaders-table tbody tr:nth-child(2) td:first-child{border-left-color:#aeb6c2!important}
-#leaders .leaders-table tbody tr:nth-child(3) td:first-child{border-left-color:#b97953!important}
-#leaders .leaders-table tbody td:nth-child(5){
-  color:#f3d28b!important;
-  font-size:12px!important;
-  font-weight:950!important
-}
-#leaders .leaders-table tbody tr:nth-child(2) td:nth-child(5){color:#d7dde5!important}
-#leaders .leaders-table tbody tr:nth-child(3) td:nth-child(5){color:#d39a72!important}
-#leaders .leaders-table .position strong{
-  display:inline-grid;
-  place-items:center;
-  min-width:40px;
-  height:32px;
-  padding:0 8px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.09);
-  background:rgba(255,255,255,.025);
-  color:#a9adb5!important;
-  font-size:12px
-}
-#leaders .leaders-table tbody tr:nth-child(1) .position strong{
-  color:#f2d18b!important;
-  border-color:rgba(242,209,139,.30);
-  background:rgba(109,77,18,.20);
-  box-shadow:0 0 18px rgba(230,185,91,.09)
-}
-#leaders .leaders-table tbody tr:nth-child(2) .position strong{color:#d7dde5!important;border-color:rgba(215,221,229,.20)}
-#leaders .leaders-table tbody tr:nth-child(3) .position strong{color:#d39a72!important;border-color:rgba(211,154,114,.22)}
-#leaders .leaders-table .person{gap:12px!important}
-#leaders .leaders-table .avatar{
-  width:44px!important;
-  height:44px!important;
-  border-radius:13px!important;
-  border:1px solid rgba(226,187,110,.25)!important;
-  box-shadow:0 8px 22px rgba(0,0,0,.26)
-}
-#leaders .leaders-table .name{
-  color:#f2f0ec!important;
-  font-size:12px!important;
-  font-weight:850!important
-}
-
-@media(max-width:1120px){
-  #leaders .leaders-podium{grid-template-columns:1fr!important;padding-top:4px}
-  #leaders .leaders-podium .gm-management-leader-card:nth-child(1),
-  #leaders .leaders-podium .gm-management-leader-card:nth-child(2),
-  #leaders .leaders-podium .gm-management-leader-card:nth-child(3){order:initial;transform:none;min-height:auto}
-  #leaders .leaders-podium .gm-management-leader-card:nth-child(1){order:1}
-  #leaders .leaders-podium .gm-management-leader-card:nth-child(2){order:2}
-  #leaders .leaders-podium .gm-management-leader-card:nth-child(3){order:3}
-  #leaders .leaders-ranking-intro{align-items:flex-start;flex-direction:column}
-  #leaders .leaders-ranking-legend{justify-content:flex-start}
-}
-@media(max-width:720px){
-  #leaders .leaders-table-card .table-wrap{padding:0 8px 10px}
-  #leaders .leaders-export-header h3{font-size:25px}
-}
-@media(prefers-reduced-motion:reduce){
-  #leaders .leaders-podium .gm-management-leader-card,
-  #leaders .leaders-table tbody tr{transition:none!important}
-}
-</style>
-
-<style id="leaders-sales-ranking-v3">
-#leaders .leaders-simple-area{display:grid;gap:18px}
-#leaders .leaders-simple-header{
-  display:flex;align-items:center;justify-content:space-between;gap:18px;
-  padding:22px 24px;border:1px solid rgba(213,171,103,.24);border-radius:22px;
-  background:
-    radial-gradient(circle at 92% 0%,rgba(116,20,43,.20),transparent 38%),
-    linear-gradient(145deg,#151114,#0a0a0d 68%);
-  box-shadow:0 18px 48px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025)
-}
-#leaders .leaders-simple-header small{
-  display:block;color:#d7b36c;font-size:9px;font-weight:900;letter-spacing:.18em
-}
-#leaders .leaders-simple-header h3{
-  margin:5px 0 4px;color:#fff;font-size:27px;letter-spacing:-.035em
-}
-#leaders .leaders-simple-header span{color:#818793;font-size:10px}
-#leaders .leaders-simple-rule{
-  padding:9px 12px;border:1px solid rgba(213,171,103,.28);border-radius:999px;
-  background:rgba(213,171,103,.07);color:#e4c586;font-size:8px;font-weight:950;
-  letter-spacing:.11em;white-space:nowrap
-}
-
-#leaders .leaders-simple-podium{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch
-}
-#leaders .leaders-simple-card{
-  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;
-  min-height:300px;padding:22px 20px 20px;border:1px solid rgba(255,255,255,.09);
-  border-radius:24px;background:linear-gradient(180deg,#141419,#090a0d);
-  box-shadow:0 16px 42px rgba(0,0,0,.28);
-  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease
-}
-#leaders .leaders-simple-card:before{
-  content:"";position:absolute;left:18px;right:18px;top:0;height:2px;border-radius:0 0 8px 8px
-}
-#leaders .leaders-simple-card:hover{transform:translateY(-4px)}
-#leaders .leaders-simple-card.rank-1{
-  border-color:rgba(239,203,132,.56);
-  background:
-    radial-gradient(circle at 50% 0%,rgba(229,188,101,.15),transparent 37%),
-    linear-gradient(180deg,#18130d,#0a0a0d);
-  box-shadow:0 20px 55px rgba(0,0,0,.34),0 0 30px rgba(213,171,103,.10)
-}
-#leaders .leaders-simple-card.rank-1:before{background:linear-gradient(90deg,transparent,#a87925,#ffe0a0,#a87925,transparent)}
-#leaders .leaders-simple-card.rank-2{border-color:rgba(205,212,222,.29)}
-#leaders .leaders-simple-card.rank-2:before{background:linear-gradient(90deg,transparent,#7f8790,#dde3e9,#7f8790,transparent)}
-#leaders .leaders-simple-card.rank-3{border-color:rgba(188,122,80,.32)}
-#leaders .leaders-simple-card.rank-3:before{background:linear-gradient(90deg,transparent,#835033,#cf956f,#835033,transparent)}
-
-#leaders .leaders-simple-place{
-  position:absolute;top:15px;right:15px;display:grid;place-items:center;
-  min-width:44px;height:38px;padding:0 9px;border:1px solid rgba(255,255,255,.09);
-  border-radius:12px;background:rgba(0,0,0,.28);font-size:14px;font-weight:950;color:#afb5be
-}
-#leaders .rank-1 .leaders-simple-place{color:#f4d38b;border-color:rgba(244,211,139,.32)}
-#leaders .rank-2 .leaders-simple-place{color:#d8dee6}
-#leaders .rank-3 .leaders-simple-place{color:#d49a73}
-
-#leaders .leaders-simple-photo{
-  width:104px;height:104px;margin-top:13px;border-radius:50%;overflow:hidden;
-  display:grid;place-items:center;background:#0d0e11;border:2px solid rgba(255,255,255,.16);
-  color:#fff;font-size:25px;font-weight:900;box-shadow:0 14px 30px rgba(0,0,0,.32)
-}
-#leaders .leaders-simple-photo img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
-#leaders .rank-1 .leaders-simple-photo{
-  width:116px;height:116px;border-color:#e2b967;
-  box-shadow:0 0 0 5px rgba(226,185,103,.055),0 0 25px rgba(226,185,103,.20),0 16px 34px rgba(0,0,0,.34)
-}
-#leaders .rank-2 .leaders-simple-photo{border-color:#aeb6c1}
-#leaders .rank-3 .leaders-simple-photo{border-color:#b77a55}
-
-#leaders .leaders-simple-card h4{
-  margin:14px 0 0;text-align:center;color:#fff;font-size:18px;letter-spacing:-.025em
-}
-#leaders .leaders-simple-status{
-  margin-top:7px;color:#727a86;font-size:8px;font-weight:900;letter-spacing:.10em;text-transform:uppercase
-}
-#leaders .rank-1 .leaders-simple-status{color:#d7b871}
-#leaders .leaders-simple-sales{
-  margin-top:auto;padding-top:18px;text-align:center;width:100%;border-top:1px solid rgba(255,255,255,.07)
-}
-#leaders .leaders-simple-sales strong{
-  display:block;color:#f0cf8d;font-size:34px;line-height:1;font-weight:950;letter-spacing:-.045em
-}
-#leaders .rank-2 .leaders-simple-sales strong{color:#d9dfe6}
-#leaders .rank-3 .leaders-simple-sales strong{color:#d49a73}
-#leaders .leaders-simple-sales span{
-  display:block;margin-top:5px;color:#858c97;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase
-}
-
-#leaders .leaders-simple-rest{
-  border:1px solid rgba(255,255,255,.075);border-radius:22px;padding:18px;
-  background:linear-gradient(180deg,#111116,#090a0d);box-shadow:0 16px 40px rgba(0,0,0,.22)
-}
-#leaders .leaders-simple-rest-head{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 2px 14px
-}
-#leaders .leaders-simple-rest-head small{color:#c6a663;font-size:8px;font-weight:900;letter-spacing:.14em}
-#leaders .leaders-simple-rest-head h3{margin:4px 0 0;color:#fff;font-size:17px}
-#leaders .leaders-simple-list{display:grid;gap:9px}
-#leaders .leaders-simple-row{
-  display:grid;grid-template-columns:58px minmax(0,1fr) auto;align-items:center;gap:13px;
-  min-height:68px;padding:10px 14px;border:1px solid rgba(255,255,255,.065);border-radius:15px;
-  background:#0c0d11;transition:transform .18s ease,border-color .18s ease,background .18s ease
-}
-#leaders .leaders-simple-row:hover{
-  transform:translateX(3px);border-color:rgba(213,171,103,.20);background:#101015
-}
-#leaders .leaders-simple-row-place{
-  color:#8e949e;font-size:15px;font-weight:950
-}
-#leaders .leaders-simple-row-person{display:flex;align-items:center;gap:12px;min-width:0}
-#leaders .leaders-simple-row-photo{
-  width:44px;height:44px;flex:none;border-radius:50%;overflow:hidden;display:grid;place-items:center;
-  border:1px solid rgba(213,171,103,.22);background:#15161a;color:#fff;font-size:11px;font-weight:900
-}
-#leaders .leaders-simple-row-photo img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-#leaders .leaders-simple-row-name{min-width:0}
-#leaders .leaders-simple-row-name b{display:block;color:#f4f1eb;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#leaders .leaders-simple-row-name span{display:block;margin-top:3px;color:#6f7681;font-size:9px}
-#leaders .leaders-simple-row-sales{text-align:right;white-space:nowrap}
-#leaders .leaders-simple-row-sales b{display:block;color:#e8c986;font-size:20px;line-height:1;font-weight:950}
-#leaders .leaders-simple-row-sales span{display:block;margin-top:4px;color:#747b86;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
-
-@media(max-width:900px){
-  #leaders .leaders-simple-podium{grid-template-columns:1fr}
-  #leaders .leaders-simple-card{min-height:260px}
-  #leaders .leaders-simple-header{align-items:flex-start;flex-direction:column}
-}
-@media(max-width:560px){
-  #leaders .leaders-simple-row{grid-template-columns:44px minmax(0,1fr) auto;padding:9px 10px;gap:9px}
-  #leaders .leaders-simple-row-photo{width:38px;height:38px}
-  #leaders .leaders-simple-row-sales b{font-size:17px}
-  #leaders .leaders-simple-header h3{font-size:23px}
-}
-</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -3187,36 +2602,46 @@ body[data-role="viewer"] #leaders{display:none!important}
     <div>
       <div class="eyebrow">Visão da gestão</div>
       <h2>Líderes - Gestão</h2>
-      <div class="sub">Ranking direto por quantidade de vendas de cada liderança e sua estrutura no mês.</div>
+      <div class="sub">Acompanhe o desempenho de cada liderança, a produção própria e o resultado completo da estrutura vinculada.</div>
     </div>
     <div class="actions leaders-actions">
       <div class="month-picker-shell">
         <select id="leadersMonthFilter" class="control month-select" aria-label="Selecionar mês do ranking de líderes"></select>
       </div>
+      <button class="btn primary manager-only" id="downloadLeadersRanking" type="button">Baixar ranking de líderes</button>
     </div>
   </div>
 
-  <div id="leadersExportArea" class="leaders-simple-area">
-    <div class="leaders-simple-header">
+  <div id="leadersExportArea" class="leaders-export-area">
+    <div class="leaders-export-header">
       <div>
         <small>GESTÃO MENEZES</small>
         <h3>Ranking de Líderes</h3>
         <span id="leadersExportMonth">Mês selecionado</span>
       </div>
-      <div class="leaders-simple-rule">RANKING POR Nº DE VENDAS</div>
+      <div class="leaders-private-badge">GESTOR E TRAINEE</div>
     </div>
 
-    <div class="leaders-simple-podium" id="leadersPodium"></div>
+    <div class="leaders-kpis">
+      <div class="card leaders-kpi"><small>Líderes ativos</small><b id="leadersCount">0</b><span>vinculados diretamente à gestão</span></div>
+      <div class="card leaders-kpi featured"><small>Maior estrutura</small><b id="leadersTopTotal">R$ 0,00</b><span id="leadersTopName">Sem resultado no período</span></div>
+      <div class="card leaders-kpi"><small>Total das lideranças</small><b id="leadersStructureTotal">R$ 0,00</b><span>soma das estruturas diretas</span></div>
+      <div class="card leaders-kpi"><small>Consultores vinculados</small><b id="leadersPeopleTotal">0</b><span>abaixo dos líderes</span></div>
+    </div>
 
-    <div class="leaders-simple-rest" id="leadersRestWrap">
-      <div class="leaders-simple-rest-head">
-        <div>
-          <small>CLASSIFICAÇÃO</small>
-          <h3>Demais líderes</h3>
-        </div>
+    <div class="leaders-podium" id="leadersPodium"></div>
+
+    <div class="card section leaders-table-card">
+      <div class="section-head">
+        <h3>Resultados por líder</h3>
         <span class="badge" id="leadersRankingBadge">0 líderes</span>
       </div>
-      <div class="leaders-simple-list" id="leadersRankingBody"></div>
+      <div class="table-wrap">
+        <table class="leaders-table">
+          <thead><tr><th>#</th><th>Líder</th><th>Próprio</th><th>Equipe</th><th>Estrutura</th><th>Lar</th><th>Motors</th><th>Cotas</th><th>Consultores</th></tr></thead>
+          <tbody id="leadersRankingBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>
@@ -4538,11 +3963,9 @@ function managementLeaderRows(month){
     const structure=own+teamTotal;
     const lar=ids.reduce((sum,id)=>sum+Number(t.larBy[id]||0),0);
     const motors=ids.reduce((sum,id)=>sum+Number(t.motorsBy[id]||0),0);
-    const ownSales=Number(t.qtyBy[leader.id]||0);
-    const teamSales=team.reduce((sum,c)=>sum+Number(t.qtyBy[c.id]||0),0);
-    const salesCount=ownSales+teamSales;
-    return {leader,team,own,teamTotal,structure,lar,motors,quotas:salesCount,ownSales,teamSales,salesCount};
-  }).sort((a,b)=>b.salesCount-a.salesCount || b.structure-a.structure || a.leader.name.localeCompare(b.leader.name,'pt-BR'));
+    const quotas=ids.reduce((sum,id)=>sum+Number(t.qtyBy[id]||0),0);
+    return {leader,team,own,teamTotal,structure,lar,motors,quotas};
+  }).sort((a,b)=>b.structure-a.structure || a.leader.name.localeCompare(b.leader.name,'pt-BR'));
 }
 function renderLeadersManagement(){
   const section=document.getElementById('leaders');if(!section)return;
@@ -4555,78 +3978,136 @@ function renderLeadersManagement(){
   }
   const month=(filter&&filter.value)||globalMonth?.value||monthKey(new Date().toISOString());
   const rows=managementLeaderRows(month);
-
-  const monthLabel=document.getElementById('leadersExportMonth');
-  if(monthLabel)monthLabel.textContent=formatMonth(month);
-
-  const podium=document.getElementById('leadersPodium');
-  if(podium){
-    podium.innerHTML=rows.slice(0,3).map((r,i)=>{
-      const count=Number(r.salesCount)||0;
-      const salesLabel=count===1?'venda':'vendas';
-      return `
-        <article class="leaders-simple-card rank-${i+1}">
-          <div class="leaders-simple-place">${i+1}º</div>
-          ${r.leader.photo
-            ? `<div class="leaders-simple-photo"><img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}"></div>`
-            : `<div class="leaders-simple-photo">${esc(initials(r.leader.name))}</div>`}
-          <h4>${esc(r.leader.name)}</h4>
-          <div class="leaders-simple-status">${i===0?'Líder do mês':i===1?'Vice-líder':'Top 3'}</div>
-          <div class="leaders-simple-sales">
-            <strong>${count}</strong>
-            <span>${salesLabel}</span>
-          </div>
-        </article>`;
-    }).join('') || '<div class="empty">Nenhuma liderança vinculada à gestão.</div>';
-  }
-
-  const rest=rows.slice(3);
-  const restWrap=document.getElementById('leadersRestWrap');
-  if(restWrap)restWrap.classList.toggle('hidden',rest.length===0);
-
-  const badge=document.getElementById('leadersRankingBadge');
-  if(badge)badge.textContent=rest.length+` líder${rest.length===1?'':'es'}`;
-
-  const list=document.getElementById('leadersRankingBody');
-  if(list){
-    list.innerHTML=rest.map((r,idx)=>{
-      const pos=idx+4;
-      const count=Number(r.salesCount)||0;
-      return `
-        <div class="leaders-simple-row">
-          <div class="leaders-simple-row-place">${pos}º</div>
-          <div class="leaders-simple-row-person">
-            <div class="leaders-simple-row-photo">
-              ${r.leader.photo
-                ? `<img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}">`
-                : esc(initials(r.leader.name))}
-            </div>
-            <div class="leaders-simple-row-name">
-              <b>${esc(r.leader.name)}</b>
-              <span>Líder • Gestão Menezes</span>
-            </div>
-          </div>
-          <div class="leaders-simple-row-sales">
-            <b>${count}</b>
-            <span>${count===1?'venda':'vendas'}</span>
-          </div>
-        </div>`;
-    }).join('');
-  }
+  const structureTotal=rows.reduce((sum,r)=>sum+r.structure,0);
+  const peopleTotal=rows.reduce((sum,r)=>sum+r.team.length,0);
+  const top=rows[0];
+  document.getElementById('leadersExportMonth').textContent=formatMonth(month);
+  document.getElementById('leadersCount').textContent=String(rows.length);
+  document.getElementById('leadersTopTotal').textContent=money(top?.structure||0);
+  document.getElementById('leadersTopName').textContent=top?top.leader.name:'Sem resultado no período';
+  document.getElementById('leadersStructureTotal').textContent=money(structureTotal);
+  document.getElementById('leadersPeopleTotal').textContent=String(peopleTotal);
+  document.getElementById('leadersRankingBadge').textContent=rows.length+` líder${rows.length===1?'':'es'}`;
+  document.getElementById('leadersPodium').innerHTML=rows.slice(0,3).map((r,i)=>`
+    <div class="leader-rank-card gm-management-leader-card ${i===0?'gm-management-rank-one':''}">
+      <div class="leader-rank-place">${i+1}º</div>
+      <small>${i===0?'Líder do ranking':'Performance da estrutura'}</small>
+      ${r.leader.photo?`<div class="gm-management-leader-photo"><img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}"></div>`:`<div class="gm-management-leader-photo gm-management-leader-fallback">${esc(initials(r.leader.name))}</div>`}
+      <h4>${esc(r.leader.name)}</h4>
+      ${i===0?'<div class="gm-management-champion"><span class="gm-management-trophy" aria-hidden="true">🏆</span> '+(r.leader.gender==='f'?'Campeã':'Campeão')+' do momento</div>':''}
+      <div class="leader-rank-value">${money(r.structure)}</div>
+      <div class="leader-rank-meta">
+        <div><span>Próprio</span><b>${money(r.own)}</b></div>
+        <div><span>Equipe</span><b>${money(r.teamTotal)}</b></div>
+        <div><span>Lar</span><b>${money(r.lar)}</b></div>
+        <div><span>Motors</span><b>${money(r.motors)}</b></div>
+      </div>
+    </div>`).join('') || '<div class="empty">Nenhuma liderança vinculada à gestão.</div>';
+  document.getElementById('leadersRankingBody').innerHTML=rows.map((r,i)=>`
+    <tr>
+      <td class="position"><strong>${i+1}º</strong></td>
+      <td><div class="person"><div class="avatar" style="overflow:hidden">${r.leader.photo?`<img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block">`:esc(initials(r.leader.name))}</div><div><div class="name">${esc(r.leader.name)}</div><small style="color:#7f8995">Líder • Gestão Menezes</small></div></div></td>
+      <td>${money(r.own)}</td><td>${money(r.teamTotal)}</td><td>${money(r.structure)}</td><td>${money(r.lar)}</td><td>${money(r.motors)}</td><td>${r.quotas}</td><td>${r.team.length}</td>
+    </tr>`).join('');
 }
 async function exportLeadersRanking(){
   if(!isManager()){alert('Somente o gestor pode baixar este ranking.');return}
-  const area=document.getElementById('leadersExportArea');if(!area)return;
   const btn=document.getElementById('downloadLeadersRanking');
-  const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Gerando imagem...'}
+  const old=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Gerando imagem...';
   try{
-    const canvas=await html2canvas(area,{backgroundColor:'#080b10',scale:2,useCORS:true,logging:false});
+    const month=document.getElementById('leadersMonthFilter').value||document.getElementById('monthFilter').value;
+    const rows=managementLeaderRows(month).sort((a,b)=>b.quotas-a.quotas || b.structure-a.structure || a.leader.name.localeCompare(b.leader.name,'pt-BR'));
+    const podium=rows.slice(0,3);
+    const rest=rows.slice(3);
+    const portraits=await Promise.all(podium.map(async ({leader})=>{
+      if(!leader.photo)return null;
+      const image=new Image();
+      if(/^https?:\/\//i.test(leader.photo))image.crossOrigin='anonymous';
+      image.src=leader.photo;
+      try{await image.decode();return image}catch{return null}
+    }));
+
+    const width=900, margin=42, gap=16;
+    const height=podium.length?430+rest.length*60:220;
+    const canvas=document.createElement('canvas');
+    canvas.width=width*2;
+    canvas.height=height*2;
+    const ctx=canvas.getContext('2d');
+    ctx.scale(2,2);
+    const background=ctx.createLinearGradient(0,0,width,height);
+    background.addColorStop(0,'#241118');
+    background.addColorStop(0.6,'#0d0b0e');
+    background.addColorStop(1,'#100c0f');
+    ctx.fillStyle=background;
+    ctx.fillRect(0,0,width,height);
+    const gold='#edca80', white='#f8f2e9', muted='#c9bfc3';
+    const metals=[gold,'#d2d8e1','#d69b77'];
+
+    function label(text,x,y,maxWidth,size,color=white,align='left'){
+      const fitted=fitCanvasText(ctx,text,maxWidth,size,14,'800');
+      ctx.font=`800 ${fitted}px Arial`;
+      ctx.fillStyle=color;
+      ctx.textAlign=align;
+      ctx.fillText(text,x,y,maxWidth);
+    }
+
+    label('GESTÃO MENEZES',margin,46,320,16,gold);
+    label(formatMonth(month),width-margin,46,180,18,muted,'right');
+    label('Ranking de Líderes',margin,102,width-margin*2,46);
+    ctx.fillStyle='#5f4831';
+    ctx.fillRect(margin,122,width-margin*2,1);
+
+    const cardWidth=(width-margin*2-gap*(podium.length-1))/Math.max(1,podium.length);
+    podium.forEach(({leader,quotas},index)=>{
+      const x=margin+index*(cardWidth+gap), center=x+cardWidth/2;
+      const color=metals[index];
+      ctx.lineWidth=index===0?3:2;
+      roundRectRank(ctx,x,149,cardWidth,239,20,index===0?'#251b15':'#171419',color);
+      label(`${index+1}º`,x+20,187,50,27,color);
+      if(index===0)label('🏆',x+cardWidth-22,187,40,24,color,'right');
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(center,223,34,0,Math.PI*2);
+      ctx.clip();
+      ctx.fillStyle='#33252c';
+      ctx.fillRect(center-34,189,68,68);
+      const photo=portraits[index];
+      if(photo){
+        const side=Math.min(photo.naturalWidth,photo.naturalHeight);
+        ctx.drawImage(photo,(photo.naturalWidth-side)/2,(photo.naturalHeight-side)*0.25,side,side,center-34,189,68,68);
+      }else{
+        label(initials(leader.name),center,231,60,23,color,'center');
+      }
+      ctx.restore();
+      ctx.strokeStyle=color;
+      ctx.beginPath();
+      ctx.arc(center,223,34,0,Math.PI*2);
+      ctx.stroke();
+
+      label(leader.name,center,289,cardWidth-32,23,white,'center');
+      label(String(quotas),center,340,cardWidth-32,42,color,'center');
+      label(quotas===1?'venda':'vendas',center,365,cardWidth-32,16,muted,'center');
+    });
+
+    rest.forEach(({leader,quotas},index)=>{
+      const y=404+index*60;
+      ctx.lineWidth=1;
+      roundRectRank(ctx,margin,y,width-margin*2,50,12,'#171419','#4b3941');
+      label(`${index+4}º`,margin+18,y+33,54,22,muted);
+      label(leader.name,margin+84,y+33,500,21);
+      label(`${quotas} ${quotas===1?'venda':'vendas'}`,width-margin-18,y+33,150,21,gold,'right');
+    });
+    if(!rows.length)label('Nenhuma liderança vinculada à gestão.',margin,174,width-margin*2,23,muted);
+
     const a=document.createElement('a');
-    const month=document.getElementById('leadersMonthFilter')?.value||document.getElementById('monthFilter')?.value||'mes';
     a.download=`ranking-lideres-gestao-menezes-${month}.png`;
-    a.href=canvas.toDataURL('image/png');a.click();
+    a.href=canvas.toDataURL('image/png');
+    a.click();
   }catch(e){alert('Não foi possível gerar o ranking: '+e.message)}
-  finally{if(btn){btn.disabled=false;btn.textContent=old||'Baixar ranking de líderes'}}
+  finally{btn.disabled=false;btn.textContent=old}
 }
 
 function renderLeadership(rows){
@@ -5876,4 +5357,4 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
 
 <script defer src="/performance-arena-v6.js?v=6"></script>
 </body>
-</html><script async data-explicit-opt-in="true" data-deployment-id="dpl_5pfQ61eZ5kdRbqH61QUmaaZrK6tU" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+</html>
