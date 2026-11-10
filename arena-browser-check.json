@@ -1,1 +1,8 @@
-{"failure":"Teste não produziu relatório"}
+{
+  "url": "https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/",
+  "startedAt": "2026-11-10T00:27:36.370Z",
+  "steps": [],
+  "errors": [],
+  "failure": "browserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                   ",
+  "finishedAt": "2026-11-10T00:27:36.380Z"
+}
