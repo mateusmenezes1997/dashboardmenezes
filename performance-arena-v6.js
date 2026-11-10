@@ -357,4 +357,54 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 /* Load the performance workspace without changing the sale, booking or settings flows. */
-(function(){if(window.__gmWorkspaceLoading)return;window.__gmWorkspaceLoading=true;var css=document.createElement('link');css.rel='stylesheet';css.href='/performance-coach.css?v=1';document.head.appendChild(css);function load(src){return new Promise(function(resolve,reject){var script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.body.appendChild(script)})}load('/performance-metrics.js?v=1').then(function(){return load('/performance-coach.js?v=1')}).then(function(){return load('/performance-proposals.js?v=1')}).catch(function(){console.error('Não foi possível carregar as ferramentas de performance. Atualize a página.');});})();
+(function(){if(window.__gmWorkspaceLoading)return;window.__gmWorkspaceLoading=true;var css=document.createElement('link');css.rel='stylesheet';css.href='/performance-coach.css?v=1';document.head.appendChild(css);function load(src){return new Promise(function(resolve,reject){var script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.body.appendChild(script)})}load('/performance-metrics.js?v=1').then(function(){return load('/performance-coach.js?v=2')}).then(function(){return load('/performance-proposals.js?v=1')}).catch(function(){console.error('Não foi possível carregar as ferramentas de performance. Atualize a página.');});})();
+
+
+/* Trainee may view Líderes - Gestão; manager-only actions remain protected elsewhere. */
+(function(){
+ if(window.__gmArenaTraineeLeadersV2)return;window.__gmArenaTraineeLeadersV2=true;
+ var enabled=false,busy=false;
+ function norm(v){return String(v||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('pt-BR')}
+ function isLeaderNav(el){
+  if(!el||!el.matches)return false;
+  var view=norm(el.dataset&&el.dataset.view),go=norm(el.dataset&&el.dataset.go),id=norm(el.id),txt=norm(el.textContent);
+  return view==='leaders'||go==='leaders'||id==='navleaders'||id==='leadersnav'||
+   txt.includes('líderes - gestão')||txt.includes('lideres - gestão')||
+   txt.includes('líderes - gestao')||txt.includes('lideres - gestao');
+ }
+ function reveal(el){
+  if(!el)return;
+  el.hidden=false;el.removeAttribute('hidden');el.setAttribute('aria-hidden','false');
+  ['hidden','manager-only','gestor-only','managerOnly','gestorOnly','only-manager','only-gestor'].forEach(function(k){el.classList.remove(k)});
+  el.removeAttribute('data-manager-only');el.removeAttribute('data-gestor-only');
+  el.style.setProperty('visibility','visible','important');
+  el.style.setProperty('opacity','1','important');
+  el.style.setProperty('pointer-events','auto','important');
+  if(getComputedStyle(el).display==='none')el.style.setProperty('display','flex','important');
+ }
+ function apply(){
+  if(!enabled||busy)return;busy=true;
+  try{
+   document.body&&document.body.classList.add('gm-trainee-leaders');
+   Array.from(document.querySelectorAll('button,a,[role="button"],[data-view],[data-go],.nav-item,.sidebar *')).filter(isLeaderNav).forEach(reveal);
+   var section=document.getElementById('leaders');
+   if(section){
+    ['manager-only','gestor-only','only-manager','only-gestor'].forEach(function(k){section.classList.remove(k)});
+    section.removeAttribute('data-manager-only');section.removeAttribute('data-gestor-only');
+   }
+  }finally{busy=false}
+ }
+ async function bootAccess(){
+  try{
+   var r=await fetch('/api/session',{credentials:'same-origin',cache:'no-store'});
+   if(!r.ok)return;
+   var data=await r.json();
+   enabled=data&&data.role==='trainee';
+   if(!enabled)return;
+   apply();
+   new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+   setInterval(apply,1000);
+  }catch(_){}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootAccess,{once:true});else bootAccess();
+})();
