@@ -33,10 +33,10 @@ jobs:
           import { chromium } from 'playwright';
           const report={url:'https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/',startedAt:new Date().toISOString(),steps:[],errors:[]};
           const month='2026-11';
-          const state={settings:{teamTarget:15000000},consultants:[
-            {id:'a',name:'Teste Ana',role:'consultor',photo:'',monthOpenings:{[month]:{total:900000}}},
-            {id:'b',name:'Teste Beto',role:'trainee',photo:'',monthOpenings:{[month]:{total:700000}}},
-            {id:'c',name:'Teste Carla',role:'consultor',photo:'',monthOpenings:{[month]:{total:500000}}}
+          let state={settings:{teamTarget:15000000},consultants:[
+            {id:'rodrigo',name:'Teste Ana',role:'consultor',photo:'',monthOpenings:{[month]:{total:900000}}},
+            {id:'asafe',name:'Teste Beto',role:'trainee',photo:'',monthOpenings:{[month]:{total:700000}}},
+            {id:'gabrielle',name:'Teste Carla',role:'consultor',photo:'',monthOpenings:{[month]:{total:500000}}}
           ],sales:[]};
           let browser;
           try{
@@ -71,6 +71,21 @@ jobs:
             await page.locator('#gmv-ticker-open').click({timeout:5000});
             await page.waitForTimeout(800);
             report.steps.push(await page.evaluate(()=>({phase:'opened',open:!!document.getElementById('gmv-arena')?.classList.contains('gmv-open'),lanes:document.querySelectorAll('.gmv-lane').length,photos:document.querySelectorAll('.gmv-portrait img').length,duel:!!document.querySelector('#gmv-duel-content'),news:!!document.querySelector('#gmv-news')})));
+            assert.equal(report.steps.at(-1).open,true,'Arena nao abriu');
+            assert.equal(report.steps.at(-1).lanes,3,'Faltam corredores');
+            assert(report.steps.at(-1).photos>=2,'Fotos oficiais nao foram recuperadas para os corredores');
+            state=structuredClone(state);
+            state.consultants[1].monthOpenings[month].total=1250000;
+            await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+            await page.waitForTimeout(850);
+            report.steps.push(await page.evaluate(()=>({
+              phase:'overtake',
+              leader:document.querySelector('.gmv-champ-name')?.textContent,
+              event:document.getElementById('gmv-event')?.textContent,
+              notified:document.getElementById('gmv-notify-count')?.textContent
+            })));
+            assert(report.steps.at(-1).leader?.includes('Teste Beto'),'Uma ultrapassagem nao mudou o campeao');
+            assert(report.steps.at(-1).event?.includes('SUBIU NA DISPUTA'),'A comemoracao de ultrapassagem nao ocorreu');
           }catch(e){report.failure=String(e.message).slice(0,650)}
           finally{if(browser)await browser.close()}
           report.finishedAt=new Date().toISOString();
