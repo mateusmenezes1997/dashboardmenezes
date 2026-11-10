@@ -1,0 +1,81 @@
+name: Diagnosticar Arena no navegador real
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnosticar-arena-navegador.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  browser-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: acessos-gestao-menezes
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preparar Chromium headless
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install chromium
+      - name: Visitar link real e registrar o que aparece
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { chromium } from 'playwright';
+          const report={url:'https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/',startedAt:new Date().toISOString(),steps:[],errors:[]};
+          const month='2026-11';
+          const state={settings:{teamTarget:15000000},consultants:[
+            {id:'a',name:'Teste Ana',role:'consultor',photo:'',monthOpenings:{[month]:{total:900000}}},
+            {id:'b',name:'Teste Beto',role:'trainee',photo:'',monthOpenings:{[month]:{total:700000}}},
+            {id:'c',name:'Teste Carla',role:'consultor',photo:'',monthOpenings:{[month]:{total:500000}}}
+          ],sales:[]};
+          let browser;
+          try{
+            browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:1440,height:900},serviceWorkers:'block'});
+            page.on('pageerror',e=>report.errors.push(String(e.message).slice(0,300)));
+            page.on('console',msg=>{if(msg.type()==='error')report.errors.push(msg.text().slice(0,300))});
+            await page.route('**/api/**',route=>{
+              const url=new URL(route.request().url()),path=url.pathname,method=route.request().method();
+              if(method!=='GET')return route.fulfill({status:403,contentType:'application/json',body:'{}'});
+              if(path==='/api/session')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({role:'consultor'})});
+              if(path==='/api/state')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({revision:1,state})});
+              return route.fulfill({status:404,contentType:'application/json',body:'{}'});
+            });
+            const response=await page.goto(report.url+'?audit=arena-v6-'+Date.now(),{waitUntil:'domcontentloaded',timeout:45000});
+            report.httpStatus=response.status();
+            await page.waitForTimeout(4500);
+            report.steps.push(await page.evaluate(()=>{
+              const ticker=document.querySelector('#gmv-ticker');
+              const auth=document.getElementById('gmAuth');
+              const arena=document.getElementById('gmv-arena');
+              return {phase:'afterLoad',isArenaRuntime:!!window.__gmArenaV6,authHidden:!!auth?.classList.contains('hidden'),nav:!!document.getElementById('gmv-nav'),ticker:!!ticker,tickerDisplay:ticker?getComputedStyle(ticker).display:'missing',arena:!!arena,champions:document.querySelectorAll('.gmv-champion').length,jsSrc:[...document.scripts].map(s=>s.src.split('/').slice(-1)[0]).filter(s=>s.includes('arena'))};
+            }));
+            await page.evaluate(()=>{document.getElementById('gmAuth')?.classList.add('hidden')});
+            await page.waitForTimeout(1100);
+            report.steps.push(await page.evaluate(()=>{
+              const t=document.getElementById('gmv-ticker');
+              return {phase:'authSimulated',nav:!!document.getElementById('gmv-nav'),tickerDisplay:t?getComputedStyle(t).display:'missing',champions:document.querySelectorAll('.gmv-champion').length,bodyAuthenticated:document.body.classList.contains('gmv-authenticated')};
+            }));
+            await page.locator('#gmv-ticker-open').click({timeout:5000});
+            await page.waitForTimeout(800);
+            report.steps.push(await page.evaluate(()=>({phase:'opened',open:!!document.getElementById('gmv-arena')?.classList.contains('gmv-open'),lanes:document.querySelectorAll('.gmv-lane').length,photos:document.querySelectorAll('.gmv-portrait img').length,duel:!!document.querySelector('#gmv-duel-content'),news:!!document.querySelector('#gmv-news')})));
+          }catch(e){report.failure=String(e.message).slice(0,650)}
+          finally{if(browser)await browser.close()}
+          report.finishedAt=new Date().toISOString();
+          fs.writeFileSync('arena-browser-check.json',JSON.stringify(report,null,2)+'\n');
+          console.log(JSON.stringify(report,null,2));
+          NODE
+      - name: Salvar diagnóstico na branch de acessos
+        if: always()
+        run: |
+          if [ ! -f arena-browser-check.json ]; then echo '{"failure":"Teste não produziu relatório"}' > arena-browser-check.json; fi
+          git config user.name "Gestão Menezes QA"
+          git config user.email "actions@users.noreply.github.com"
+          git add arena-browser-check.json
+          git commit -m "Registra teste do endereço real no Chromium" || exit 0
+          git push origin HEAD:acessos-gestao-menezes
