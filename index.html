@@ -2910,6 +2910,144 @@ body[data-role="viewer"] #leaders{display:none!important}
   #leaders .leaders-table tbody tr{transition:none!important}
 }
 </style>
+
+<style id="leaders-sales-ranking-v3">
+#leaders .leaders-simple-area{display:grid;gap:18px}
+#leaders .leaders-simple-header{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:22px 24px;border:1px solid rgba(213,171,103,.24);border-radius:22px;
+  background:
+    radial-gradient(circle at 92% 0%,rgba(116,20,43,.20),transparent 38%),
+    linear-gradient(145deg,#151114,#0a0a0d 68%);
+  box-shadow:0 18px 48px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025)
+}
+#leaders .leaders-simple-header small{
+  display:block;color:#d7b36c;font-size:9px;font-weight:900;letter-spacing:.18em
+}
+#leaders .leaders-simple-header h3{
+  margin:5px 0 4px;color:#fff;font-size:27px;letter-spacing:-.035em
+}
+#leaders .leaders-simple-header span{color:#818793;font-size:10px}
+#leaders .leaders-simple-rule{
+  padding:9px 12px;border:1px solid rgba(213,171,103,.28);border-radius:999px;
+  background:rgba(213,171,103,.07);color:#e4c586;font-size:8px;font-weight:950;
+  letter-spacing:.11em;white-space:nowrap
+}
+
+#leaders .leaders-simple-podium{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch
+}
+#leaders .leaders-simple-card{
+  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+  min-height:300px;padding:22px 20px 20px;border:1px solid rgba(255,255,255,.09);
+  border-radius:24px;background:linear-gradient(180deg,#141419,#090a0d);
+  box-shadow:0 16px 42px rgba(0,0,0,.28);
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease
+}
+#leaders .leaders-simple-card:before{
+  content:"";position:absolute;left:18px;right:18px;top:0;height:2px;border-radius:0 0 8px 8px
+}
+#leaders .leaders-simple-card:hover{transform:translateY(-4px)}
+#leaders .leaders-simple-card.rank-1{
+  border-color:rgba(239,203,132,.56);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(229,188,101,.15),transparent 37%),
+    linear-gradient(180deg,#18130d,#0a0a0d);
+  box-shadow:0 20px 55px rgba(0,0,0,.34),0 0 30px rgba(213,171,103,.10)
+}
+#leaders .leaders-simple-card.rank-1:before{background:linear-gradient(90deg,transparent,#a87925,#ffe0a0,#a87925,transparent)}
+#leaders .leaders-simple-card.rank-2{border-color:rgba(205,212,222,.29)}
+#leaders .leaders-simple-card.rank-2:before{background:linear-gradient(90deg,transparent,#7f8790,#dde3e9,#7f8790,transparent)}
+#leaders .leaders-simple-card.rank-3{border-color:rgba(188,122,80,.32)}
+#leaders .leaders-simple-card.rank-3:before{background:linear-gradient(90deg,transparent,#835033,#cf956f,#835033,transparent)}
+
+#leaders .leaders-simple-place{
+  position:absolute;top:15px;right:15px;display:grid;place-items:center;
+  min-width:44px;height:38px;padding:0 9px;border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;background:rgba(0,0,0,.28);font-size:14px;font-weight:950;color:#afb5be
+}
+#leaders .rank-1 .leaders-simple-place{color:#f4d38b;border-color:rgba(244,211,139,.32)}
+#leaders .rank-2 .leaders-simple-place{color:#d8dee6}
+#leaders .rank-3 .leaders-simple-place{color:#d49a73}
+
+#leaders .leaders-simple-photo{
+  width:104px;height:104px;margin-top:13px;border-radius:50%;overflow:hidden;
+  display:grid;place-items:center;background:#0d0e11;border:2px solid rgba(255,255,255,.16);
+  color:#fff;font-size:25px;font-weight:900;box-shadow:0 14px 30px rgba(0,0,0,.32)
+}
+#leaders .leaders-simple-photo img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
+#leaders .rank-1 .leaders-simple-photo{
+  width:116px;height:116px;border-color:#e2b967;
+  box-shadow:0 0 0 5px rgba(226,185,103,.055),0 0 25px rgba(226,185,103,.20),0 16px 34px rgba(0,0,0,.34)
+}
+#leaders .rank-2 .leaders-simple-photo{border-color:#aeb6c1}
+#leaders .rank-3 .leaders-simple-photo{border-color:#b77a55}
+
+#leaders .leaders-simple-card h4{
+  margin:14px 0 0;text-align:center;color:#fff;font-size:18px;letter-spacing:-.025em
+}
+#leaders .leaders-simple-status{
+  margin-top:7px;color:#727a86;font-size:8px;font-weight:900;letter-spacing:.10em;text-transform:uppercase
+}
+#leaders .rank-1 .leaders-simple-status{color:#d7b871}
+#leaders .leaders-simple-sales{
+  margin-top:auto;padding-top:18px;text-align:center;width:100%;border-top:1px solid rgba(255,255,255,.07)
+}
+#leaders .leaders-simple-sales strong{
+  display:block;color:#f0cf8d;font-size:34px;line-height:1;font-weight:950;letter-spacing:-.045em
+}
+#leaders .rank-2 .leaders-simple-sales strong{color:#d9dfe6}
+#leaders .rank-3 .leaders-simple-sales strong{color:#d49a73}
+#leaders .leaders-simple-sales span{
+  display:block;margin-top:5px;color:#858c97;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase
+}
+
+#leaders .leaders-simple-rest{
+  border:1px solid rgba(255,255,255,.075);border-radius:22px;padding:18px;
+  background:linear-gradient(180deg,#111116,#090a0d);box-shadow:0 16px 40px rgba(0,0,0,.22)
+}
+#leaders .leaders-simple-rest-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 2px 14px
+}
+#leaders .leaders-simple-rest-head small{color:#c6a663;font-size:8px;font-weight:900;letter-spacing:.14em}
+#leaders .leaders-simple-rest-head h3{margin:4px 0 0;color:#fff;font-size:17px}
+#leaders .leaders-simple-list{display:grid;gap:9px}
+#leaders .leaders-simple-row{
+  display:grid;grid-template-columns:58px minmax(0,1fr) auto;align-items:center;gap:13px;
+  min-height:68px;padding:10px 14px;border:1px solid rgba(255,255,255,.065);border-radius:15px;
+  background:#0c0d11;transition:transform .18s ease,border-color .18s ease,background .18s ease
+}
+#leaders .leaders-simple-row:hover{
+  transform:translateX(3px);border-color:rgba(213,171,103,.20);background:#101015
+}
+#leaders .leaders-simple-row-place{
+  color:#8e949e;font-size:15px;font-weight:950
+}
+#leaders .leaders-simple-row-person{display:flex;align-items:center;gap:12px;min-width:0}
+#leaders .leaders-simple-row-photo{
+  width:44px;height:44px;flex:none;border-radius:50%;overflow:hidden;display:grid;place-items:center;
+  border:1px solid rgba(213,171,103,.22);background:#15161a;color:#fff;font-size:11px;font-weight:900
+}
+#leaders .leaders-simple-row-photo img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+#leaders .leaders-simple-row-name{min-width:0}
+#leaders .leaders-simple-row-name b{display:block;color:#f4f1eb;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#leaders .leaders-simple-row-name span{display:block;margin-top:3px;color:#6f7681;font-size:9px}
+#leaders .leaders-simple-row-sales{text-align:right;white-space:nowrap}
+#leaders .leaders-simple-row-sales b{display:block;color:#e8c986;font-size:20px;line-height:1;font-weight:950}
+#leaders .leaders-simple-row-sales span{display:block;margin-top:4px;color:#747b86;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+
+@media(max-width:900px){
+  #leaders .leaders-simple-podium{grid-template-columns:1fr}
+  #leaders .leaders-simple-card{min-height:260px}
+  #leaders .leaders-simple-header{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:560px){
+  #leaders .leaders-simple-row{grid-template-columns:44px minmax(0,1fr) auto;padding:9px 10px;gap:9px}
+  #leaders .leaders-simple-row-photo{width:38px;height:38px}
+  #leaders .leaders-simple-row-sales b{font-size:17px}
+  #leaders .leaders-simple-header h3{font-size:23px}
+}
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -3049,70 +3187,36 @@ body[data-role="viewer"] #leaders{display:none!important}
     <div>
       <div class="eyebrow">Visão da gestão</div>
       <h2>Líderes - Gestão</h2>
-      <div class="sub">Acompanhe o desempenho de cada liderança, a produção própria e o resultado completo da estrutura vinculada.</div>
+      <div class="sub">Ranking direto por quantidade de vendas de cada liderança e sua estrutura no mês.</div>
     </div>
     <div class="actions leaders-actions">
       <div class="month-picker-shell">
         <select id="leadersMonthFilter" class="control month-select" aria-label="Selecionar mês do ranking de líderes"></select>
       </div>
-      <button class="btn primary manager-only" id="downloadLeadersRanking" type="button">Baixar ranking de líderes</button>
     </div>
   </div>
 
-  <div id="leadersExportArea" class="leaders-export-area">
-    <div class="leaders-export-header">
+  <div id="leadersExportArea" class="leaders-simple-area">
+    <div class="leaders-simple-header">
       <div>
         <small>GESTÃO MENEZES</small>
         <h3>Ranking de Líderes</h3>
         <span id="leadersExportMonth">Mês selecionado</span>
       </div>
-      <div class="leaders-private-badge">GESTOR E TRAINEE</div>
+      <div class="leaders-simple-rule">RANKING POR Nº DE VENDAS</div>
     </div>
 
-    <div class="leaders-kpis">
-      <div class="card leaders-kpi"><small>Líderes ativos</small><b id="leadersCount">0</b><span>vinculados diretamente à gestão</span></div>
-      <div class="card leaders-kpi featured"><small>Maior estrutura</small><b id="leadersTopTotal">R$ 0,00</b><span id="leadersTopName">Sem resultado no período</span></div>
-      <div class="card leaders-kpi"><small>Total das lideranças</small><b id="leadersStructureTotal">R$ 0,00</b><span>soma das estruturas diretas</span></div>
-      <div class="card leaders-kpi"><small>Consultores vinculados</small><b id="leadersPeopleTotal">0</b><span>abaixo dos líderes</span></div>
-    </div>
+    <div class="leaders-simple-podium" id="leadersPodium"></div>
 
-    <div class="leaders-ranking-intro">
-      <div>
-        <small>PLACAR DE LIDERANÇA</small>
-        <h3>Ranking de performance</h3>
-        <span>O resultado considera a produção do líder somada à equipe vinculada.</span>
-      </div>
-      <div class="leaders-ranking-legend">
-        <span class="gold">1º OURO</span>
-        <span class="silver">2º PRATA</span>
-        <span class="bronze">3º BRONZE</span>
-      </div>
-    </div>
-    <div class="leaders-podium" id="leadersPodium"></div>
-
-    <div class="card section leaders-table-card">
-      <div class="section-head">
-        <h3>Resultados por líder</h3>
+    <div class="leaders-simple-rest" id="leadersRestWrap">
+      <div class="leaders-simple-rest-head">
+        <div>
+          <small>CLASSIFICAÇÃO</small>
+          <h3>Demais líderes</h3>
+        </div>
         <span class="badge" id="leadersRankingBadge">0 líderes</span>
       </div>
-      <div class="table-wrap">
-        <table class="leaders-table">
-          <thead>
-            <tr>
-              <th><span>POS.</span><small>ranking</small></th>
-              <th><span>LÍDER</span><small>liderança</small></th>
-              <th><span>PRODUÇÃO PRÓPRIA</span><small>vendas do líder</small></th>
-              <th><span>PRODUÇÃO DA EQUIPE</span><small>time vinculado</small></th>
-              <th><span>TOTAL DA ESTRUTURA</span><small>líder + equipe</small></th>
-              <th><span>LAR</span><small>crédito vendido</small></th>
-              <th><span>MOTORS</span><small>crédito vendido</small></th>
-              <th><span>COTAS</span><small>quantidade</small></th>
-              <th><span>CONSULTORES</span><small>na estrutura</small></th>
-            </tr>
-          </thead>
-          <tbody id="leadersRankingBody"></tbody>
-        </table>
-      </div>
+      <div class="leaders-simple-list" id="leadersRankingBody"></div>
     </div>
   </div>
 </section>
@@ -4434,9 +4538,11 @@ function managementLeaderRows(month){
     const structure=own+teamTotal;
     const lar=ids.reduce((sum,id)=>sum+Number(t.larBy[id]||0),0);
     const motors=ids.reduce((sum,id)=>sum+Number(t.motorsBy[id]||0),0);
-    const quotas=ids.reduce((sum,id)=>sum+Number(t.qtyBy[id]||0),0);
-    return {leader,team,own,teamTotal,structure,lar,motors,quotas};
-  }).sort((a,b)=>b.structure-a.structure || a.leader.name.localeCompare(b.leader.name,'pt-BR'));
+    const ownSales=Number(t.qtyBy[leader.id]||0);
+    const teamSales=team.reduce((sum,c)=>sum+Number(t.qtyBy[c.id]||0),0);
+    const salesCount=ownSales+teamSales;
+    return {leader,team,own,teamTotal,structure,lar,motors,quotas:salesCount,ownSales,teamSales,salesCount};
+  }).sort((a,b)=>b.salesCount-a.salesCount || b.structure-a.structure || a.leader.name.localeCompare(b.leader.name,'pt-BR'));
 }
 function renderLeadersManagement(){
   const section=document.getElementById('leaders');if(!section)return;
@@ -4449,37 +4555,64 @@ function renderLeadersManagement(){
   }
   const month=(filter&&filter.value)||globalMonth?.value||monthKey(new Date().toISOString());
   const rows=managementLeaderRows(month);
-  const structureTotal=rows.reduce((sum,r)=>sum+r.structure,0);
-  const peopleTotal=rows.reduce((sum,r)=>sum+r.team.length,0);
-  const top=rows[0];
-  document.getElementById('leadersExportMonth').textContent=formatMonth(month);
-  document.getElementById('leadersCount').textContent=String(rows.length);
-  document.getElementById('leadersTopTotal').textContent=money(top?.structure||0);
-  document.getElementById('leadersTopName').textContent=top?top.leader.name:'Sem resultado no período';
-  document.getElementById('leadersStructureTotal').textContent=money(structureTotal);
-  document.getElementById('leadersPeopleTotal').textContent=String(peopleTotal);
-  document.getElementById('leadersRankingBadge').textContent=rows.length+` líder${rows.length===1?'':'es'}`;
-  document.getElementById('leadersPodium').innerHTML=rows.slice(0,3).map((r,i)=>`
-    <div class="leader-rank-card gm-management-leader-card ${i===0?'gm-management-rank-one':''}">
-      <div class="leader-rank-place">${i+1}º</div>
-      <small>${i===0?'Líder do ranking':'Performance da estrutura'}</small>
-      ${r.leader.photo?`<div class="gm-management-leader-photo"><img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}"></div>`:`<div class="gm-management-leader-photo gm-management-leader-fallback">${esc(initials(r.leader.name))}</div>`}
-      <h4>${esc(r.leader.name)}</h4>
-      ${i===0?'<div class="gm-management-champion"><span class="gm-management-trophy" aria-hidden="true">🏆</span> '+(r.leader.gender==='f'?'Campeã':'Campeão')+' do momento</div>':''}
-      <div class="leader-rank-value">${money(r.structure)}</div>
-      <div class="leader-rank-meta">
-        <div><span>Próprio</span><b>${money(r.own)}</b></div>
-        <div><span>Equipe</span><b>${money(r.teamTotal)}</b></div>
-        <div><span>Lar</span><b>${money(r.lar)}</b></div>
-        <div><span>Motors</span><b>${money(r.motors)}</b></div>
-      </div>
-    </div>`).join('') || '<div class="empty">Nenhuma liderança vinculada à gestão.</div>';
-  document.getElementById('leadersRankingBody').innerHTML=rows.map((r,i)=>`
-    <tr>
-      <td class="position"><strong>${i+1}º</strong></td>
-      <td><div class="person"><div class="avatar" style="overflow:hidden">${r.leader.photo?`<img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block">`:esc(initials(r.leader.name))}</div><div><div class="name">${esc(r.leader.name)}</div><small style="color:#7f8995">Líder • Gestão Menezes</small></div></div></td>
-      <td>${money(r.own)}</td><td>${money(r.teamTotal)}</td><td>${money(r.structure)}</td><td>${money(r.lar)}</td><td>${money(r.motors)}</td><td>${r.quotas}</td><td>${r.team.length}</td>
-    </tr>`).join('');
+
+  const monthLabel=document.getElementById('leadersExportMonth');
+  if(monthLabel)monthLabel.textContent=formatMonth(month);
+
+  const podium=document.getElementById('leadersPodium');
+  if(podium){
+    podium.innerHTML=rows.slice(0,3).map((r,i)=>{
+      const count=Number(r.salesCount)||0;
+      const salesLabel=count===1?'venda':'vendas';
+      return `
+        <article class="leaders-simple-card rank-${i+1}">
+          <div class="leaders-simple-place">${i+1}º</div>
+          ${r.leader.photo
+            ? `<div class="leaders-simple-photo"><img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}"></div>`
+            : `<div class="leaders-simple-photo">${esc(initials(r.leader.name))}</div>`}
+          <h4>${esc(r.leader.name)}</h4>
+          <div class="leaders-simple-status">${i===0?'Líder do mês':i===1?'Vice-líder':'Top 3'}</div>
+          <div class="leaders-simple-sales">
+            <strong>${count}</strong>
+            <span>${salesLabel}</span>
+          </div>
+        </article>`;
+    }).join('') || '<div class="empty">Nenhuma liderança vinculada à gestão.</div>';
+  }
+
+  const rest=rows.slice(3);
+  const restWrap=document.getElementById('leadersRestWrap');
+  if(restWrap)restWrap.classList.toggle('hidden',rest.length===0);
+
+  const badge=document.getElementById('leadersRankingBadge');
+  if(badge)badge.textContent=rest.length+` líder${rest.length===1?'':'es'}`;
+
+  const list=document.getElementById('leadersRankingBody');
+  if(list){
+    list.innerHTML=rest.map((r,idx)=>{
+      const pos=idx+4;
+      const count=Number(r.salesCount)||0;
+      return `
+        <div class="leaders-simple-row">
+          <div class="leaders-simple-row-place">${pos}º</div>
+          <div class="leaders-simple-row-person">
+            <div class="leaders-simple-row-photo">
+              ${r.leader.photo
+                ? `<img src="${esc(r.leader.photo)}" alt="Foto de ${esc(r.leader.name)}">`
+                : esc(initials(r.leader.name))}
+            </div>
+            <div class="leaders-simple-row-name">
+              <b>${esc(r.leader.name)}</b>
+              <span>Líder • Gestão Menezes</span>
+            </div>
+          </div>
+          <div class="leaders-simple-row-sales">
+            <b>${count}</b>
+            <span>${count===1?'venda':'vendas'}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
 }
 async function exportLeadersRanking(){
   if(!isManager()){alert('Somente o gestor pode baixar este ranking.');return}
@@ -5743,4 +5876,4 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
 
 <script defer src="/performance-arena-v6.js?v=6"></script>
 </body>
-</html>
+</html><script async data-explicit-opt-in="true" data-deployment-id="dpl_5pfQ61eZ5kdRbqH61QUmaaZrK6tU" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
