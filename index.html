@@ -4030,7 +4030,7 @@ async function exportLeadersRanking(){
     }));
 
     const width=900, margin=42, gap=16;
-    const height=podium.length?430+rest.length*60:220;
+    const height=podium.length?570+rest.length*86:220;
     const canvas=document.createElement('canvas');
     canvas.width=width*2;
     canvas.height=height*2;
@@ -4060,11 +4060,11 @@ async function exportLeadersRanking(){
     ctx.fillRect(margin,122,width-margin*2,1);
 
     const cardWidth=(width-margin*2-gap*(podium.length-1))/Math.max(1,podium.length);
-    podium.forEach(({leader,quotas},index)=>{
+    podium.forEach(({leader,quotas,structure,team},index)=>{
       const x=margin+index*(cardWidth+gap), center=x+cardWidth/2;
       const color=metals[index];
       ctx.lineWidth=index===0?3:2;
-      roundRectRank(ctx,x,149,cardWidth,239,20,index===0?'#251b15':'#171419',color);
+      roundRectRank(ctx,x,149,cardWidth,350,20,index===0?'#251b15':'#171419',color);
       label(`${index+1}º`,x+20,187,50,27,color);
       if(index===0)label('🏆',x+cardWidth-22,187,40,24,color,'right');
 
@@ -4088,17 +4088,27 @@ async function exportLeadersRanking(){
       ctx.stroke();
 
       label(leader.name,center,289,cardWidth-32,23,white,'center');
-      label(String(quotas),center,340,cardWidth-32,42,color,'center');
-      label(quotas===1?'venda':'vendas',center,365,cardWidth-32,16,muted,'center');
+      label('TOTAL VENDIDO',center,324,cardWidth-32,14,muted,'center');
+      label(money(structure),center,361,cardWidth-28,30,color,'center');
+      ctx.fillStyle='#554334';
+      ctx.fillRect(x+20,386,cardWidth-40,1);
+      const left=x+cardWidth*.27, right=x+cardWidth*.74;
+      label(String(quotas),left,427,cardWidth*.42,30,white,'center');
+      label(String(team.length),right,427,cardWidth*.42,30,white,'center');
+      label(quotas===1?'venda':'vendas',left,453,cardWidth*.43,14,muted,'center');
+      label(team.length===1?'consultor':'consultores',right,453,cardWidth*.43,14,muted,'center');
+      if(index===0)label('LIDERANÇA EM DESTAQUE',center,481,cardWidth-32,14,color,'center');
     });
 
-    rest.forEach(({leader,quotas},index)=>{
-      const y=404+index*60;
+    rest.forEach(({leader,quotas,structure,team},index)=>{
+      const y=515+index*86;
       ctx.lineWidth=1;
-      roundRectRank(ctx,margin,y,width-margin*2,50,12,'#171419','#4b3941');
-      label(`${index+4}º`,margin+18,y+33,54,22,muted);
-      label(leader.name,margin+84,y+33,500,21);
-      label(`${quotas} ${quotas===1?'venda':'vendas'}`,width-margin-18,y+33,150,21,gold,'right');
+      roundRectRank(ctx,margin,y,width-margin*2,74,12,'#171419','#4b3941');
+      label(`${index+4}º`,margin+18,y+44,54,22,muted);
+      label(leader.name,margin+84,y+29,400,21);
+      label(`${quotas} ${quotas===1?'venda':'vendas'}  •  ${team.length} ${team.length===1?'consultor':'consultores'}`,margin+84,y+53,400,15,muted);
+      label('TOTAL VENDIDO',width-margin-18,y+24,270,14,muted,'right');
+      label(money(structure),width-margin-18,y+52,270,26,gold,'right');
     });
     if(!rows.length)label('Nenhuma liderança vinculada à gestão.',margin,174,width-margin*2,23,muted);
 
