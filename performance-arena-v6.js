@@ -402,7 +402,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    enabled=data&&data.role==='trainee';
    if(!enabled)return;
    apply();
-   new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+   new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true});
    setInterval(apply,1000);
   }catch(_){}
  }
