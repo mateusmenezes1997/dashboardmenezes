@@ -55,7 +55,12 @@ function calculate(source){
   if(!(s.consultantId in by))return;
   by[s.consultantId]+=Number(s.amount)||0;qty[s.consultantId]+=Math.max(1,Math.round(Number(s.qty)||1));
  });
- var local=localState();var people=members.filter(function(c){return c.role!=='gestor'}).map(function(c){var fallback=local&&local.consultants.find(function(item){return String(item.id)===String(c.id)});return {id:String(c.id),name:String(c.name||'Consultor'),photo:c.photo||(fallback&&fallback.photo)||'',role:c.role||'consultor',gender:c.gender||'',total:Math.max(0,by[c.id]||0),qty:qty[c.id]||0}}).filter(function(p){return p.total>0}).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
+ var local=localState();var published=[];try{if(typeof publishedTeamPhotos!=='undefined'&&Array.isArray(publishedTeamPhotos))published=publishedTeamPhotos}catch(e){}
+ var people=members.filter(function(c){return c.role!=='gestor'}).map(function(c){
+ var fallback=local&&local.consultants.find(function(item){return String(item.id)===String(c.id)});
+ var official=published.find(function(item){return String(item.id)===String(c.id)});
+ return {id:String(c.id),name:String(c.name||'Consultor'),photo:c.photo||(fallback&&fallback.photo)||(official&&official.photo)||'',role:c.role||'consultor',gender:c.gender||'',total:Math.max(0,by[c.id]||0),qty:qty[c.id]||0}
+ }).filter(function(p){return p.total>0}).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
  return {people:people,trio:people.slice(0,3),sales:sales,total:Object.values(by).reduce(function(acc,n){return acc+Math.max(0,n||0)},0),target:Number(source.settings&&source.settings.teamTarget)||15000000,month:m};
 }
 function makeUI(){
