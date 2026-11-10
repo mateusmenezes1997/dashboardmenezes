@@ -1,6 +1,6 @@
 {
   "url": "https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/",
-  "startedAt": "2026-11-10T00:30:00.916Z",
+  "startedAt": "2026-11-10T00:31:45.515Z",
   "steps": [
     {
       "phase": "afterLoad",
@@ -26,12 +26,18 @@
       "phase": "opened",
       "open": true,
       "lanes": 3,
-      "photos": 0,
+      "photos": 3,
       "duel": true,
       "news": true
+    },
+    {
+      "phase": "overtake",
+      "leader": "Teste Beto",
+      "event": "▲ VIRADA DE POSIÇÃOTESTE BETO SUBIU NA DISPUTA!",
+      "notified": "1"
     }
   ],
   "errors": [],
   "httpStatus": 200,
-  "finishedAt": "2026-11-10T00:30:16.122Z"
+  "finishedAt": "2026-11-10T00:31:55.124Z"
 }
