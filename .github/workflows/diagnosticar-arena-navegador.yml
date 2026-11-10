@@ -22,8 +22,8 @@ jobs:
           set +e
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 > arena-setup.log 2>&1
           echo "npm_exit:$?" >> arena-setup.log
-          npx playwright install chromium >> arena-setup.log 2>&1
-          echo "chromium_exit:$?" >> arena-setup.log
+          which google-chrome >> arena-setup.log 2>&1
+          echo "chrome_path_exit:$?" >> arena-setup.log
           exit 0
       - name: Visitar link real e registrar o que aparece
         run: |
@@ -39,7 +39,7 @@ jobs:
           ],sales:[]};
           let browser;
           try{
-            browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+            browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
             const page=await browser.newPage({viewport:{width:1440,height:900},serviceWorkers:'block'});
             page.on('pageerror',e=>report.errors.push(String(e.message).slice(0,300)));
             page.on('console',msg=>{if(msg.type()==='error')report.errors.push(msg.text().slice(0,300))});
