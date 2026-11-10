@@ -1,6 +1,6 @@
 {
   "url": "https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/",
-  "startedAt": "2026-11-10T00:29:26.333Z",
+  "startedAt": "2026-11-10T00:30:00.916Z",
   "steps": [
     {
       "phase": "afterLoad",
@@ -14,10 +14,24 @@
       "jsSrc": [
         "performance-arena-v6.js?v=6"
       ]
+    },
+    {
+      "phase": "authSimulated",
+      "nav": true,
+      "tickerDisplay": "grid",
+      "champions": 3,
+      "bodyAuthenticated": true
+    },
+    {
+      "phase": "opened",
+      "open": true,
+      "lanes": 3,
+      "photos": 0,
+      "duel": true,
+      "news": true
     }
   ],
   "errors": [],
   "httpStatus": 200,
-  "failure": "assert is not defined",
-  "finishedAt": "2026-11-10T00:29:32.953Z"
+  "finishedAt": "2026-11-10T00:30:16.122Z"
 }
