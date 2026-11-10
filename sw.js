@@ -953,7 +953,7 @@ body.gm-trainee-leaders #leadersNav{
       if(!enabled)return;
       keepVisible();
       document.addEventListener('click',handleLeaderClick,true);
-      new MutationObserver(keepVisible).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+      new MutationObserver(keepVisible).observe(document.documentElement,{childList:true,subtree:true});
       setInterval(keepVisible,1000);
     }catch(_){}
   }
