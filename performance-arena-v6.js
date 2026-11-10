@@ -294,10 +294,12 @@ function updateWith(newState,fromServer){
   var oldRank=new Map(snapshot.people.map(function(p,i){return [p.id,i]}));
   var oldTotals=new Map(snapshot.people.map(function(p){return [p.id,p.total]}));
   var celebrated=false;
+  var history=window.MenezesMetrics;
+  if(history){var record=history.records(newState,next.month).find(function(p){return p.record&&oldTotals.has(p.id)&&(oldTotals.get(p.id)||0)<=p.best});if(record){event('★ RECORDE PESSOAL',record.name.toUpperCase()+' SUPEROU SEU MELHOR MÊS!',record.id);celebrated=true}}
   next.people.forEach(function(p,i){
-   if(celebrated||i>=3)return;
+   if(celebrated)return;
    var oldPlace=oldRank.get(p.id),oldValue=oldTotals.get(p.id)||0;
-   if(oldPlace!==undefined&&i<oldPlace&&p.total>oldValue){event('▲ VIRADA DE POSIÇÃO',p.name.toUpperCase()+' SUBIU NA DISPUTA!',p.id);celebrated=true}
+   if(oldPlace!==undefined&&i<oldPlace&&p.total>oldValue){event('▲ VIRADA DE POSIÇÃO',p.name.toUpperCase()+' SUBIU PARA '+(i+1)+'º'+(i>0?' • FALTAM '+money(Math.max(0,next.people[i-1].total-p.total))+' PARA EMPATAR COM O PRÓXIMO':' • ASSUMIU A LIDERANÇA'),p.id);celebrated=true}
   });
   if(!celebrated){
    var winner=next.trio.find(function(p){return p.total>(oldTotals.get(p.id)||0)&&oldTotals.has(p.id)});
@@ -305,6 +307,7 @@ function updateWith(newState,fromServer){
   }
  }
  snapshot=next;
+ window.dispatchEvent(new CustomEvent('gm:performance-state',{detail:newState}));
  if(fromServer)hasServerBaseline=true;
  render();
 }
@@ -352,3 +355,6 @@ function boot(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
+
+/* Load the performance workspace without changing the sale, booking or settings flows. */
+(function(){if(window.__gmWorkspaceLoading)return;window.__gmWorkspaceLoading=true;var css=document.createElement('link');css.rel='stylesheet';css.href='/performance-coach.css?v=1';document.head.appendChild(css);function load(src){return new Promise(function(resolve,reject){var script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.body.appendChild(script)})}load('/performance-metrics.js?v=1').then(function(){return load('/performance-coach.js?v=1')}).then(function(){return load('/performance-proposals.js?v=1')}).catch(function(){console.error('Não foi possível carregar as ferramentas de performance. Atualize a página.');});})();
