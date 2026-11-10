@@ -882,6 +882,91 @@ function applyLivePerformance(html){
   return html;
 }
 
+
+
+const TRAINEE_LEADERS_ACCESS = \`
+<style id="gm-trainee-leaders-access-v2">
+body.gm-trainee-leaders [data-view="leaders"],
+body.gm-trainee-leaders [data-go="leaders"],
+body.gm-trainee-leaders #navLeaders,
+body.gm-trainee-leaders #leadersNav{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+</style>
+<script id="gm-trainee-leaders-access-v2">
+(function(){
+  if(window.__gmTraineeLeadersAccessV2)return;window.__gmTraineeLeadersAccessV2=true;
+  var enabled=false,busy=false;
+
+  function norm(v){return String(v||'').replace(/\\s+/g,' ').trim().toLocaleLowerCase('pt-BR')}
+  function isLeaderNav(el){
+    if(!el||!el.matches)return false;
+    var view=norm(el.dataset&&el.dataset.view);
+    var go=norm(el.dataset&&el.dataset.go);
+    var id=norm(el.id);
+    var txt=norm(el.textContent);
+    return view==='leaders'||go==='leaders'||id==='navleaders'||id==='leadersnav'||
+      txt.includes('líderes - gestão')||txt.includes('lideres - gestão')||
+      txt.includes('líderes - gestao')||txt.includes('lideres - gestao');
+  }
+  function reveal(el){
+    if(!el)return;
+    el.hidden=false;el.removeAttribute('hidden');el.setAttribute('aria-hidden','false');
+    ['hidden','manager-only','gestor-only','managerOnly','gestorOnly','only-manager','only-gestor'].forEach(function(k){el.classList.remove(k)});
+    el.removeAttribute('data-manager-only');el.removeAttribute('data-gestor-only');
+    el.style.setProperty('visibility','visible','important');
+    el.style.setProperty('opacity','1','important');
+    el.style.setProperty('pointer-events','auto','important');
+    if(getComputedStyle(el).display==='none')el.style.setProperty('display','flex','important');
+  }
+  function keepVisible(){
+    if(!enabled||busy)return;busy=true;
+    try{
+      document.body&&document.body.classList.add('gm-trainee-leaders');
+      Array.from(document.querySelectorAll('button,a,[role="button"],[data-view],[data-go],.nav-item,.sidebar *')).filter(isLeaderNav).forEach(reveal);
+      var section=document.getElementById('leaders');
+      if(section){
+        section.removeAttribute('data-manager-only');section.removeAttribute('data-gestor-only');
+        ['manager-only','gestor-only','only-manager','only-gestor'].forEach(function(k){section.classList.remove(k)});
+      }
+    }finally{busy=false}
+  }
+  function handleLeaderClick(e){
+    if(!enabled)return;
+    var target=e.target&&e.target.closest?e.target.closest('button,a,[role="button"],[data-view],[data-go],.nav-item'):null;
+    if(!isLeaderNav(target))return;
+    setTimeout(function(){
+      try{if(typeof window.switchView==='function')window.switchView('leaders')}catch(_){}
+      keepVisible();
+    },0);
+    setTimeout(keepVisible,80);
+  }
+  async function boot(){
+    try{
+      var r=await fetch('/api/session',{credentials:'same-origin',cache:'no-store'});
+      if(!r.ok)return;
+      var data=await r.json();
+      enabled=data&&data.role==='trainee';
+      if(!enabled)return;
+      keepVisible();
+      document.addEventListener('click',handleLeaderClick,true);
+      new MutationObserver(keepVisible).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+      setInterval(keepVisible,1000);
+    }catch(_){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+<\/script>\`;
+
+function applyTraineeLeadersAccess(html){
+  if(!html.includes('</body>'))return html;
+  if(html.includes('gm-trainee-leaders-access-v2'))return html;
+  return html.replace('</body>',${TRAINEE_LEADERS_ACCESS}+'\n</body>');
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
@@ -895,6 +980,7 @@ self.addEventListener("fetch", (event) => {
         html = moveCommissionMoney(html);
         html = applyChampionVisual(html);
         html = applyLeaderPhotos(html);
+        html = applyTraineeLeadersAccess(html);
         html = enableManagerSaleDelete(html);
         html = applyLivePerformance(html);
         const headers = new Headers(response.headers);
