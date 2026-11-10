@@ -964,7 +964,7 @@ body.gm-trainee-leaders #leadersNav{
 function applyTraineeLeadersAccess(html){
   if(!html.includes('</body>'))return html;
   if(html.includes('gm-trainee-leaders-access-v2'))return html;
-  return html.replace('</body>',${TRAINEE_LEADERS_ACCESS}+'\n</body>');
+  return html.replace('</body>',TRAINEE_LEADERS_ACCESS+'\n</body>');
 }
 
 self.addEventListener("fetch", (event) => {
