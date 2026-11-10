@@ -267,48 +267,66 @@ function chime(){
   setTimeout(function(){ctx.close()},900);
  }catch(e){}
 }
+// Rebuild the weekly feed from persisted sales, including daily ranking changes.
+var knownSales=null,celebrationQueue=[],celebrationActive=false;
+function weeklyHistory(source,now){
+ var today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(now||new Date());
+ var monday=new Date(today+'T12:00:00Z');monday.setUTCDate(monday.getUTCDate()-((monday.getUTCDay()+6)%7));
+ var start=monday.toISOString().slice(0,10),events=[],members=source.consultants||[],sales=source.sales||[];
+ var days=Array.from(new Set(sales.map(function(s){return s.date}).filter(function(d){return d>=start&&d<=today}))).sort();
+ days.forEach(function(day){
+  var month=day.slice(0,7),totals=new Map();
+  members.filter(function(c){return c.role!=='gestor'}).forEach(function(c){var o=c.monthOpenings&&c.monthOpenings[month];totals.set(String(c.id),Number(o?o.total:month==='2026-10'?c.opening:0)||0)});
+  sales.filter(function(s){return dateKey(s.date)===month&&s.date<day}).forEach(function(s){var id=String(s.consultantId);if(totals.has(id))totals.set(id,totals.get(id)+(Number(s.amount)||0))});
+  var before=new Map(totals);
+  sales.filter(function(s){return s.date===day}).forEach(function(s){
+   var c=members.find(function(c){return String(c.id)===String(s.consultantId)});if(!c)return;
+   events.push({id:'sale:'+s.id,date:day,title:c.name+' vendeu '+money(s.amount),label:'VENDA REGISTRADA • '+(Number(s.qty)||1)+' cota(s)'});
+   var id=String(c.id);if(totals.has(id))totals.set(id,totals.get(id)+(Number(s.amount)||0));
+  });
+  members.filter(function(c){return totals.has(String(c.id))}).forEach(function(c){
+   var id=String(c.id),passed=members.filter(function(other){var oid=String(other.id);return oid!==id&&before.has(oid)&&before.get(id)<=before.get(oid)&&totals.get(id)>totals.get(oid)&&totals.get(id)>before.get(id)});
+   if(passed.length)events.push({id:'rank:'+day+':'+id,date:day,title:c.name+' passou '+passed.map(function(c){return c.name}).join(', '),label:'RANKING MENSAL • comparação do saldo do dia'});
+  });
+ });
+ return events.sort(function(a,b){return b.date.localeCompare(a.date)});
+}
 function renderNotifications(){
  var count=qs('gmv-notify-count'),box=qs('gmv-notify-panel');if(!box)return;
- if(count){count.hidden=unread<=0;text(count,unread)}
+ if(count){count.hidden=unread<=0;text(count,Math.min(99,unread))}
  box.replaceChildren();
- var head=h('div','gmv-notification-title');text(head,'NOTIFICAÇÕES / AO VIVO');box.appendChild(head);
- if(!notices.length){var empty=h('div','gmv-notification-item');text(empty,'Nenhuma nova ultrapassagem ou venda desde que a página foi aberta.');box.appendChild(empty)}
- else notices.forEach(function(n){var item=h('div','gmv-notification-item'),top=h('strong'),sub=h('small');text(top,n.title);text(sub,n.label+' • '+n.at.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo'}));item.append(top,sub);box.appendChild(item)});
+ var head=h('div','gmv-notification-title');text(head,'HISTÓRICO DA SEMANA');box.appendChild(head);
+ var hint=h('small');text(hint,'Desde segunda-feira • vendas e mudanças no ranking');box.appendChild(hint);
+ if(!notices.length){var empty=h('div','gmv-notification-item');text(empty,'Nenhuma venda registrada nesta semana.');box.appendChild(empty)}
+ notices.forEach(function(n){var item=h('div','gmv-notification-item'),top=h('strong'),sub=h('small');text(top,n.title);text(sub,n.date.split('-').reverse().join('/')+' • '+n.label);item.append(top,sub);box.appendChild(item)});
 }
-function event(message,title,id){
- notices.unshift({label:message,title:title,at:new Date()});notices=notices.slice(0,6);unread=Math.min(99,unread+1);renderNotifications();
- if(!arena||!arena.classList.contains('gmv-open'))return;
- var el=qs('gmv-event');if(!el)return;
+function showNextCelebration(){
+ if(celebrationActive||!celebrationQueue.length||!authenticated())return;
+ celebrationActive=true;var n=celebrationQueue.shift(),el=qs('gmv-event');
+ (document.fullscreenElement||document.body).appendChild(el);
  el.replaceChildren();
- var small=h('small'),large=h('strong');text(small,message);text(large,title);el.append(small,large);
- el.classList.remove('gmv-show');void el.offsetWidth;el.classList.add('gmv-show');
- arena.classList.remove('gmv-flash');void arena.offsetWidth;arena.classList.add('gmv-flash');
- if(id){Array.from(champions.children).concat(Array.from(lanes.children)).filter(function(x){return x.dataset.id===id}).forEach(function(node){node.classList.remove('gmv-surging');void node.offsetWidth;node.classList.add('gmv-surging')})}
- clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('gmv-show');arena.classList.remove('gmv-flash')},3400);
- chime();
+ var dismiss=h('button'),small=h('small'),large=h('strong'),amount=h('div'),face=h('div','gmv-celebration-photo');
+ dismiss.type='button';dismiss.textContent='×';dismiss.setAttribute('aria-label','Fechar mensagem de parabéns');
+ text(small,'NOVA VENDA • GESTÃO MENEZES');text(large,'PARABÉNS, '+n.person.name+'!');text(amount,money(n.sale.amount)+' EM VENDAS');amount.className='gmv-celebration-amount';
+ photoInto(face,n.person);el.append(dismiss,face,small,large,amount);el.classList.add('gmv-show');
+ function done(){clearTimeout(toastTimer);el.classList.remove('gmv-show');celebrationActive=false;toastTimer=setTimeout(showNextCelebration,450)}
+ dismiss.onclick=done;toastTimer=setTimeout(done,7000);chime();
 }
 function updateWith(newState,fromServer){
  if(!newState)return;
  var next=calculate(newState);
- if(hasServerBaseline&&fromServer&&snapshot){
-  var oldRank=new Map(snapshot.people.map(function(p,i){return [p.id,i]}));
-  var oldTotals=new Map(snapshot.people.map(function(p){return [p.id,p.total]}));
-  var celebrated=false;
-  var history=window.MenezesMetrics;
-  if(history){var record=history.records(newState,next.month).find(function(p){return p.record&&oldTotals.has(p.id)&&(oldTotals.get(p.id)||0)<=p.best});if(record){event('★ RECORDE PESSOAL',record.name.toUpperCase()+' SUPEROU SEU MELHOR MÊS!',record.id);celebrated=true}}
-  next.people.forEach(function(p,i){
-   if(celebrated)return;
-   var oldPlace=oldRank.get(p.id),oldValue=oldTotals.get(p.id)||0;
-   if(oldPlace!==undefined&&i<oldPlace&&p.total>oldValue){event('▲ VIRADA DE POSIÇÃO',p.name.toUpperCase()+' SUBIU PARA '+(i+1)+'º'+(i>0?' • FALTAM '+money(Math.max(0,next.people[i-1].total-p.total))+' PARA EMPATAR COM O PRÓXIMO':' • ASSUMIU A LIDERANÇA'),p.id);celebrated=true}
-  });
-  if(!celebrated){
-   var winner=next.trio.find(function(p){return p.total>(oldTotals.get(p.id)||0)&&oldTotals.has(p.id)});
-   if(winner)event('◈ NOVA PRODUÇÃO REGISTRADA',winner.name.toUpperCase()+' ACELEROU!',winner.id);
-  }
+ if(fromServer){
+  var sales=newState.sales||[],members=newState.consultants||[],oldIds=new Set(notices.map(function(n){return n.id}));
+  notices=weeklyHistory(newState);
+  if(knownSales){
+   unread+=notices.filter(function(n){return !oldIds.has(n.id)}).length;
+   sales.forEach(function(s){if(knownSales.has(String(s.id)))return;var p=members.find(function(c){return String(c.id)===String(s.consultantId)});if(p&&Number(s.amount)>0)celebrationQueue.push({sale:s,person:p})});
+  }else unread=notices.length;
+  knownSales=new Set(sales.map(function(s){return String(s.id)}));
+  renderNotifications();showNextCelebration();hasServerBaseline=true;
  }
  snapshot=next;
  window.dispatchEvent(new CustomEvent('gm:performance-state',{detail:newState}));
- if(fromServer)hasServerBaseline=true;
  render();
 }
 function sync(){
@@ -333,13 +351,14 @@ function checkLogin(){
  document.body.classList.toggle('gmv-authenticated',active);
  if(!active){
   if(arena&&arena.classList.contains('gmv-open'))close();
-  remoteState=null;lastSync=0;hasServerBaseline=false;lastTape='';latestSignature='';
+  remoteState=null;lastSync=0;hasServerBaseline=false;knownSales=null;notices=[];unread=0;celebrationQueue=[];celebrationActive=false;clearTimeout(toastTimer);var popup=qs('gmv-event');if(popup)popup.classList.remove('gmv-show');var panel=qs('gmv-notify-panel');if(panel)panel.hidden=true;lastTape='';latestSignature='';
  }else if(!lastAuth){
   sessionDenied=false;refresh();
  }
  lastAuth=active;
 }
 function boot(){
+ var style=h('style');style.textContent='#gmv-event{top:50%;transform:translate(-50%,-45%) scale(.96);z-index:10050;width:min(700px,92vw);box-sizing:border-box;max-height:90vh;overflow:auto}#gmv-event.gmv-show{transform:translate(-50%,-50%) scale(1);pointer-events:auto}#gmv-event button{position:absolute;right:14px;top:8px;background:transparent;border:0;color:#fff;font-size:30px;cursor:pointer}#gmv-event .gmv-celebration-photo{width:90px;height:90px;border:3px solid #eac782;border-radius:50%;overflow:hidden;margin:0 auto 18px;display:grid;place-items:center;color:#eac782;font-size:28px}#gmv-event img{width:100%;height:100%;object-fit:cover}.gmv-celebration-amount{font:bold clamp(23px,4vw,40px) Arial;color:#f2cc82;margin-top:22px}body:not(.gmv-authenticated) #gmv-event,body:not(.gmv-authenticated) #gmv-notify-panel{display:none!important}#gmv-notify-panel{max-height:min(65vh,600px);width:min(430px,calc(100vw - 28px))}.gmv-notification-item strong{overflow-wrap:anywhere}@media(prefers-reduced-motion:reduce){#gmv-event{transition:none}}';document.head.appendChild(style);
  try{makeUI()}catch(error){console.error('Arena: falha ao montar navegação',error)}
  checkLogin();
  var auth=qs('gmAuth');
