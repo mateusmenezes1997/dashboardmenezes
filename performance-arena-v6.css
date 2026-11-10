@@ -170,3 +170,7 @@ body.gmv-immersive #gmv-ticker{z-index:10002}#gmv-arena:fullscreen #gmv-ticker{d
 @keyframes gmv-athlete-breathe{0%,100%{transform:translateX(-1px) scale(1.01)}50%{transform:translateX(2px) scale(1.055)}}
 @keyframes gmv-champion-beacon{0%,100%{box-shadow:0 0 22px #d4ac5844,0 12px 24px #0008}50%{box-shadow:0 0 45px #edd29a73,0 12px 30px #0008}}
 @media(prefers-reduced-motion:reduce){.gmv-path,.gmv-runner img,.gmv-champion[data-place="1"] .gmv-portrait{animation:none!important}}
+
+
+/* gm-hide-access-role-box-v1: troca de login somente pela logo da Gestão */
+#accessRoleBox{display:none!important;visibility:hidden!important;pointer-events:none!important;}
