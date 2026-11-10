@@ -19,8 +19,12 @@ jobs:
           node-version: '22'
       - name: Preparar Chromium headless
         run: |
-          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
-          npx playwright install chromium
+          set +e
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 > arena-setup.log 2>&1
+          echo "npm_exit:$?" >> arena-setup.log
+          npx playwright install chromium >> arena-setup.log 2>&1
+          echo "chromium_exit:$?" >> arena-setup.log
+          exit 0
       - name: Visitar link real e registrar o que aparece
         run: |
           node --input-type=module <<'NODE'
@@ -73,7 +77,9 @@ jobs:
       - name: Salvar diagnóstico na branch de acessos
         if: always()
         run: |
-          if [ ! -f arena-browser-check.json ]; then echo '{"failure":"Teste não produziu relatório"}' > arena-browser-check.json; fi
+          if [ ! -f arena-browser-check.json ]; then
+            node -e "const fs=require('fs');const log=fs.existsSync('arena-setup.log')?fs.readFileSync('arena-setup.log','utf8').slice(-1700):'sem log';fs.writeFileSync('arena-browser-check.json',JSON.stringify({failure:'Teste nao produziu relatorio',setupTail:log},null,2));"
+          fi
           git config user.name "Gestão Menezes QA"
           git config user.email "actions@users.noreply.github.com"
           git add arena-browser-check.json
