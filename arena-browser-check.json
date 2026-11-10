@@ -1,32 +1,23 @@
 {
   "url": "https://dashboardmenezes-git-acessos-gestao-menezes-menezes14.vercel.app/",
-  "startedAt": "2026-11-10T00:28:14.218Z",
+  "startedAt": "2026-11-10T00:29:26.333Z",
   "steps": [
     {
       "phase": "afterLoad",
       "isArenaRuntime": true,
       "authHidden": true,
-      "nav": false,
+      "nav": true,
       "ticker": true,
-      "tickerDisplay": "none",
+      "tickerDisplay": "grid",
       "arena": true,
-      "champions": 0,
+      "champions": 3,
       "jsSrc": [
         "performance-arena-v6.js?v=6"
       ]
-    },
-    {
-      "phase": "authSimulated",
-      "nav": false,
-      "tickerDisplay": "none",
-      "champions": 0,
-      "bodyAuthenticated": false
     }
   ],
-  "errors": [
-    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node."
-  ],
+  "errors": [],
   "httpStatus": 200,
-  "failure": "locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('#gmv-ticker-open')\n    - locator resolved to <button type=\"button\" id=\"gmv-ticker-open\">◈ ABRIR ARENA</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    9 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 500ms\n",
-  "finishedAt": "2026-11-10T00:28:33.822Z"
+  "failure": "assert is not defined",
+  "finishedAt": "2026-11-10T00:29:32.953Z"
 }
