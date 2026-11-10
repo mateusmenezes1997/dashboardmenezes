@@ -1,4 +1,16 @@
 /* GESTAO MENEZES // ARENA 6 */
+/* Leadership medals: fixed portrait crop and distinct heavy metal frames. */
+#leadersPodium .gm-management-leader-card{--medal:#f0c65b;--medal-light:#fff0b5;--medal-dark:#8a5b19;--medal-glow:#dca73545;border:3px solid var(--medal);background:radial-gradient(ellipse at 15% 0,var(--medal-glow),transparent 48%),linear-gradient(160deg,#16191e,#0c1218);box-shadow:inset 0 0 0 2px var(--medal-dark),inset 0 0 0 3px #ffffff12,0 0 24px var(--medal-glow),0 15px 30px #0007}
+#leadersPodium .gm-management-leader-card:nth-child(2){--medal:#c9d2dc;--medal-light:#f5f8fc;--medal-dark:#657584;--medal-glow:#b6c6d433}
+#leadersPodium .gm-management-leader-card:nth-child(3){--medal:#d18a5d;--medal-light:#ffd1ac;--medal-dark:#79452d;--medal-glow:#c77b4f38}
+#leadersPodium .gm-management-leader-card:hover{border-color:var(--medal-light);box-shadow:inset 0 0 0 2px var(--medal-dark),inset 0 0 0 3px #ffffff20,0 0 34px var(--medal-glow),0 18px 40px #0009}
+#leadersPodium .gm-management-leader-card .gm-management-leader-photo{box-sizing:border-box;min-width:0;min-height:0;display:block;isolation:isolate;border:5px solid var(--medal);border-top-color:var(--medal-light);border-left-color:var(--medal-light);border-bottom-color:var(--medal-dark);background:#10151b;box-shadow:0 0 0 1px var(--medal-dark),0 0 24px var(--medal-glow),0 12px 24px #0008;overflow:hidden;transform:translateZ(0)}
+#leadersPodium .gm-management-leader-card .gm-management-leader-photo img{position:absolute;inset:0;display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;margin:0;border-radius:12px;object-fit:cover;object-position:center 22%}
+#leadersPodium .gm-management-leader-card:hover .gm-management-leader-photo{border-color:var(--medal);border-top-color:var(--medal-light);border-left-color:var(--medal-light);border-bottom-color:var(--medal-dark);box-shadow:0 0 0 1px var(--medal-dark),0 0 30px var(--medal-glow),0 14px 28px #0008;transform:scale(1.04)}
+#leadersPodium .gm-management-leader-card:hover .gm-management-leader-photo img{transform:scale(1.04)}
+#leadersPodium .gm-management-leader-card .gm-management-leader-fallback{display:grid;place-items:center;color:var(--medal-light)}
+#leadersPodium .leader-rank-place{color:var(--medal-light);text-shadow:0 2px 0 var(--medal-dark),0 0 14px var(--medal-glow);opacity:1}
+#leadersPodium .leader-rank-value{color:var(--medal-light)}
 :root{--gmv-gold:#eac782;--gmv-wine:#9e3155;--gmv-ice:#8de5e5;--gmv-text:#f6f0e5;--gmv-muted:#a6a2ac}
 body.gmv-authenticated{padding-bottom:64px!important}
 #gmLivePerformance,#gmLiveLauncherV4,.gm-live-nav{display:none!important}
