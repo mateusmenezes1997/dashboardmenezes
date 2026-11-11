@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v16-arena-20261111";
+const VERSION = "gm-pwa-executive-v17-arena-photo-20261111";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());

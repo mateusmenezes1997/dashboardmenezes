@@ -159,3 +159,99 @@
  #gmv-arena.gmv-v7 .gmv8-trophy,#gmv-arena.gmv-v7 .gmv8-tv-body,#gmv-event.gmv8-tier-leader:before{animation:none!important}
  #gmv-arena.gmv-v7 .gmv-lane .gmv-runner,#gmv-arena.gmv-v7 .gmv-lane .gmv-path-fill{transition:none!important}
 }
+
+/* GESTÃO MENEZES — ARENA 4.1 | enquadramento fotográfico do modo TV
+   Fotos originais preservadas. A imagem ocupa toda a área útil sem faixa vazia no topo. */
+#gmv-arena.gmv-v7 .gmv8-tv-face {
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  isolation:isolate;
+  padding:0!important;
+  line-height:0;
+  aspect-ratio:4/5;
+  height:auto!important;
+  overflow:hidden!important;
+  flex-shrink:0;
+  background:#292026;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-face > img {
+  position:absolute!important;
+  inset:0!important;
+  top:0!important;
+  left:0!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  object-fit:cover!important;
+  object-position:50% 35%!important;
+  transform:none!important;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-podium .gmv8-tv-face{
+  width:clamp(128px,10vw,176px)!important;
+  height:auto!important;
+  aspect-ratio:4/5!important;
+  border-radius:17px;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-podium[data-place="1"] .gmv8-tv-face{
+  width:clamp(138px,11vw,190px)!important;
+  border-color:#dfb56f;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-duelist .gmv8-tv-face{
+  width:clamp(175px,17vw,252px)!important;
+  height:auto!important;
+  aspect-ratio:4/5!important;
+  border-radius:20px;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-hero .gmv8-tv-face{
+  width:clamp(155px,19vw,244px)!important;
+  height:auto!important;
+  aspect-ratio:4/5!important;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-mini{
+  position:relative;
+  display:block;
+  overflow:hidden;
+}
+#gmv-arena.gmv-v7 .gmv8-tv-mini > img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center 35%!important;
+}
+@media(max-width:760px){
+  #gmv-arena.gmv-v7 .gmv8-tv-podium .gmv8-tv-face,
+  #gmv-arena.gmv-v7 .gmv8-tv-podium[data-place="1"] .gmv8-tv-face{
+    width:clamp(62px,17vw,110px)!important;
+    height:auto!important;
+    aspect-ratio:4/5!important;
+  }
+  #gmv-arena.gmv-v7 .gmv8-tv-duelist .gmv8-tv-face{
+    width:clamp(95px,25vw,180px)!important;
+    height:auto!important;
+    aspect-ratio:4/5!important;
+  }
+  #gmv-arena.gmv-v7 .gmv8-tv-hero .gmv8-tv-face{
+    width:clamp(100px,27vw,170px)!important;
+    height:auto!important;
+    aspect-ratio:4/5!important;
+  }
+}
+@media(max-height:740px) and (min-width:761px){
+  #gmv-arena.gmv-v7 .gmv8-tv-podium .gmv8-tv-face{
+    width:clamp(90px,12vh,145px)!important;
+  }
+  #gmv-arena.gmv-v7 .gmv8-tv-duelist .gmv8-tv-face{
+    width:clamp(115px,22vh,178px)!important;
+  }
+}
