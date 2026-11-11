@@ -35,6 +35,19 @@ function dashboard(){
  host.querySelector('[data-gm-total]').textContent=brl(amount)+' em vendas';
  host.querySelector('[data-gm-bar]').style.width=percentage+'%';
  host.querySelector('.gm-goal-track').setAttribute('aria-valuenow',String(Math.round(percentage)));
+ // Panorama executivo: uma única leitura dos indicadores essenciais.
+ var overview=get('gm-overview-2026');
+ if(!overview){
+  overview=node('div','gm-overview');overview.id='gm-overview-2026';
+  overview.innerHTML='<article><small>PRODUÇÃO DA GESTÃO</small><b data-overview-total></b><span>Volume apurado no mês</span></article><article><small>PARA A META</small><b data-overview-gap></b><span>Meta de '+brl(goal)+'</span></article><article><small>VENDAS REGISTRADAS</small><b data-overview-sales></b><span>Lançamentos deste mês</span></article><article><small>CONSULTORES ATIVOS</small><b data-overview-active></b><span>Com produção no mês</span></article>';
+  after(host,overview);
+ }
+ var salesCount=(s.sales||[]).filter(function(x){return String(x.date||'').slice(0,7)===m}).length;
+ var activeCount=s.consultants.filter(function(x){return x.role!=='gestor'&&(Number(t.by&&t.by[x.id])||0)>0}).length;
+ overview.querySelector('[data-overview-total]').textContent=brl(amount);
+ overview.querySelector('[data-overview-gap]').textContent=left===0?'Meta atingida':brl(left);
+ overview.querySelector('[data-overview-sales]').textContent=String(salesCount);
+ overview.querySelector('[data-overview-active]').textContent=String(activeCount);
  if(prevMonth===m&&prevTotal!==null&&amount>prevTotal){
   host.classList.remove('gm-goal-win');void host.offsetWidth;host.classList.add('gm-goal-win');
   setTimeout(function(){host.classList.remove('gm-goal-win')},1500);
@@ -90,11 +103,25 @@ function team(){
 }
 function simulator(){
  var page=get('simulator');if(!page)return;
- if(get('gm-simulator-note'))return;
- var el=node('div','gm-safe-note');el.id='gm-simulator-note';
- el.innerHTML='<b>Leitura da proposta</b><span>Crédito, prazo e parcelas correspondem à opção selecionada na simulação. Lances e contemplação são cenários estimados, não representam promessa de contemplação. Confira o regulamento e as condições vigentes antes de apresentar ao cliente.</span>';
- var anchor=page.querySelector('.topbar')||page.firstElementChild;
- after(anchor,el);
+ var note=get('gm-simulator-note');
+ if(!note){
+  note=node('div','gm-safe-note');note.id='gm-simulator-note';
+  note.innerHTML='<b>Proposta comercial</b><span>Os valores acompanham as condições selecionadas no simulador. Lances e contemplação são cenários estimados, sem garantia de contemplação. Confira as condições do grupo antes do envio.</span>';
+  var anchor=page.querySelector('.topbar')||page.firstElementChild;
+  after(anchor,note);
+ }
+ var values=typeof window.simulatorValues==='function'?window.simulatorValues():null;
+ if(!values)return;
+ var host=get('gm-simulator-summary');
+ if(!host){
+  host=node('section','gm-simulator-summary');host.id='gm-simulator-summary';
+  host.innerHTML='<div class="gm-simulator-summary-title"><small>RESUMO DA PROPOSTA SELECIONADA</small><strong>Condições que o cliente precisa entender</strong></div><div class="gm-simulator-summary-grid"><div><small>Crédito contratado</small><b data-sim-credit></b></div><div><small>Parcela selecionada</small><b data-sim-installment></b></div><div><small>Recurso próprio para lance</small><b data-sim-pocket></b></div><div><small>Crédito após embutido</small><b data-sim-released></b></div></div>';
+  after(note,host);
+ }
+ host.querySelector('[data-sim-credit]').textContent=brl(values.credit);
+ host.querySelector('[data-sim-installment]').textContent=brl(values.installment);
+ host.querySelector('[data-sim-pocket]').textContent=brl(values.pocket);
+ host.querySelector('[data-sim-released]').textContent=brl(values.released);
 }
 function commission(){
  var page=get('commission'),results=page&&page.querySelector('.commission-results');
@@ -102,13 +129,20 @@ function commission(){
  var host=get('gm-commission-planning');
  if(!host){
   host=node('div','gm-commission-planning');host.id='gm-commission-planning';
-  host.innerHTML='<div class="gm-planning-head"><small>PLANEJAMENTO COMERCIAL</small><h3>Quanto sua produção pode representar?</h3><p>Projeção de líquido aproximado nas mesmas premissas de 2% e descontos exibidos no simulador. Não é promessa de recebimento.</p></div><div class="gm-planning-grid"></div>';
+  host.innerHTML='<div class="gm-planning-head"><small>PLANEJAMENTO COMERCIAL</small><h3>Quanto sua produção pode representar?</h3><p>Valores calculados pelas regras de comissionamento da condição selecionada. Projeção de líquido total, não de recebimento imediato.</p></div><div class="gm-planning-grid"></div>';
   after(results,host);
  }
- var netRate=0.02*(1-0.1823-0.015);
+ var metrics=window.MenezesMetrics;
  var amounts=[1000000,3000000,5000000];
+ var condition=(get('commissionCondition')||{}).value||'lar50';
  var grid=host.querySelector('.gm-planning-grid');
- var html=amounts.map(function(v){return '<div class="gm-plan"><small>PRODUÇÃO DE '+brl(v)+'</small><b>'+brl(v*netRate)+'</b><span>Líquido estimado</span></div>'}).join('');
+ if(!metrics||typeof metrics.commission!=='function'){
+  grid.textContent='Carregando condições de comissionamento...';return;
+ }
+ var html=amounts.map(function(v){
+  var calc=metrics.commission(v,condition),installments=calc.payments.length;
+  return '<div class="gm-plan"><small>PRODUÇÃO DE '+brl(v)+'</small><b>'+brl(calc.net)+'</b><span>Líquido total estimado · '+installments+' repasses</span><small>Primeiro repasse estimado: '+brl(calc.payments[0])+'</small></div>';
+ }).join('');
  if(grid.innerHTML!==html)grid.innerHTML=html;
 }
 function sale(){
@@ -124,6 +158,16 @@ function sale(){
   share.addEventListener('click',function(){
    if(typeof prepareRankingShare==='function')prepareRankingShare();
   });
+  // Bloqueia o segundo clique no mesmo lançamento antes de acionar handlers da página.
+  button.addEventListener('click',function(event){
+   var now=Date.now(),previous=Number(button.dataset.gmClickAt||0);
+   if(previous&&now-previous<1800){
+    event.preventDefault();event.stopImmediatePropagation();return;
+   }
+   button.dataset.gmClickAt=String(now);
+   button.classList.add('gm-saving');
+   setTimeout(function(){button.classList.remove('gm-saving')},1800);
+  },true);
   button.addEventListener('click',function(){
    share.hidden=true;
    var s=source();if(!s)return;
