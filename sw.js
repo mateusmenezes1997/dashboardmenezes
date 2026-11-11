@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-arena-v9-singlechamp";
+const VERSION = "gm-pwa-arena-v10-fixedsw";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -832,7 +832,7 @@ function applyLeaderPhotos(html){
 
 
 
-const LIVE_PERFORMANCE_INJECT = \`
+const LIVE_PERFORMANCE_INJECT = `
 <style id="gm-live-performance-v2">
 #gmNotifyBtn{position:fixed;right:24px;top:22px;z-index:9996;width:46px;height:46px;border-radius:16px;border:1px solid rgba(213,171,103,.38);background:rgba(10,12,16,.92);backdrop-filter:blur(15px);color:#f0cb8c;display:grid;place-items:center;box-shadow:0 12px 35px rgba(0,0,0,.38);cursor:pointer;transition:.22s ease}
 #gmNotifyBtn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 16px 42px rgba(213,171,103,.16)}
@@ -885,7 +885,7 @@ const LIVE_PERFORMANCE_INJECT = \`
  document.addEventListener('click',function(e){if(!e.target.closest('#gmNotifyPanel,#gmNotifyBtn'))document.getElementById('gmNotifyPanel')?.classList.remove('open')});
  addNav();render();setInterval(function(){if(document.getElementById('gmLivePerformance')?.classList.contains('open'))render()},4000);
 })();
-<\/script>\`;
+<\/script>`;
 
 function applyLivePerformance(html){
   if(html.includes("gm-arena-v6")) return html;
@@ -897,7 +897,7 @@ function applyLivePerformance(html){
 
 
 
-const TRAINEE_LEADERS_ACCESS = \`
+const TRAINEE_LEADERS_ACCESS = `
 <style id="gm-trainee-leaders-access-v2">
 body.gm-trainee-leaders [data-view="leaders"],
 body.gm-trainee-leaders [data-go="leaders"],
@@ -972,7 +972,7 @@ body.gm-trainee-leaders #leadersNav{
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
-<\/script>\`;
+<\/script>`;
 
 function applyTraineeLeadersAccess(html){
   if(!html.includes('</body>'))return html;
