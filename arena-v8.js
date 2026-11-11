@@ -3,7 +3,7 @@
 'use strict';
 if(window.__gmArenaV8)return;
 window.__gmArenaV8=true;
-var state=null,arena=null,mounted=false,mode='consultants',snapshot=null,prior=null,knownSaleIds=null,queued=false;
+var state=null,arena=null,mounted=false,mode='consultants',snapshot=null,prior=null,knownSaleIds=null,queued=false,lastSignature='';
 var tvIndex=0,tvTimer=null,tvRunning=false,tvSlides=['Campeão do momento','Pódio dos campeões','Corrida ao vivo','Duelo do momento','Próxima ultrapassagem','Evolução de vendas','Arena dos líderes','Movimentações da semana'];
 var colors=['#e5bd78','#bcc4d0','#c89371'];
 function byId(id){return document.getElementById(id)}
@@ -24,10 +24,10 @@ function face(person,cls){
 function isOpen(){return Boolean(arena&&arena.classList.contains('gmv-open')&&document.body.classList.contains('gmv-authenticated'))}
 function opening(c,m){var v=c.monthOpenings&&c.monthOpenings[m];return Math.max(0,number(v?v.total:m==='2026-10'?c.opening:0))}
 function aggregate(src){
- var month=nowKey().slice(0,7),members=Array.isArray(src.consultants)?src.consultants:[],sales=Array.isArray(src.sales)?src.sales:[],total=new Map(),qty=new Map(),lookup=new Map();
- members.forEach(function(c){var id=String(c.id);lookup.set(id,c);total.set(id,opening(c,month));var o=c.monthOpenings&&c.monthOpenings[month];qty.set(id,o?number(o.larQty)+number(o.motorsQty)+number(o.unclassifiedQty):0)});
+ var month=nowKey().slice(0,7),members=Array.isArray(src.consultants)?src.consultants:[],sales=Array.isArray(src.sales)?src.sales:[],total=new Map(),qty=new Map(),dealCount=new Map(),lookup=new Map();
+ members.forEach(function(c){var id=String(c.id);lookup.set(id,c);total.set(id,opening(c,month));dealCount.set(id,0);var o=c.monthOpenings&&c.monthOpenings[month];qty.set(id,o?number(o.larQty)+number(o.motorsQty)+number(o.unclassifiedQty):0)});
  var monthSales=sales.filter(function(s){return String(s.date||'').slice(0,7)===month&&number(s.amount)>0&&lookup.has(String(s.consultantId))});
- monthSales.forEach(function(s){var id=String(s.consultantId);total.set(id,total.get(id)+number(s.amount));qty.set(id,qty.get(id)+Math.max(1,Math.round(number(s.qty)||1)))});
+ monthSales.forEach(function(s){var id=String(s.consultantId);total.set(id,total.get(id)+number(s.amount));qty.set(id,qty.get(id)+Math.max(1,Math.round(number(s.qty)||1)));dealCount.set(id,(dealCount.get(id)||0)+1)});
  var people=members.filter(function(c){return c.role!=='gestor'}).map(function(c){return {id:String(c.id),name:String(c.name||'Consultor'),photo:photo(c),gender:c.gender,role:c.role,total:Math.max(0,total.get(String(c.id))||0),qty:qty.get(String(c.id))||0}}).filter(function(p){return p.total>0}).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
  function descendants(id){
   var visited=new Set([String(id)]),found=[];
@@ -40,9 +40,9 @@ function aggregate(src){
   var team=descendants(leader.id),peopleInTeam=[leader].concat(team);
   var teamTotal=team.reduce(function(a,c){return a+(total.get(String(c.id))||0)},0);
   var own=total.get(String(leader.id))||0;
-  var quantities=peopleInTeam.reduce(function(a,c){return a+(qty.get(String(c.id))||0)},0);
+  var quantities=peopleInTeam.reduce(function(a,c){return a+(qty.get(String(c.id))||0)},0);var deals=peopleInTeam.reduce(function(a,c){return a+(dealCount.get(String(c.id))||0)},0);
   var active=team.filter(function(c){return (total.get(String(c.id))||0)>0}).length;
-  return {id:String(leader.id),name:String(leader.name||'Líder'),photo:photo(leader),total:teamTotal+own,qty:quantities,active:active,members:team.length,average:team.length?teamTotal/team.length:0,teamTotal:teamTotal,own:own}
+  return {id:String(leader.id),name:String(leader.name||'Líder'),photo:photo(leader),total:teamTotal+own,qty:quantities,deals:deals,active:active,members:team.length,average:team.length?teamTotal/team.length:0,teamTotal:teamTotal,own:own}
  }).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
  return {month:month,people:people,leaders:leaders,sales:monthSales,lookup:lookup,totals:total,members:members};
 }
@@ -109,7 +109,7 @@ function paintLeaders(){
   info.append(name,label);head.append(rank,face(p,'gmv8-leader-photo'),info);
   var amount=node('div','gmv8-leader-amount');amount.append(node('span','', 'VENDAS DA ESTRUTURA'),node('strong','',brl(p.total)));
   var metrics=node('div','gmv8-leader-metrics');
-  [['CONSULTORES ATIVOS',String(p.active)+' / '+String(p.members)],['QUANTIDADE DE VENDAS',String(p.qty)],['MÉDIA POR CONSULTOR',brl(p.average)]].forEach(function(q){
+  [['CONSULTORES ATIVOS',String(p.active)+' / '+String(p.members)],['VENDAS REGISTRADAS',String(p.deals)],['MÉDIA POR CONSULTOR',brl(p.average)]].forEach(function(q){
    var cell=node('div');cell.append(node('small','',q[0]),node('strong','',q[1]));metrics.appendChild(cell);
   });
   card.append(head,amount,metrics);host.appendChild(card);
@@ -187,7 +187,9 @@ function updateState(src){
  if(snapshot&&knownSaleIds)updateRace(snapshot,next);
  state=src;snapshot=next;
  knownSaleIds=new Set(next.sales.map(function(s){return String(s.id)}));
- schedule();
+ var signature=JSON.stringify({date:nowKey(),month:next.month,people:next.people.map(function(p){return [p.id,p.name,p.total,p.qty,p.photo.length]}),leaders:next.leaders.map(function(p){return [p.id,p.name,p.total,p.active,p.members,p.deals,p.photo.length]}),sales:next.sales.map(function(s){return [s.id,s.date,s.consultantId,s.amount,s.qty]})});
+ if(signature!==lastSignature){lastSignature=signature;schedule()}
+
 }
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){requestAnimationFrame(function(){queued=false;paint()})})}
 function paint(){
@@ -256,7 +258,7 @@ function paintTv(){
   appendHeading(target,'RESULTADOS DAS ESTRUTURAS','ARENA DOS LÍDERES');
   if(!leaders.length)return empty('Nenhum líder cadastrado');
   var list=node('div','gmv8-tv-leader-list');
-  leaders.slice(0,4).forEach(function(p,i){var row=node('div');row.append(node('b','',(i+1)+'º'),face(p,'gmv8-tv-mini'),node('span','',p.name),node('strong','',brl(p.total)),node('small','',p.active+' ativos · '+p.qty+' vendas'));list.appendChild(row)});
+  leaders.slice(0,4).forEach(function(p,i){var row=node('div');row.append(node('b','',(i+1)+'º'),face(p,'gmv8-tv-mini'),node('span','',p.name),node('strong','',brl(p.total)),node('small','',p.active+' ativos · '+p.deals+' vendas registradas'));list.appendChild(row)});
   target.appendChild(list);
  }else{
   appendHeading(target,'ÚLTIMAS MOVIMENTAÇÕES','MOVIMENTAÇÕES DA SEMANA');
