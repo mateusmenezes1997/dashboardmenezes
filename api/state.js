@@ -1,4 +1,5 @@
 import {get,put,head,BlobPreconditionFailedError} from '@vercel/blob';
+import crypto from 'node:crypto';
 import {configured,json,session} from './_auth.js';
 const PATH='gestao-menezes/state-v1.json';
 const MATEUS_MANUAL_ID='mateus-manual-2026-11';
@@ -55,11 +56,21 @@ async function write(doc,etag){
 }
 function saleOK(s,cids){return s&&typeof s.id==='string'&&typeof s.consultantId==='string'&&cids.has(s.consultantId)&&['Lar','Motors','lar','motors','nao_definido'].includes(s.product)&&Number.isFinite(Number(s.amount))&&Number(s.amount)>0&&Number.isInteger(Number(s.qty))&&Number(s.qty)>0&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)}
 function conflict(e){return e instanceof BlobPreconditionFailedError||e?.name==='BlobPreconditionFailedError'}
+function withAudit(nextState,currentDoc,actor,action,details={}){
+ const before=Array.isArray(currentDoc?.state?.auditTrail)?currentDoc.state.auditTrail:[];
+ const entry={id:crypto.randomUUID(),at:new Date().toISOString(),actor:actor.role,action,details};
+ return {...nextState,auditTrail:[...before.slice(-79),entry]};
+}
+function limitedState(state,user){
+ if(!state||user.role==='gestor')return state;
+ const {auditTrail,...visible}=state;
+ return visible;
+}
 export default async function handler(req,res){
  if(!configured())return json(res,503,{error:'Servidor ainda não configurado'});
  const user=session(req);if(!user)return json(res,401,{error:'Faça login para continuar'});
  try{
-  if(req.method==='GET'){const doc=await current();return json(res,200,{state:doc?.state||null,revision:doc?.revision||0})}
+  if(req.method==='GET'){const doc=await current();return json(res,200,{state:limitedState(doc?.state||null,user),revision:doc?.revision||0})}
   if(req.method!=='POST')return json(res,405,{error:'Método não permitido'});
   if(req.body?.action==='addSale'){
    if(!['gestor','trainee'].includes(user.role))return json(res,403,{error:'Sem permissão para cadastrar vendas'});
@@ -75,7 +86,7 @@ export default async function handler(req,res){
      if(!same)return json(res,409,{error:'Identificador já usado em outra venda'});
      return json(res,200,{state:doc.state,revision:doc.revision,ok:true});
     }
-    const updated={...doc.state,sales:[...(doc.state.sales||[]),sale]};
+    const updated=withAudit({...doc.state,sales:[...(doc.state.sales||[]),sale]},doc,user,'VENDA_CRIADA',{consultantId:sale.consultantId,saleId:sale.id,amount:Number(sale.amount)});
     const next={revision:doc.revision+1,state:updated};
     try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
     catch(e){if(!conflict(e))throw e;console.warn('Blob conditional write conflict; retrying', {attempt})}
@@ -90,7 +101,8 @@ export default async function handler(req,res){
     const doc=await currentForWrite();
     if(!doc)return json(res,409,{error:'Base compartilhada não inicializada'});
     if(!(doc.state.sales||[]).some(s=>s.id===id))return json(res,404,{error:'Venda não encontrada. Atualize a página.'});
-    const updated={...doc.state,sales:doc.state.sales.filter(s=>s.id!==id)};
+    const removed=doc.state.sales.find(s=>s.id===id);
+    const updated=withAudit({...doc.state,sales:doc.state.sales.filter(s=>s.id!==id)},doc,user,'VENDA_EXCLUIDA',{consultantId:removed?.consultantId||'',saleId:id,amount:Number(removed?.amount)||0});
     const next={revision:doc.revision+1,state:updated};
     try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
     catch(e){if(!conflict(e))throw e;console.warn('Sale delete conflict; retrying',{attempt})}
@@ -103,14 +115,16 @@ export default async function handler(req,res){
    if(doc)return json(res,409,{error:'Base já inicializada'});
    const s=req.body.state;
    if(!s||!Array.isArray(s.consultants)||!Array.isArray(s.sales)||!s.settings)return json(res,400,{error:'Backup inicial inválido'});
-   await write({revision:1,state:s});return json(res,200,{revision:1,state:s,ok:true});
+   const initialized=withAudit(s,null,user,'BASE_INICIALIZADA');
+   await write({revision:1,state:initialized});return json(res,200,{revision:1,state:initialized,ok:true});
   }
   if(req.body?.action==='replace'){
    if(!doc)return json(res,409,{error:'Inicialize a base antes de editar'});
    if(req.body.revision!==doc.revision)return json(res,409,{error:'A base foi atualizada por outra pessoa. Atualize a página antes de editar.'});
    const s=req.body.state;
    if(!s||!Array.isArray(s.consultants)||!Array.isArray(s.sales)||!s.settings)return json(res,400,{error:'Dados inválidos'});
-   const next={revision:doc.revision+1,state:s};await write(next,doc.etag);return json(res,200,{...next,ok:true});
+   const action=JSON.stringify(doc.state.settings)!==JSON.stringify(s.settings)?'CONFIGURACOES_ATUALIZADAS':JSON.stringify(doc.state.consultants)!==JSON.stringify(s.consultants)?'EQUIPE_ATUALIZADA':'BASE_ATUALIZADA';
+   const next={revision:doc.revision+1,state:withAudit(s,doc,user,action)};await write(next,doc.etag);return json(res,200,{...next,ok:true});
   }
   return json(res,400,{error:'Operação não reconhecida'});
  }catch(e){
