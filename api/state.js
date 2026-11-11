@@ -84,11 +84,11 @@ export default async function handler(req,res){
     if(existing){
      const same=['consultantId','product','date'].every(key=>existing[key]===sale[key])&&Number(existing.amount)===Number(sale.amount)&&Number(existing.qty)===Number(sale.qty)&&String(existing.note||'')===String(sale.note||'');
      if(!same)return json(res,409,{error:'Identificador já usado em outra venda'});
-     return json(res,200,{state:doc.state,revision:doc.revision,ok:true});
+     return json(res,200,{state:limitedState(doc.state,user),revision:doc.revision,ok:true});
     }
     const updated=withAudit({...doc.state,sales:[...(doc.state.sales||[]),sale]},doc,user,'VENDA_CRIADA',{consultantId:sale.consultantId,saleId:sale.id,amount:Number(sale.amount)});
     const next={revision:doc.revision+1,state:updated};
-    try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
+    try{await write(next,doc.etag);return json(res,200,{...next,state:limitedState(next.state,user),ok:true})}
     catch(e){if(!conflict(e))throw e;console.warn('Blob conditional write conflict; retrying', {attempt})}
    }
    return json(res,409,{error:'Os dados foram modificados durante o lançamento. Atualize a página e confira se a venda foi registrada antes de tentar novamente.'});
@@ -104,7 +104,7 @@ export default async function handler(req,res){
     const removed=doc.state.sales.find(s=>s.id===id);
     const updated=withAudit({...doc.state,sales:doc.state.sales.filter(s=>s.id!==id)},doc,user,'VENDA_EXCLUIDA',{consultantId:removed?.consultantId||'',saleId:id,amount:Number(removed?.amount)||0});
     const next={revision:doc.revision+1,state:updated};
-    try{await write(next,doc.etag);return json(res,200,{...next,ok:true})}
+    try{await write(next,doc.etag);return json(res,200,{...next,state:limitedState(next.state,user),ok:true})}
     catch(e){if(!conflict(e))throw e;console.warn('Sale delete conflict; retrying',{attempt})}
    }
    return json(res,409,{error:'Os dados mudaram durante a exclusão. Atualize a página.'});
