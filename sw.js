@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v14-dashboard-20261111";
+const VERSION = "gm-pwa-executive-v15-arena-20261111";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -1014,7 +1014,7 @@ self.addEventListener("fetch", (event) => {
 
   // JS e CSS do dashboard precisam refletir o deploy atual mesmo com PWA instalado.
   const path=new URL(event.request.url).pathname;
-  const applicationAsset=/^\/(?:dashboard-[\w-]+|performance-[\w-]+|menezes-refinement-[\w-]+)\.(?:js|css)$/.test(path);
+  const applicationAsset=/^\/(?:dashboard-[\w-]+|performance-[\w-]+|menezes-refinement-[\w-]+|arena-v7)\.(?:js|css)$/.test(path);
   if(applicationAsset){
     event.respondWith(fetch(event.request,{cache:'no-store'}).catch(()=>caches.match(event.request)));
     return;
