@@ -215,12 +215,48 @@ function paintTv(){
  tvSlides.forEach(function(_,i){var b=node('i');b.className=i===tvIndex?'active':'';progress.appendChild(b)});
  function empty(msg){target.appendChild(node('div','gmv8-tv-empty',msg))}
  if(tvIndex===0){
-  appendHeading(target,'DESTAQUE MENSAL','CAMPEÃO DO MOMENTO');
-  if(!top[0])return empty('Aguardando a primeira venda do mês');
-  var box=node('div','gmv8-tv-hero');
-  setPhotoBlock(box,top[0]);
-  var content=node('div');content.append(node('span','gmv8-tv-gold',top[0].gender==='f'?'CAMPEÃ DO MÊS':'CAMPEÃO DO MÊS'),node('h3','',top[0].name),node('strong','',brl(top[0].total)));
-  box.appendChild(content);target.appendChild(box);
+  if(!top[0]){
+   appendHeading(target,'O TOPO É CONQUISTADO','PRIMEIRO LUGAR DO MÊS');
+   return empty('A primeira venda do mês abre a disputa pelo título');
+  }
+  var winner=top[0],female=String(winner.gender||'').toLowerCase()==='f'||String(winner.gender||'').toLowerCase()==='female';
+  var champion=female?'CAMPEÃ':'CAMPEÃO',runnerUp=top[1],goal=5000000;
+  appendHeading(target,'HONRA AO PRIMEIRO LUGAR',champion+' DO MOMENTO');
+  var stage=node('section','gmv9-coronation');
+  stage.setAttribute('aria-label',champion+' do momento: '+winner.name);
+  var visual=node('div','gmv9-coronation-visual'),halo=node('div','gmv9-coronation-halo');
+  halo.setAttribute('aria-hidden','true');
+  var shine=node('div','gmv9-coronation-shine');
+  shine.setAttribute('aria-hidden','true');
+  var crown=node('div','gmv9-crown');
+  crown.setAttribute('aria-label','Coroa da liderança');
+  crown.innerHTML='<svg viewBox="0 0 128 82" aria-hidden="true" focusable="false"><defs><linearGradient id="gmv9crownGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff4c5"/><stop offset="37%" stop-color="#edc675"/><stop offset="75%" stop-color="#b57b34"/><stop offset="100%" stop-color="#f8e1a3"/></linearGradient></defs><path d="M12 27 L34 44 L62 10 L89 44 L115 27 L105 65 L22 65 Z" fill="url(#gmv9crownGold)" stroke="#fff0bb" stroke-width="2" stroke-linejoin="round"/><path d="M22 65 H105 V72 Q63 78 22 72 Z" fill="#c58c40" stroke="#f6d792" stroke-width="2"/><path d="M21 56 Q64 63 107 56" fill="none" stroke="#fff1c7" stroke-opacity=".77" stroke-width="2"/><circle cx="62" cy="45" r="7" fill="#7f2441" stroke="#fff1c0" stroke-width="3"/><circle cx="12" cy="27" r="5" fill="#fff5c8"/><circle cx="62" cy="10" r="6" fill="#fff5c8"/><circle cx="115" cy="27" r="5" fill="#fff5c8"/></svg>';
+  var photoShell=node('div','gmv9-winner-frame');
+  photoShell.appendChild(face(winner,'gmv8-tv-face'));
+  var podium=node('div','gmv9-number-one');
+  podium.append(node('strong','', '01'),node('span','', 'PRIMEIRO LUGAR'));
+  visual.append(halo,shine,crown,photoShell,podium);
+  var details=node('div','gmv9-winner-copy');
+  var stamp=node('div','gmv9-winner-stamp');
+  stamp.append(node('span','gmv9-stamp-star','★'),node('span','',champion+' DO MÊS'));
+  var name=node('h3','gmv9-winner-name',winner.name),score=node('div','gmv9-winner-score');
+  score.append(node('small','', 'VOLUME DE CRÉDITO VENDIDO'),node('strong','',brl(winner.total)));
+  var divider=node('div','gmv9-winner-rule');
+  divider.setAttribute('aria-hidden','true');
+  var blocks=node('div','gmv9-winner-stats');
+  var leadBlock=node('div','gmv9-winner-stat');
+  leadBlock.append(node('small','',runnerUp?'VANTAGEM SOBRE O 2º':'LIDERANÇA DO MÊS'),node('strong','',runnerUp?brl(Math.max(0,winner.total-runnerUp.total)):'PRIMEIRO LUGAR'));
+  var goalBlock=node('div','gmv9-winner-stat');
+  goalBlock.append(node('small','', 'PROGRESSO ATÉ R$ 5 MILHÕES'),node('strong','',Math.min(100,100*winner.total/goal).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%'));
+  blocks.append(leadBlock,goalBlock);
+  var targetBar=node('div','gmv9-goal-track');
+  targetBar.setAttribute('role','progressbar');targetBar.setAttribute('aria-label','Progresso individual até a meta de 5 milhões');
+  targetBar.setAttribute('aria-valuemin','0');targetBar.setAttribute('aria-valuemax','100');
+  targetBar.setAttribute('aria-valuenow',String(Math.round(Math.min(100,100*winner.total/goal))));
+  var fill=node('i','gmv9-goal-fill');
+  fill.style.width=Math.max(0,Math.min(100,100*winner.total/goal))+'%';targetBar.appendChild(fill);
+  details.append(stamp,name,score,divider,blocks,targetBar,node('p','gmv9-winner-motto','O topo não é sorte. É conquista.'));
+  stage.append(visual,details);target.appendChild(stage);
  }else if(tvIndex===1){
   appendHeading(target,'ELITE DO MÊS','PÓDIO DOS CAMPEÕES');
   if(!top.length)return empty('Aguardando movimentação');
