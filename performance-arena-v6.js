@@ -306,13 +306,22 @@ function showNextCelebration(){
  if(!backdrop){backdrop=h('div');backdrop.id='gmv-celebration-backdrop';backdrop.setAttribute('aria-hidden','true')}
  var host=document.fullscreenElement||document.body;host.append(backdrop,el);
  el.replaceChildren();
- var dismiss=h('button'),small=h('small'),large=h('strong'),amount=h('div','gmv-celebration-amount'),face=h('div','gmv-celebration-photo'),message=h('p','gmv-celebration-message'),rank=h('div','gmv-celebration-rank');
+ var dismiss=h('button'),small=h('small'),large=h('strong'),amount=h('div','gmv-celebration-amount'),face=h('div','gmv-celebration-photo'),message=h('p','gmv-celebration-message'),movement=h('div','gmv-celebration-movement'),rank=h('div','gmv-celebration-rank');
  dismiss.type='button';dismiss.textContent='×';dismiss.setAttribute('aria-label','Fechar mensagem de parabéns');
  text(small,'NOVA VENDA • GESTÃO MENEZES');text(large,'PARABÉNS, '+n.person.name+'!');
  text(message,'Você realizou mais um sonho de um cliente!');
  text(amount,'Você vendeu '+Number(n.sale.amount).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}));
- text(rank,n.position?'Agora você está em '+n.position+'º lugar no ranking do mês!':'Mais uma conquista para a Gestão Menezes!');
- photoInto(face,n.person);el.append(dismiss,face,small,large,message,amount,rank);el.classList.add('gmv-show');backdrop.classList.add('gmv-show');
+ if(n.passed&&n.passed.length){
+  var movementTitle=h('small'),movementNames=h('strong');
+  text(movementTitle,'VOCÊ ACABA DE ULTRAPASSAR');
+  text(movementNames,n.passed.join(', '));
+  movement.append(movementTitle,movementNames);
+  text(rank,'ULTRAPASSOU '+n.passed.length+' '+(n.passed.length===1?'PESSOA':'PESSOAS')+(n.position?' • AGORA ESTÁ EM '+n.position+'º LUGAR':''));
+ }else{
+  movement.remove();
+  text(rank,n.position?'Agora você está em '+n.position+'º lugar no ranking do mês!':'Mais uma conquista para a Gestão Menezes!');
+ }
+ photoInto(face,n.person);el.append(dismiss,face,small,large,message,amount);if(n.passed&&n.passed.length)el.append(movement);el.append(rank);el.classList.add('gmv-show');backdrop.classList.add('gmv-show');
  el.setAttribute('aria-hidden','false');
  var finished=false;
  function done(){if(finished)return;finished=true;clearTimeout(toastTimer);el.classList.remove('gmv-show');el.setAttribute('aria-hidden','true');backdrop.classList.remove('gmv-show');celebrationActive=false;closeCelebration=null;toastTimer=setTimeout(showNextCelebration,450)}
@@ -326,7 +335,29 @@ function updateWith(newState,fromServer){
   notices=weeklyHistory(newState);
   if(knownSales){
    unread+=notices.filter(function(n){return !oldIds.has(n.id)}).length;
-   sales.forEach(function(s){if(knownSales.has(String(s.id)))return;var p=members.find(function(c){return String(c.id)===String(s.consultantId)});if(p&&Number(s.amount)>0)celebrationQueue.push({sale:s,person:p,position:dateKey(s.date)===next.month?next.people.findIndex(function(item){return item.id===String(p.id)})+1:0})});
+   var runningTotals=new Map();
+   members.filter(function(c){return c.role!=='gestor'}).forEach(function(c){runningTotals.set(String(c.id),0)});
+   if(snapshot&&snapshot.month===next.month)snapshot.people.forEach(function(p){runningTotals.set(String(p.id),Number(p.total)||0)});
+   function rankedFromRunning(){
+    return members.filter(function(c){return c.role!=='gestor'&&(runningTotals.get(String(c.id))||0)>0}).map(function(c){return{id:String(c.id),name:String(c.name||'Consultor'),total:runningTotals.get(String(c.id))||0}}).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
+   }
+   sales.filter(function(s){return !knownSales.has(String(s.id))}).forEach(function(s){
+    var p=members.find(function(c){return String(c.id)===String(s.consultantId)});if(!p||!(Number(s.amount)>0))return;
+    var passed=[],position=0;
+    if(dateKey(s.date)===next.month&&runningTotals.has(String(p.id))){
+     var beforeRank=rankedFromRunning(),sellerId=String(p.id),beforePos=beforeRank.findIndex(function(item){return item.id===sellerId});
+     runningTotals.set(sellerId,(runningTotals.get(sellerId)||0)+(Number(s.amount)||0));
+     var afterRank=rankedFromRunning(),afterPos=afterRank.findIndex(function(item){return item.id===sellerId});
+     position=afterPos>=0?afterPos+1:0;
+     passed=beforeRank.filter(function(item,index){
+      if(item.id===sellerId)return false;
+      var afterOther=afterRank.findIndex(function(row){return row.id===item.id});
+      var wasAhead=beforePos<0||index<beforePos;
+      return wasAhead&&afterPos>=0&&afterOther>afterPos;
+     }).map(function(item){return item.name});
+    }
+    celebrationQueue.push({sale:s,person:p,position:position,passed:passed});
+   });
   }else unread=notices.length;
   knownSales=new Set(sales.map(function(s){return String(s.id)}));
   renderNotifications();showNextCelebration();hasServerBaseline=true;
@@ -365,7 +396,7 @@ function checkLogin(){
  lastAuth=active;
 }
 function boot(){
- var style=h('style');style.textContent='#gmv-celebration-backdrop{position:fixed;inset:0;z-index:10049;background:rgba(4,6,12,.65);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility .35s}#gmv-celebration-backdrop.gmv-show{opacity:1;visibility:visible;pointer-events:auto}body:not(.gmv-authenticated) #gmv-celebration-backdrop{display:none!important}#gmv-event:not(.gmv-show){visibility:hidden}#gmv-event strong{display:block;overflow-wrap:anywhere}.gmv-celebration-message{color:#e6dfe5;font:500 clamp(16px,2.5vw,21px)/1.5 Manrope,Arial;margin:18px 0 0}.gmv-celebration-rank{display:inline-block;margin-top:20px;padding:12px 18px;border:1px solid #eac78266;border-radius:14px;background:#eac78212;color:#f2cc82;font:800 clamp(15px,2.5vw,20px)/1.5 Manrope,Arial}@media(prefers-reduced-motion:reduce){#gmv-celebration-backdrop{transition:none}}#gmv-event{top:50%;transform:translate(-50%,-45%) scale(.96);z-index:10050;width:min(700px,92vw);box-sizing:border-box;max-height:90vh;overflow:auto}#gmv-event.gmv-show{transform:translate(-50%,-50%) scale(1);pointer-events:auto}#gmv-event button{position:absolute;right:14px;top:8px;background:transparent;border:0;color:#fff;font-size:30px;cursor:pointer}#gmv-event .gmv-celebration-photo{width:90px;height:90px;border:3px solid #eac782;border-radius:50%;overflow:hidden;margin:0 auto 18px;display:grid;place-items:center;color:#eac782;font-size:28px}#gmv-event img{width:100%;height:100%;object-fit:cover}.gmv-celebration-amount{font:bold clamp(23px,4vw,40px) Arial;color:#f2cc82;margin-top:22px}body:not(.gmv-authenticated) #gmv-event,body:not(.gmv-authenticated) #gmv-notify-panel{display:none!important}#gmv-notify-panel{max-height:min(65vh,600px);width:min(430px,calc(100vw - 28px))}.gmv-notification-item strong{overflow-wrap:anywhere}@media(prefers-reduced-motion:reduce){#gmv-event{transition:none}}';document.head.appendChild(style);
+ var style=h('style');style.textContent='#gmv-celebration-backdrop{position:fixed;inset:0;z-index:10049;background:rgba(4,6,12,.65);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility .35s}#gmv-celebration-backdrop.gmv-show{opacity:1;visibility:visible;pointer-events:auto}body:not(.gmv-authenticated) #gmv-celebration-backdrop{display:none!important}#gmv-event:not(.gmv-show){visibility:hidden}#gmv-event strong{display:block;overflow-wrap:anywhere}.gmv-celebration-message{color:#e6dfe5;font:500 clamp(16px,2.5vw,21px)/1.5 Manrope,Arial;margin:18px 0 0}.gmv-celebration-rank{display:inline-block;margin-top:20px;padding:12px 18px;border:1px solid #eac78266;border-radius:14px;background:#eac78212;color:#f2cc82;font:800 clamp(15px,2.5vw,20px)/1.5 Manrope,Arial}.gmv-celebration-movement{margin:22px auto 0;width:min(610px,100%);padding:16px 18px;border-radius:16px;border:1px solid rgba(234,199,130,.48);background:linear-gradient(135deg,rgba(234,199,130,.16),rgba(126,23,50,.14));box-shadow:0 0 34px rgba(234,199,130,.10)}.gmv-celebration-movement small{display:block;color:#f0cb8c;font:900 11px/1.2 Manrope,Arial;letter-spacing:.16em}.gmv-celebration-movement strong{margin-top:8px;color:#fff;font:900 clamp(19px,3vw,30px)/1.15 Manrope,Arial;text-transform:uppercase}@media(prefers-reduced-motion:reduce){#gmv-celebration-backdrop{transition:none}}#gmv-event{top:50%;transform:translate(-50%,-45%) scale(.96);z-index:10050;width:min(700px,92vw);box-sizing:border-box;max-height:90vh;overflow:auto}#gmv-event.gmv-show{transform:translate(-50%,-50%) scale(1);pointer-events:auto}#gmv-event button{position:absolute;right:14px;top:8px;background:transparent;border:0;color:#fff;font-size:30px;cursor:pointer}#gmv-event .gmv-celebration-photo{width:90px;height:90px;border:3px solid #eac782;border-radius:50%;overflow:hidden;margin:0 auto 18px;display:grid;place-items:center;color:#eac782;font-size:28px}#gmv-event img{width:100%;height:100%;object-fit:cover}.gmv-celebration-amount{font:bold clamp(23px,4vw,40px) Arial;color:#f2cc82;margin-top:22px}body:not(.gmv-authenticated) #gmv-event,body:not(.gmv-authenticated) #gmv-notify-panel{display:none!important}#gmv-notify-panel{max-height:min(65vh,600px);width:min(430px,calc(100vw - 28px))}.gmv-notification-item strong{overflow-wrap:anywhere}@media(prefers-reduced-motion:reduce){#gmv-event{transition:none}}';document.head.appendChild(style);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeCelebration){e.stopImmediatePropagation();closeCelebration()}},true);
  document.addEventListener('fullscreenchange',function(){if(celebrationActive){var host=document.fullscreenElement||document.body;host.append(qs('gmv-celebration-backdrop'),qs('gmv-event'))}});
  try{makeUI()}catch(error){console.error('Arena: falha ao montar navegação',error)}
