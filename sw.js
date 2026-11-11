@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v11-20261111";
+const VERSION = "gm-pwa-executive-v12-20261111";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -992,8 +992,8 @@ self.addEventListener("fetch", (event) => {
         let html = enhanceCommissionGoal(await response.text());
         html = moveCommissionMoney(html);
         html = applyChampionVisual(html);
-        // Evita que uma versão antiga do script da Arena fique presa no cache do PWA.
-        html = html.replace(/(performance-arena-v6\.js\?v=)\d+/g, '$1' + '9');
+        // Mantém a versão declarada pelo HTML; o fetch de scripts é sempre sem cache.
+        // O SW não deve sobrescrever v=7 do HTML com uma versão diferente.
         html = applyLeaderPhotos(html);
         html = applyTraineeLeadersAccess(html);
         html = enableManagerSaleDelete(html);
@@ -1012,5 +1012,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // JS e CSS do dashboard precisam refletir o deploy atual mesmo com PWA instalado.
+  const path=new URL(event.request.url).pathname;
+  const applicationAsset=/^\/(?:performance-[\w-]+|menezes-refinement-[\w-]+)\.(?:js|css)$/.test(path);
+  if(applicationAsset){
+    event.respondWith(fetch(event.request,{cache:'no-store'}).catch(()=>caches.match(event.request)));
+    return;
+  }
   event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
 });
