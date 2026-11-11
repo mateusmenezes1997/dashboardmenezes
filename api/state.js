@@ -86,7 +86,18 @@ export default async function handler(req,res){
      if(!same)return json(res,409,{error:'Identificador já usado em outra venda'});
      return json(res,200,{state:limitedState(doc.state,user),revision:doc.revision,ok:true});
     }
-    const updated=withAudit({...doc.state,sales:[...(doc.state.sales||[]),sale]},doc,user,'VENDA_CRIADA',{consultantId:sale.consultantId,saleId:sale.id,amount:Number(sale.amount)});
+    // A mesma ação pode chegar com outro UUID por clique duplo, nova aba ou retry.
+    // Bloqueamos apenas duplicações idênticas e recentes, preservando vendas legítimas.
+    const duplicate=(doc.state.sales||[]).find(s=>{
+     const recorded=Date.parse(s.createdAt||'');
+     if(!Number.isFinite(recorded)||Date.now()-recorded<0||Date.now()-recorded>90000)return false;
+     return s.consultantId===sale.consultantId&&s.product===sale.product&&s.date===sale.date&&
+       Math.abs(Number(s.amount)-Number(sale.amount))<0.01&&Number(s.qty)===Number(sale.qty)&&
+       String(s.note||'').trim()===String(sale.note||'').trim();
+    });
+    if(duplicate)return json(res,200,{state:limitedState(doc.state,user),revision:doc.revision,ok:true,duplicate:true,existingSaleId:duplicate.id});
+    const safeSale={...sale,createdAt:new Date().toISOString()};
+    const updated=withAudit({...doc.state,sales:[...(doc.state.sales||[]),safeSale]},doc,user,'VENDA_CRIADA',{consultantId:sale.consultantId,saleId:sale.id,amount:Number(sale.amount)});
     const next={revision:doc.revision+1,state:updated};
     try{await write(next,doc.etag);return json(res,200,{...next,state:limitedState(next.state,user),ok:true})}
     catch(e){if(!conflict(e))throw e;console.warn('Blob conditional write conflict; retrying', {attempt})}
