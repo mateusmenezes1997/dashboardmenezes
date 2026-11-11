@@ -358,6 +358,17 @@ function applyChampionVisual(html){
     document.querySelectorAll('#team .gm-champion-rank').forEach(function(el){el.classList.remove('gm-champion-rank')});
     document.querySelectorAll('#team .gm-champion-trophy,#team .gm-champion-live').forEach(function(el){el.remove()});
 
+    var teamRoot=document.getElementById('team');
+    if(teamRoot){
+      var isFemale=/\\bCONSULTORA\\b/i.test(teamRoot.textContent||'');
+      Array.from(teamRoot.querySelectorAll('*')).forEach(function(el){
+        var t=text(el);
+        if(/^CAMPE(?:Ã|A)O DO MOMENTO$/i.test(t) || /^CAMPE(?:Ã|A) DO MOMENTO$/i.test(t)){
+          el.textContent=isFemale?'CAMPEÃ DO MÊS':'CAMPEÃO DO MÊS';
+        }
+      });
+    }
+
     var rank=findRankOne();
     if(!rank) return;
 
@@ -377,10 +388,7 @@ function applyChampionVisual(html){
       trophy.textContent='🏆';
       name.insertAdjacentElement('afterend',trophy);
 
-      var live=document.createElement('span');
-      live.className='gm-champion-live';
-      live.innerHTML='<i></i>Campeão do momento';
-      trophy.insertAdjacentElement('afterend',live);
+
     }
   }
   var timer;
