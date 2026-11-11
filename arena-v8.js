@@ -4,7 +4,7 @@
 if(window.__gmArenaV8)return;
 window.__gmArenaV8=true;
 var state=null,arena=null,mounted=false,mode='consultants',snapshot=null,prior=null,knownSaleIds=null,queued=false,lastSignature='';
-var tvIndex=0,tvTimer=null,tvRunning=false,tvSlides=['Campeão do momento','Pódio dos campeões','Corrida ao vivo','Duelo do momento','Próxima ultrapassagem','Evolução de vendas','Arena dos líderes','Movimentações da semana'];
+var tvIndex=0,tvTimer=null,tvRunning=false,leadershipMoment=null,tvSlides=['Campeão do momento','Pódio dos campeões','Corrida ao vivo','Duelo do momento','Próxima ultrapassagem','Evolução de vendas','Arena dos líderes','Movimentações da semana'];
 var colors=['#e5bd78','#bcc4d0','#c89371'];
 function byId(id){return document.getElementById(id)}
 function node(tag,cls,content){var n=document.createElement(tag);if(cls)n.className=cls;if(content!=null)n.textContent=String(content);return n}
@@ -28,7 +28,7 @@ function aggregate(src){
  members.forEach(function(c){var id=String(c.id);lookup.set(id,c);total.set(id,opening(c,month));dealCount.set(id,0);var o=c.monthOpenings&&c.monthOpenings[month];qty.set(id,o?number(o.larQty)+number(o.motorsQty)+number(o.unclassifiedQty):0)});
  var monthSales=sales.filter(function(s){return String(s.date||'').slice(0,7)===month&&number(s.amount)>0&&lookup.has(String(s.consultantId))});
  monthSales.forEach(function(s){var id=String(s.consultantId);total.set(id,total.get(id)+number(s.amount));qty.set(id,qty.get(id)+Math.max(1,Math.round(number(s.qty)||1)));dealCount.set(id,(dealCount.get(id)||0)+1)});
- var people=members.filter(function(c){return c.role!=='gestor'}).map(function(c){return {id:String(c.id),name:String(c.name||'Consultor'),photo:photo(c),gender:c.gender,role:c.role,total:Math.max(0,total.get(String(c.id))||0),qty:qty.get(String(c.id))||0}}).filter(function(p){return p.total>0}).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
+ var people=members.filter(function(c){return c.role!=='gestor'}).map(function(c){return {id:String(c.id),name:String(c.name||'Consultor'),photo:photo(c),gender:c.gender,role:c.role,total:Math.max(0,total.get(String(c.id))||0),qty:qty.get(String(c.id))||0,deals:dealCount.get(String(c.id))||0}}).filter(function(p){return p.total>0}).sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'pt-BR')});
  function descendants(id){
   var visited=new Set([String(id)]),found=[];
   function scan(parent){
@@ -72,9 +72,9 @@ function ensure(){
  var tv=node('div','gmv8-tv');tv.id='gmv8-tv';tv.setAttribute('aria-label','Apresentação automática da Arena');
  tv.innerHTML='<div class="gmv8-tv-head"><div><span>GESTÃO MENEZES</span><strong>ARENA DOS CAMPEÕES</strong></div><div class="gmv8-tv-live">● AO VIVO <span id="gmv8-tv-count"></span></div><div class="gmv8-tv-actions"><button type="button" id="gmv8-tv-prev" aria-label="Destaque anterior">‹</button><button type="button" id="gmv8-tv-pause" aria-label="Pausar a apresentação">❚❚</button><button type="button" id="gmv8-tv-next" aria-label="Próximo destaque">›</button><button type="button" id="gmv8-tv-exit" aria-label="Sair da tela cheia">SAIR</button></div></div><div id="gmv8-tv-body" class="gmv8-tv-body"></div><div class="gmv8-tv-foot"><span id="gmv8-tv-caption"></span><div id="gmv8-tv-progress" class="gmv8-tv-progress"></div></div>';
  arena.appendChild(tv);
- byId('gmv8-tv-prev').addEventListener('click',function(){tvIndex=(tvIndex+tvSlides.length-1)%tvSlides.length;paintTv()});
- byId('gmv8-tv-next').addEventListener('click',function(){tvIndex=(tvIndex+1)%tvSlides.length;paintTv()});
- byId('gmv8-tv-pause').addEventListener('click',function(){tvRunning=!tvRunning;this.textContent=tvRunning?'❚❚':'▶';this.setAttribute('aria-label',tvRunning?'Pausar':'Retomar');});
+ byId('gmv8-tv-prev').addEventListener('click',function(){tvIndex=(tvIndex+tvSlides.length-1)%tvSlides.length;paintTv();scheduleTvRotation()});
+ byId('gmv8-tv-next').addEventListener('click',function(){tvIndex=(tvIndex+1)%tvSlides.length;paintTv();scheduleTvRotation()});
+ byId('gmv8-tv-pause').addEventListener('click',function(){tvRunning=!tvRunning;this.textContent=tvRunning?'❚❚':'▶';this.setAttribute('aria-label',tvRunning?'Pausar':'Retomar');scheduleTvRotation()});
  byId('gmv8-tv-exit').addEventListener('click',function(){if(document.fullscreenElement===arena)document.exitFullscreen().catch(function(){})});
  mounted=true;changeMode();
  installPopupWatcher();
@@ -184,9 +184,26 @@ function updateRace(old,updated){
 function updateState(src){
  if(!src||!Array.isArray(src.consultants))return;
  var next=aggregate(src);
- if(snapshot&&knownSaleIds)updateRace(snapshot,next);
+ var previous=snapshot,oldSaleIds=knownSaleIds;
+ if(previous&&oldSaleIds)updateRace(previous,next);
+ var currentWinner=next.people[0],previousWinner=previous&&previous.people[0];
+ var newSales=oldSaleIds&&next.sales.some(function(s){return !oldSaleIds.has(String(s.id))});
+ var newLeader=Boolean(
+  previous && previous.month===next.month &&
+  previousWinner && currentWinner &&
+  previousWinner.id!==currentWinner.id && newSales
+ );
+ if(newLeader){
+  leadershipMoment={id:currentWinner.id,month:next.month,until:Date.now()+22000};
+  if(arena&&document.fullscreenElement===arena){
+   tvIndex=0;
+  }
+ }
  state=src;snapshot=next;
  knownSaleIds=new Set(next.sales.map(function(s){return String(s.id)}));
+ if(newLeader && arena && document.fullscreenElement===arena){
+  scheduleTvRotation();
+ }
  var signature=JSON.stringify({date:nowKey(),month:next.month,people:next.people.map(function(p){return [p.id,p.name,p.total,p.qty,p.photo.length]}),leaders:next.leaders.map(function(p){return [p.id,p.name,p.total,p.active,p.members,p.deals,p.photo.length]}),sales:next.sales.map(function(s){return [s.id,s.date,s.consultantId,s.amount,s.qty]})});
  if(signature!==lastSignature){lastSignature=signature;schedule()}
 
@@ -244,18 +261,36 @@ function paintTv(){
   var divider=node('div','gmv9-winner-rule');
   divider.setAttribute('aria-hidden','true');
   var blocks=node('div','gmv9-winner-stats');
+  var dealBlock=node('div','gmv9-winner-stat');
+  dealBlock.append(node('small','', 'VENDAS REGISTRADAS'),node('strong','',String(winner.deals||0)));
   var leadBlock=node('div','gmv9-winner-stat');
   leadBlock.append(node('small','',runnerUp?'VANTAGEM SOBRE O 2º':'LIDERANÇA DO MÊS'),node('strong','',runnerUp?brl(Math.max(0,winner.total-runnerUp.total)):'PRIMEIRO LUGAR'));
   var goalBlock=node('div','gmv9-winner-stat');
   goalBlock.append(node('small','', 'PROGRESSO ATÉ R$ 5 MILHÕES'),node('strong','',Math.min(100,100*winner.total/goal).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%'));
-  blocks.append(leadBlock,goalBlock);
+  blocks.append(dealBlock,leadBlock,goalBlock);
   var targetBar=node('div','gmv9-goal-track');
   targetBar.setAttribute('role','progressbar');targetBar.setAttribute('aria-label','Progresso individual até a meta de 5 milhões');
   targetBar.setAttribute('aria-valuemin','0');targetBar.setAttribute('aria-valuemax','100');
   targetBar.setAttribute('aria-valuenow',String(Math.round(Math.min(100,100*winner.total/goal))));
   var fill=node('i','gmv9-goal-fill');
   fill.style.width=Math.max(0,Math.min(100,100*winner.total/goal))+'%';targetBar.appendChild(fill);
-  details.append(stamp,name,score,divider,blocks,targetBar,node('p','gmv9-winner-motto','O topo não é sorte. É conquista.'));
+  var motto=node('p','gmv9-winner-motto','O topo não é sorte. É conquista.');
+  details.append(stamp,name,score,divider,blocks,targetBar);
+  if(runnerUp){
+   var gap=Math.max(0,winner.total-runnerUp.total);
+   var challenger=node('div','gmv9-challenger');
+   challenger.append(
+    node('small','', 'DESAFIANTE DA LIDERANÇA'),
+    node('strong','',runnerUp.name+(gap>0?' está a '+brl(gap)+' de assumir a liderança.':' está empatado na liderança.'))
+   );
+   details.appendChild(challenger);
+  }
+  details.appendChild(motto);
+  if(leadershipMoment&&leadershipMoment.id===winner.id&&leadershipMoment.month===snapshot.month&&Date.now()<leadershipMoment.until){
+   stage.classList.add('gmv10-new-leader');
+   var nameEl=stage.querySelector('.gmv9-winner-stamp span:last-child');
+   if(nameEl)nameEl.textContent='NOVA LIDERANÇA • '+champion+' DO MÊS';
+  }
   stage.append(visual,details);target.appendChild(stage);
  }else if(tvIndex===1){
   appendHeading(target,'ELITE DO MÊS','PÓDIO DOS CAMPEÕES');
@@ -306,15 +341,33 @@ function paintTv(){
   target.appendChild(feed);
  }
 }
+function nextTvDelay(index){
+ return index===0?15000:9000;
+}
+function scheduleTvRotation(){
+ clearTimeout(tvTimer);tvTimer=null;
+ if(!tvRunning||document.fullscreenElement!==arena||!isOpen())return;
+ tvTimer=setTimeout(function(){
+  if(!tvRunning||document.fullscreenElement!==arena||!isOpen())return;
+  var popup=byId('gmv-event');
+  if(popup&&popup.classList.contains('gmv-show')){
+   tvTimer=setTimeout(scheduleTvRotation,1200);return;
+  }
+  tvIndex=(tvIndex+1)%tvSlides.length;
+  paintTv();
+  scheduleTvRotation();
+ },nextTvDelay(tvIndex));
+}
 function changeFullScreen(){
  if(!ensure())return;
  if(document.fullscreenElement===arena){
   arena.classList.add('gmv8-tv-active');tvRunning=true;tvIndex=0;
   byId('gmv8-tv-pause').textContent='❚❚';
-  paintTv();clearInterval(tvTimer);
-  tvTimer=setInterval(function(){if(!tvRunning||!document.fullscreenElement||!isOpen())return;var popup=byId('gmv-event');if(popup&&popup.classList.contains('gmv-show'))return;tvIndex=(tvIndex+1)%tvSlides.length;paintTv()},9000);
+  byId('gmv8-tv-pause').setAttribute('aria-label','Pausar');
+  paintTv();scheduleTvRotation();
  }else{
-  arena.classList.remove('gmv8-tv-active');clearInterval(tvTimer);tvTimer=null;tvRunning=false;
+  arena.classList.remove('gmv8-tv-active');
+  clearTimeout(tvTimer);tvTimer=null;tvRunning=false;
  }
 }
 var popupProcessed=false;

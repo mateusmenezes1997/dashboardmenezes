@@ -512,3 +512,146 @@
   #gmv-arena.gmv-v7 .gmv9-crown,
   #gmv-arena.gmv-v7 .gmv9-goal-fill{animation:none!important}
 }
+
+
+/* Gestão Menezes — Arena 4.3: cerimônia de premiação premium, foco real no 1º lugar */
+#gmv-arena.gmv-v7 .gmv8-tv-body:has(.gmv9-coronation) .gmv9-coronation{
+ animation:gmv10-stage-enter .65s cubic-bezier(.16,.75,.2,1) both;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-frame{
+ animation:gmv10-photo-enter .9s cubic-bezier(.16,.95,.3,1) .12s both;
+}
+#gmv-arena.gmv-v7 .gmv9-crown{
+ animation:gmv10-crown-drop 1.1s cubic-bezier(.16,.85,.2,1) .25s both,
+           gmv9-crown-float 4.5s ease-in-out 1.42s infinite;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-stamp{
+ animation:gmv10-info-enter .62s cubic-bezier(.2,.8,.2,1) .56s both;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-name{
+ animation:gmv10-info-enter .68s cubic-bezier(.2,.8,.2,1) .77s both;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-score{
+ animation:gmv10-info-enter .68s cubic-bezier(.2,.8,.2,1) .95s both;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-rule,
+#gmv-arena.gmv-v7 .gmv9-winner-stats,
+#gmv-arena.gmv-v7 .gmv9-goal-track,
+#gmv-arena.gmv-v7 .gmv9-challenger,
+#gmv-arena.gmv-v7 .gmv9-winner-motto{
+ animation:gmv10-info-enter .72s cubic-bezier(.2,.8,.2,1) 1.13s both;
+}
+#gmv-arena.gmv-v7 .gmv9-coronation::before{
+ animation:gmv10-one-sweep 3.5s ease-out .1s 1 both;
+}
+#gmv-arena.gmv-v7 .gmv9-coronation-halo{
+ animation:gmv9-halo 5.2s ease-in-out infinite;
+}
+#gmv-arena.gmv-v7 .gmv9-coronation-shine{
+ animation:gmv9-stars 5.8s ease-in-out infinite;
+}
+/* Aura sob a foto, integrada à moldura e sem encobrir retrato nem troféu */
+#gmv-arena.gmv-v7 .gmv9-winner-frame::after{
+ content:"";
+ position:absolute;z-index:-1;
+ left:50%;bottom:-16px;transform:translateX(-50%);
+ width:82%;height:26px;border-radius:100%;
+ background:radial-gradient(ellipse,rgba(245,196,111,.68),rgba(187,123,48,.23) 51%,transparent 80%);
+ filter:blur(7px);
+ pointer-events:none;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-stats{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:clamp(10px,1.5vw,23px);
+ width:min(610px,100%);
+}
+#gmv-arena.gmv-v7 .gmv9-winner-stat{
+ min-width:0;
+}
+#gmv-arena.gmv-v7 .gmv9-winner-stat strong{
+ font-size:clamp(15px,1.45vw,21px);
+ line-height:1.25;
+ overflow-wrap:anywhere;
+}
+#gmv-arena.gmv-v7 .gmv9-challenger{
+ width:min(580px,100%);
+ box-sizing:border-box;
+ margin:10px 0 9px;
+ padding:13px 17px;
+ border:1px solid rgba(234,188,108,.28);
+ border-radius:14px;
+ background:linear-gradient(110deg,rgba(193,129,57,.12),rgba(72,37,39,.16));
+ display:flex;flex-direction:column;gap:5px;
+}
+#gmv-arena.gmv-v7 .gmv9-challenger small{
+ font:800 9px/1.3 Manrope,sans-serif;
+ letter-spacing:.13em;color:#d1b18c;
+}
+#gmv-arena.gmv-v7 .gmv9-challenger strong{
+ font:750 clamp(11px,1.05vw,14px)/1.5 Manrope,sans-serif;
+ color:#f0dfc6;
+}
+#gmv-arena.gmv-v7 .gmv9-coronation.gmv10-new-leader{
+ border-color:rgba(255,214,139,.88);
+ animation:gmv10-stage-enter .65s cubic-bezier(.16,.75,.2,1) both,
+           gmv10-new-lead-flash 2.4s ease-out .4s both;
+}
+#gmv-arena.gmv-v7 .gmv9-coronation.gmv10-new-leader::after{
+ content:"";position:absolute;inset:0;border-radius:inherit;
+ pointer-events:none;z-index:5;
+ background:linear-gradient(105deg,transparent 0 36%,rgba(255,238,170,.22) 49%,transparent 61%);
+ background-size:240% 100%;
+ animation:gmv10-new-lead-sweep 2.3s ease-out .4s 1 both;
+}
+@keyframes gmv10-stage-enter{
+ from{opacity:0;transform:translateY(12px)}
+ to{opacity:1;transform:none}
+}
+@keyframes gmv10-photo-enter{
+ from{opacity:0;transform:scale(.92)}
+ to{opacity:1;transform:scale(1)}
+}
+@keyframes gmv10-crown-drop{
+ from{opacity:0;transform:translate(-50%,-82%) scale(.83) rotate(-8deg)}
+ to{opacity:1;transform:translate(-50%,-35%) scale(1) rotate(-4deg)}
+}
+@keyframes gmv10-info-enter{
+ from{opacity:0;transform:translateY(15px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@keyframes gmv10-one-sweep{
+ from{background-position:115% 50%}
+ to{background-position:-115% 50%}
+}
+@keyframes gmv10-new-lead-sweep{
+ from{opacity:.95;background-position:115% 50%}
+ to{opacity:0;background-position:-115% 50%}
+}
+@keyframes gmv10-new-lead-flash{
+ 0%,100%{box-shadow:inset 0 1px 0 rgba(255,233,173,.10),0 20px 75px rgba(0,0,0,.25),0 0 55px rgba(212,159,73,.06)}
+ 35%{box-shadow:inset 0 1px 0 rgba(255,233,173,.17),0 20px 75px rgba(0,0,0,.25),0 0 90px rgba(242,189,95,.33)}
+}
+@media(max-width:700px){
+ #gmv-arena.gmv-v7 .gmv9-winner-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #gmv-arena.gmv-v7 .gmv9-winner-stat small{font-size:7px;letter-spacing:0;line-height:1.5}
+ #gmv-arena.gmv-v7 .gmv9-winner-stat strong{font-size:clamp(11px,2.6vw,16px)}
+ #gmv-arena.gmv-v7 .gmv9-challenger{padding:10px 12px;margin:8px 0}
+ #gmv-arena.gmv-v7 .gmv9-challenger strong{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ #gmv-arena.gmv-v7 .gmv9-coronation,
+ #gmv-arena.gmv-v7 .gmv9-coronation::before,
+ #gmv-arena.gmv-v7 .gmv9-coronation::after,
+ #gmv-arena.gmv-v7 .gmv9-winner-frame,
+ #gmv-arena.gmv-v7 .gmv9-crown,
+ #gmv-arena.gmv-v7 .gmv9-winner-stamp,
+ #gmv-arena.gmv-v7 .gmv9-winner-name,
+ #gmv-arena.gmv-v7 .gmv9-winner-score,
+ #gmv-arena.gmv-v7 .gmv9-winner-rule,
+ #gmv-arena.gmv-v7 .gmv9-winner-stats,
+ #gmv-arena.gmv-v7 .gmv9-goal-track,
+ #gmv-arena.gmv-v7 .gmv9-challenger,
+ #gmv-arena.gmv-v7 .gmv9-winner-motto{
+  animation:none!important;
+ }
+}
