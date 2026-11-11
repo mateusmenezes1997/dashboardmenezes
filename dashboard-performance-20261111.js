@@ -160,7 +160,7 @@ function refresh(){
  if(!byId('gm-performance-v2'))return;
  makeTools();
  var data=buildData(source,m);
- var key=JSON.stringify([m,data.goal,data.total,data.qty,data.people.map(function(p){return [p.id,p.total,p.photo,p.name,p.gender]}),data.sales.map(function(s){return [s.id,s.amount,s.date,s.consultantId,s.qty]}),source.consultants.filter(function(c){return c.role==='trainee'}).map(function(c){return [c.id,c.leaderId]}),new Date().toISOString().slice(0,10)]);
+ var key=JSON.stringify([m,data.goal,data.total,data.qty,data.people.map(function(p){return [p.id,p.total,String(p.photo||'').length,String(p.photo||'').slice(0,30),p.name,p.gender]}),data.sales.map(function(s){return [s.id,s.amount,s.date,s.consultantId,s.qty]}),source.consultants.map(function(c){return [c.id,c.leaderId,c.role,c.name]}),new Date().toISOString().slice(0,10)]);
  if(key===lastKey)return;lastKey=key;
  var pct=Math.min(100,data.total/data.goal*100),gap=Math.max(0,data.goal-data.total);
  var now=currentMonthDate(m);
