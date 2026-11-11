@@ -125,3 +125,45 @@
  .gm-goal-head h3{font-size:23px}
  .gm-goal-track{margin:22px 0 12px}
 }
+
+
+/* Auditoria 11/11: indicadores reais, sem alterar a aba #booking. */
+#dashboard .gm-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 25px}
+#dashboard .gm-overview article{min-width:0;display:flex;flex-direction:column;gap:7px;padding:19px 20px;border-radius:17px;background:linear-gradient(148deg,rgba(40,25,31,.96),rgba(17,14,19,.98));border:1px solid rgba(213,171,103,.20);box-shadow:0 11px 25px rgba(0,0,0,.13)}
+#dashboard .gm-overview article small{font:800 10px/1.4 Manrope,Arial,sans-serif;letter-spacing:.11em;color:#cdae7c}
+#dashboard .gm-overview article b{font:800 clamp(19px,2vw,26px)/1.2 Sora,Manrope,sans-serif;letter-spacing:-.04em;color:#f3e7d2;overflow-wrap:anywhere}
+#dashboard .gm-overview article:first-child{border-color:rgba(218,176,95,.55)}
+#dashboard .gm-overview article span{font:600 11px/1.4 Manrope,Arial,sans-serif;color:#b6a7a3}
+#simulator .gm-simulator-summary{margin:0 0 22px;border-radius:19px;padding:21px;border:1px solid rgba(213,171,103,.25);background:linear-gradient(125deg,rgba(46,24,32,.93),rgba(16,13,19,.95))}
+#simulator .gm-simulator-summary-title{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+#simulator .gm-simulator-summary-title small{color:#d8ad68;font:800 10px Manrope,Arial,sans-serif;letter-spacing:.12em}
+#simulator .gm-simulator-summary-title strong{color:#f5e7d3;font:800 clamp(17px,1.8vw,22px) Sora,Manrope,sans-serif}
+#simulator .gm-simulator-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#simulator .gm-simulator-summary-grid>div{min-width:0;display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.025);border:1px solid rgba(213,171,103,.17);padding:15px;border-radius:13px}
+#simulator .gm-simulator-summary-grid small{font:700 11px/1.35 Manrope,Arial,sans-serif;color:#c9b7ab}
+#simulator .gm-simulator-summary-grid b{font:800 clamp(16px,1.75vw,23px)/1.25 Sora,Manrope,sans-serif;color:#f0cd92;overflow-wrap:anywhere}
+#sale #saveSale.gm-saving{opacity:.8;filter:brightness(.92)}
+#team .consultant-photo,#team .consultant-photo-frame{overflow:hidden}
+#team .consultant-photo img,#team .consultant-photo-frame img{display:block;width:100%;height:100%;max-width:100%;object-fit:cover;object-position:center 18%;transition:transform .3s ease,filter .3s ease}
+#team .consultant-photo:hover img,#team .consultant-photo-frame:hover img{transform:scale(1.045);filter:brightness(1.06)}
+#leaders .leaders-table-wrapper,#leaders .table-wrap{max-width:100%;overflow-x:auto}
+@media(max-width:1100px){
+ #dashboard .gm-overview,#simulator .gm-simulator-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+ #dashboard .gm-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #dashboard .gm-overview article{padding:14px 12px}
+ #dashboard .gm-overview article b{font-size:clamp(16px,4.5vw,22px)}
+ #dashboard .gm-goal-progress{padding:18px 15px}
+ #dashboard .gm-goal-togo{min-width:0}
+ #simulator .gm-simulator-summary{padding:16px 12px}
+ #simulator .gm-simulator-summary-grid>div{padding:12px 9px}
+ #simulator .gm-simulator-summary-grid b{font-size:clamp(14px,3.7vw,19px)}
+ #leaders .gm-management-leader-card{max-width:100%;min-width:0}
+}
+@media(max-width:375px){
+ #dashboard .gm-overview,#simulator .gm-simulator-summary-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ #team .consultant-photo img,#team .consultant-photo-frame img{transition:none!important;transform:none!important}
+}
