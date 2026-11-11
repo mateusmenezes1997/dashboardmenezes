@@ -162,7 +162,7 @@ function reorder(container,people,paint){
  });
 }
 function renderChampions(){
- var arr=snapshot?snapshot.trio:[],titles=['CAMPEÃO DO MÊS','DESAFIANTE PRINCIPAL','NA DISPUTA'],symbols=['♛','✧','◇'];
+ var arr=snapshot?snapshot.trio:[],titles=[arr[0]&&(arr[0].gender==='f'||arr[0].gender==='female')?'CAMPEÃ DO MÊS':'CAMPEÃO DO MÊS','DESAFIANTE PRINCIPAL','NA DISPUTA'],symbols=['♛','✧','◇'];
  reorder(champions,arr,function(p,i){
   var el=cardFor(p,i);el.dataset.place=String(i+1);
   text(el.querySelector('.gmv-champ-mark'),titles[i]);
@@ -542,3 +542,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   else boot();
   window.addEventListener('load',schedule);
 })();
+
+/* Carregador isolado dos refinamentos executivos (sem mudanças na aba Agendamentos). */
+(function(){if(window.__gmRefinementLoader20261111)return;window.__gmRefinementLoader20261111=true;var s=document.createElement('script');s.src='/menezes-refinement-20261111.js?v=2';s.async=true;document.head.appendChild(s)})();
