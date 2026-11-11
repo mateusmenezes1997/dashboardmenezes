@@ -408,6 +408,7 @@ function boot(){
  }
  window.addEventListener('focus',function(){checkLogin();if(authenticated())sync()});
  document.addEventListener('visibilitychange',function(){if(!document.hidden){checkLogin();sync()}});
+ window.addEventListener('gm:local-sale-saved',function(){if(authenticated()){lastSync=0;sync()}});
  window.addEventListener('storage',function(){if(authenticated()&&!remoteState){var s=localState();if(s)updateWith(s,false)}});
  setInterval(function(){checkLogin();if(authenticated()&&arena&&arena.classList.contains('gmv-open')&&snapshot&&snapshot.trio.length>=2){duelIndex=snapshot.trio.length>=3?(duelIndex+1)%3:0;renderDuel()}},9000);
  setInterval(function(){if(authenticated())sync()},8000);
