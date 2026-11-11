@@ -61,16 +61,31 @@ function makeLayout(){
  var heading=page.querySelector('.content-grid .section-head h3');if(heading)heading.textContent='Classificação completa';
 }
 function makeTools(){
- var actions=byId('dashboard')&&byId('dashboard').querySelector('.topbar .actions');
- if(!actions||actions.querySelector('.gm-p2-tools'))return;
+ var dashboard=byId('dashboard'),actions=dashboard&&dashboard.querySelector('.topbar .actions');
+ if(!actions)return;
  var nodes=['exportBtn','exportRankCard','autoRankExport'].map(byId).filter(Boolean);
- if(!nodes.length)return;
- var menu=document.createElement('details');menu.className='gm-p2-tools';
- var summary=document.createElement('summary');summary.textContent='Ferramentas';
- var box=document.createElement('div');box.className='gm-p2-toolbox';
- nodes.forEach(function(n){var item=n.id==='autoRankExport'?n.closest('label'):n;if(item)box.appendChild(item)});
- menu.append(summary,box);
- var saleBtn=actions.querySelector('[data-go="sale"]');if(saleBtn)actions.insertBefore(menu,saleBtn);else actions.appendChild(menu);
+ var menu=actions.querySelector('.gm-p2-tools');
+ if(!menu && !nodes.length)return;
+ if(!menu){
+  menu=document.createElement('details');menu.className='gm-p2-tools';
+  var summary=document.createElement('summary');summary.textContent='Ferramentas';
+  summary.setAttribute('aria-label','Abrir ferramentas de exportação');
+  var box=document.createElement('div');box.className='gm-p2-toolbox';
+  menu.append(summary,box);
+  var saleBtn=actions.querySelector('[data-go="sale"]');
+  if(saleBtn)actions.insertBefore(menu,saleBtn);else actions.appendChild(menu);
+  document.addEventListener('pointerdown',function(ev){if(menu.open&&!menu.contains(ev.target))menu.open=false});
+  document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&menu.open){menu.open=false;summary.focus()}});
+ }
+ var target=menu.querySelector('.gm-p2-toolbox');
+ if(!target)return;
+ nodes.forEach(function(n){
+  var item=n.id==='autoRankExport'?n.closest('label'):n;
+  if(item&&item.parentElement!==target)target.appendChild(item);
+ });
+ var hasTools=!!target.querySelector('#exportBtn,#exportRankCard,#autoRankExport');
+ menu.hidden=!hasTools;
+ if(!hasTools)menu.open=false;
 }
 function podiumCard(p,pos){
  var label=pos===1?(p&&p.gender==='f'?'CAMPEÃ DO MÊS':'CAMPEÃO DO MÊS'):pos===2?'VICE-LIDERANÇA':'3º LUGAR';
@@ -181,7 +196,7 @@ function refresh(){
 }
 function boot(){
  if(booted)return;booted=true;
- var style=document.createElement('link');style.rel='stylesheet';style.href='/dashboard-performance-20261111.css?v=2';document.head.appendChild(style);
+ var style=document.createElement('link');style.rel='stylesheet';style.href='/dashboard-performance-20261111.css?v=3';document.head.appendChild(style);
  makeLayout();makeTools();refresh();
  var m=byId('monthFilter');if(m)m.addEventListener('change',function(){lastKey='';setTimeout(refresh,80)});
  window.addEventListener('gm:performance-state',function(ev){if(ev.detail&&Array.isArray(ev.detail.consultants)){remote=ev.detail;lastKey='';refresh()}});

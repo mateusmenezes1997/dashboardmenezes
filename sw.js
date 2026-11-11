@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v19-champion-experience-20261111";
+const VERSION = "gm-pwa-executive-v20-dashboard-tools-20261111";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());

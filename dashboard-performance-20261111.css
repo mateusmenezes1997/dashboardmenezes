@@ -97,3 +97,99 @@
 @media(max-width:1100px){#dashboard .gm-p2-grid3{grid-template-columns:1fr 1fr}#dashboard .gm-p2-grid3>.gm-p2-panel:last-child{grid-column:1/-1}#dashboard .gm-p2-hero{grid-template-columns:1.15fr .85fr}}
 @media(max-width:770px){#dashboard .gm-p2{gap:12px;margin-top:15px}#dashboard .gm-p2-panel{padding:17px;border-radius:17px}#dashboard .gm-p2-hero{grid-template-columns:1fr;padding:20px}#dashboard .gm-p2-goal-side{border-left:0;border-top:1px solid rgba(226,187,120,.16);padding:16px 0 0;grid-template-columns:1fr 1fr}#dashboard .gm-p2-goal-side .gm-p2-stat{border:0;padding:0}#dashboard .gm-p2-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#dashboard .gm-p2-podium-grid{gap:6px}#dashboard .gm-p2-person{padding:15px 6px 12px;border-radius:14px}#dashboard .gm-p2-person.gold{padding:20px 6px 12px;min-height:0}#dashboard .gm-p2-face{width:53px;height:53px;border-width:2px}#dashboard .gm-p2-person.gold .gm-p2-face{width:65px;height:65px}#dashboard .gm-p2-person h4{font-size:10px;min-height:42px}#dashboard .gm-p2-person strong{font-size:11px;overflow-wrap:anywhere}#dashboard .gm-p2-person small{font-size:9px}#dashboard .gm-p2-grid2,#dashboard .gm-p2-grid3{grid-template-columns:1fr}#dashboard .gm-p2-grid3>.gm-p2-panel:last-child{grid-column:auto}#dashboard .gm-p2-race-row{grid-template-columns:23px 35px minmax(0,1fr);gap:7px}#dashboard .gm-p2-race-value{grid-column:3;justify-self:start;margin-top:-3px}#dashboard .gm-p2-race-photo{width:33px;height:33px}#dashboard .gm-p2-head{flex-wrap:wrap}#dashboard .gm-p2-total{font-size:clamp(30px,8.3vw,46px)}#dashboard .gm-p2-toolbox{right:auto;left:0;min-width:min(275px,85vw)}}
 @media(prefers-reduced-motion:reduce){#dashboard .gm-p2 *{animation:none!important;transition:none!important}}
+
+/* Dashboard Performance / Gestor — corrigir dropdown encoberto por cards do dashboard.
+   Somente a barra de ações do Dashboard. Sem interferir em outros módulos. */
+#dashboard > .topbar {
+  position:relative;
+  z-index:120;
+  overflow:visible!important;
+  isolation:isolate;
+}
+#dashboard > .topbar > .actions {
+  position:relative;
+  z-index:121;
+  overflow:visible!important;
+}
+#dashboard .topbar .gm-p2-tools{
+  position:relative!important;
+  z-index:122;
+  overflow:visible!important;
+  min-width:0;
+}
+#dashboard .topbar .gm-p2-tools[hidden]{
+  display:none!important;
+}
+#dashboard .topbar .gm-p2-tools[open]{
+  z-index:140!important;
+}
+#dashboard .topbar .gm-p2-tools:not([open]) > .gm-p2-toolbox{
+  display:none!important;
+}
+#dashboard .topbar .gm-p2-tools[open] > .gm-p2-toolbox{
+  position:absolute!important;
+  display:flex!important;
+  flex-direction:column;
+  gap:10px;
+  top:calc(100% + 10px)!important;
+  right:0!important;
+  left:auto!important;
+  z-index:150!important;
+  box-sizing:border-box;
+  width:290px!important;
+  min-width:0!important;
+  max-width:calc(100vw - 28px);
+  max-height:min(65vh,375px);
+  height:auto!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:13px!important;
+  border:1px solid rgba(227,184,108,.45);
+  border-radius:16px;
+  background:linear-gradient(145deg,#23171d,#120f14);
+  box-shadow:0 22px 55px rgba(0,0,0,.68),0 0 0 1px rgba(223,185,120,.06);
+  color:#f4e9dd;
+}
+#dashboard .topbar .gm-p2-toolbox > #exportBtn,
+#dashboard .topbar .gm-p2-toolbox > #exportRankCard{
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  width:100%!important;
+  min-height:44px!important;
+  height:auto!important;
+  padding:10px 12px;
+  margin:0!important;
+  box-sizing:border-box;
+  white-space:normal;
+  text-align:center;
+  opacity:1!important;
+  visibility:visible!important;
+  position:relative;
+}
+#dashboard .topbar .gm-p2-toolbox > label:has(#autoRankExport){
+  display:flex!important;
+  align-items:center;
+  flex:0 0 auto;
+  width:100%!important;
+  min-height:44px!important;
+  height:auto!important;
+  padding:10px 12px!important;
+  margin:0!important;
+  box-sizing:border-box;
+  white-space:normal;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#dashboard .topbar .gm-p2-toolbox #autoRankExport{
+  flex:0 0 auto;
+  cursor:pointer;
+}
+@media(max-width:640px){
+ #dashboard .topbar .gm-p2-tools[open] > .gm-p2-toolbox{
+   right:auto!important;
+   left:0!important;
+   width:min(290px,calc(100vw - 28px))!important;
+ }
+}

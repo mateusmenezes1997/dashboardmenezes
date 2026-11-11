@@ -264,6 +264,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  if(window.__gmPerformanceLoaderV2)return;
  window.__gmPerformanceLoaderV2=true;
  var script=document.createElement('script');
- script.src='/dashboard-performance-20261111.js?v=2';script.defer=true;
+ script.src='/dashboard-performance-20261111.js?v=3';script.defer=true;
  document.head.appendChild(script);
 })();
