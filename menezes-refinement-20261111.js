@@ -259,3 +259,11 @@ function boot(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
+/* Dashboard Performance v2: loader isolado, com cache bust e sem interferir nos agendamentos. */
+(function(){
+ if(window.__gmPerformanceLoaderV2)return;
+ window.__gmPerformanceLoaderV2=true;
+ var script=document.createElement('script');
+ script.src='/dashboard-performance-20261111.js?v=2';script.defer=true;
+ document.head.appendChild(script);
+})();
