@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-arena-v7-campea";
+const VERSION = "gm-pwa-arena-v8-singlechamp";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -331,6 +331,8 @@ const CHAMPION_STYLE = `
 </style>`;
 
 function applyChampionVisual(html){
+  // O HTML nativo já controla o destaque do campeão. Não duplicar a interface pelo service worker.
+  if (html.includes('gm-champion-direct-runtime-v2') || html.includes('gm-champion-direct-v2')) return html;
   if (!html.includes('id="team"')) return html;
 
   if (!html.includes('gm-champion-highlight-v1')) {
