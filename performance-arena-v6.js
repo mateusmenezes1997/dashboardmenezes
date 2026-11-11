@@ -92,7 +92,7 @@ function makeUI(){
  '<div id="gmv-duel-content"></div></div>',
  '<div class="gmv-panel"><div class="gmv-section-label">03 / RADAR</div><h2>Pulso comercial do mês</h2>',
  '<div class="gmv-panel-sub">Vendas registradas • sem resultados simulados</div><div id="gmv-news" class="gmv-news"></div></div></div>',
- '<div class="gmv-footer"><span>GESTÃO MENEZES • DADOS DO DASHBOARD / SINCRONIZAÇÃO AUTOMÁTICA</span><span>REFRESH SEGURO • ATÉ 8 SEGUNDOS COM PÁGINA ATIVA</span></div>',
+ '<div class="gmv-footer"><span>GESTÃO MENEZES • DADOS DO DASHBOARD / SINCRONIZAÇÃO AUTOMÁTICA</span><span>REFRESH SEGURO • ATÉ 4 SEGUNDOS COM PÁGINA ATIVA</span></div>',
  '</div><div id="gmv-event" role="status" aria-live="polite"></div>'
  ].join('');
  document.body.appendChild(arena);
@@ -408,10 +408,21 @@ function boot(){
  }
  window.addEventListener('focus',function(){checkLogin();if(authenticated())sync()});
  document.addEventListener('visibilitychange',function(){if(!document.hidden){checkLogin();sync()}});
- window.addEventListener('gm:local-sale-saved',function(){if(authenticated()){lastSync=0;sync()}});
+ // Aviso imediato entre abas do mesmo navegador; outros dispositivos usam polling leve.
+ var saleChannel=null;
+ try{
+  if('BroadcastChannel' in window){
+   saleChannel=new BroadcastChannel('gestao-menezes-vendas');
+   saleChannel.onmessage=function(){if(authenticated()){lastSync=0;sync()}};
+  }
+ }catch(e){}
+ window.addEventListener('gm:local-sale-saved',function(){
+  if(authenticated()){lastSync=0;sync()}
+  try{if(saleChannel)saleChannel.postMessage({type:'sale-saved'})}catch(e){}
+ });
  window.addEventListener('storage',function(){if(authenticated()&&!remoteState){var s=localState();if(s)updateWith(s,false)}});
  setInterval(function(){checkLogin();if(authenticated()&&arena&&arena.classList.contains('gmv-open')&&snapshot&&snapshot.trio.length>=2){duelIndex=snapshot.trio.length>=3?(duelIndex+1)%3:0;renderDuel()}},9000);
- setInterval(function(){if(authenticated())sync()},8000);
+ setInterval(function(){if(authenticated())sync()},4000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
