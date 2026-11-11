@@ -142,18 +142,63 @@ function sale(){
      return !before.has(String(x.id))&&String(x.consultantId)===String(consultant)&&
        String(x.date)===String(date)&&Math.abs(Number(x.amount)-unit*qty)<0.01;
     });
-    if(created){share.hidden=false;share.focus({preventScroll:true})}
+    if(created){share.hidden=false;share.focus({preventScroll:true});window.dispatchEvent(new Event('gm:local-sale-saved'))}
     if(created||count>=55){clearInterval(saleWatch);saleWatch=null}
    },250);
   });
  }
 }
 function settings(){
- var page=get('settings');if(!page||get('gm-backup-advice'))return;
- var hint=node('p','gm-backup-advice');hint.id='gm-backup-advice';
- hint.textContent='Segurança operacional: antes de restaurar ou importar um backup, confira a data e mantenha uma cópia atual. Mudanças administrativas devem ser feitas somente pelo acesso Gestor.';
- var anchor=page.querySelector('.topbar')||page.firstElementChild;
- after(anchor,hint);
+ var page=get('settings');if(!page)return;
+ if(!get('gm-backup-advice')){
+  var hint=node('p','gm-backup-advice');hint.id='gm-backup-advice';
+  hint.textContent='Segurança operacional: confira a data do backup antes de qualquer importação e mantenha uma cópia atual. Alterações administrativas pertencem ao acesso Gestor.';
+  var anchor=page.querySelector('.topbar')||page.firstElementChild;
+  after(anchor,hint);
+ }
+ var importFile=get('importBackupFile');
+ if(importFile&&!importFile.dataset.gmGuarded){
+  importFile.dataset.gmGuarded='1';
+  importFile.addEventListener('change',function(event){
+   var file=importFile.files&&importFile.files[0];
+   if(!file)return;
+   var ok=window.confirm('ATENÇÃO: importar "'+file.name+'" substituirá os dados atualmente exibidos, incluindo consultores e vendas. Você já baixou um backup atualizado e confirma a substituição?');
+   if(!ok){event.stopImmediatePropagation();importFile.value=''}
+  },true);
+ }
+ var reset=get('resetData');
+ if(reset&&!reset.dataset.gmGuarded){
+  reset.dataset.gmGuarded='1';
+  reset.addEventListener('click',function(event){
+   var ok=window.confirm('RESTAURAÇÃO DA BASE INICIAL: esta ação pode substituir informações da gestão. Você possui um backup atualizado e quer continuar?');
+   if(!ok){event.stopImmediatePropagation();event.preventDefault()}
+  },true);
+ }
+ var s=source();
+ if(!s||!Array.isArray(s.auditTrail))return;
+ var history=get('gm-audit-history');
+ if(!history){
+  history=node('section','gm-audit-history');history.id='gm-audit-history';
+  history.innerHTML='<div class="gm-audit-title"><small>EXCLUSIVO DO GESTOR</small><h3>Histórico de alterações administrativas</h3><p>Registros gerados pelo servidor. Exibindo as oito atividades mais recentes.</p></div><div class="gm-audit-list"></div>';
+  page.appendChild(history);
+ }
+ var list=history.querySelector('.gm-audit-list'),recent=s.auditTrail.slice(-8).reverse();
+ var key=recent.map(function(x){return x.id}).join('|');
+ if(list.dataset.gmKey===key)return;
+ list.dataset.gmKey=key;list.replaceChildren();
+ if(!recent.length){var blank=node('p');blank.textContent='Nenhuma alteração registrada desde a ativação do histórico.';list.appendChild(blank);return}
+ var titles={VENDA_CRIADA:'Venda cadastrada',VENDA_EXCLUIDA:'Venda excluída',EQUIPE_ATUALIZADA:'Equipe atualizada',CONFIGURACOES_ATUALIZADAS:'Configurações alteradas',BASE_ATUALIZADA:'Base administrativa atualizada',BASE_INICIALIZADA:'Base inicializada'};
+ recent.forEach(function(entry){
+  var item=node('div','gm-audit-row'),label=node('strong'),meta=node('small');
+  label.textContent=titles[entry.action]||'Alteração registrada';
+  var when='';try{when=new Date(entry.at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short',timeZone:'America/Sao_Paulo'})}catch(e){when=entry.at||''}
+  var name='';if(entry.details&&entry.details.consultantId){
+   var who=s.consultants.find(function(c){return String(c.id)===String(entry.details.consultantId)});
+   name=who?' · '+who.name:'';
+  }
+  meta.textContent=when+' · '+(entry.actor==='gestor'?'Gestor':entry.actor==='trainee'?'Trainee':'Sistema')+name;
+  item.append(label,meta);list.appendChild(item);
+ });
 }
 function refresh(){
  if(!ready())return;
@@ -166,6 +211,7 @@ function boot(){
   var el=get(id);if(el)el.addEventListener('change',function(){setTimeout(refresh,60)});
  });
  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
+ window.addEventListener('gm:performance-state',refresh);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
