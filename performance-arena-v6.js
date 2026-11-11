@@ -467,3 +467,78 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootAccess,{once:true});else bootAccess();
 })();
+
+
+/* TEAM CHAMPION V3: one correctly gendered monthly title; removes badges injected by older layers. */
+(function(){
+  'use strict';
+  if(window.__gmChampionSingleMonthV3)return;
+  window.__gmChampionSingleMonthV3=true;
+  var style=document.createElement('style');
+  style.id='gm-single-month-champion-style';
+  style.textContent=[
+    '#team .gm-month-champion-line{display:flex;align-items:center;margin:8px 0 10px;min-height:30px}',
+    '#team .gm-month-champion-badge{display:inline-flex;align-items:center;gap:9px;padding:8px 15px;border-radius:999px;border:1px solid rgba(249,201,83,.55);background:linear-gradient(125deg,rgba(88,58,10,.96),rgba(20,14,7,.96));color:#ffdf82;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 0 20px rgba(235,177,43,.16)}',
+    '#team .gm-month-champion-badge:before{content:"";width:8px;height:8px;flex-shrink:0;border-radius:50%;background:#ffda67;box-shadow:0 0 10px rgba(255,215,104,.8)}'
+  ].join('\n');
+  (document.head||document.documentElement).appendChild(style);
+  var timer=0,running=false;
+  function update(){
+    if(running)return;
+    running=true;
+    try{
+      var team=document.getElementById('team');
+      if(!team)return;
+      var rank=team.querySelector('#consultantRank');
+      var first=rank && String(rank.textContent||'').trim()==='#1';
+      var titleRow=team.querySelector('.hero-title-row');
+      var copy=team.querySelector('.hero-copy-clean');
+      var badge=team.querySelector('.gm-month-champion-line');
+
+      // Native v2 and old service-worker injections must never create a second title.
+      team.querySelectorAll('.gm-champion-label,.gm-champion-live').forEach(function(node){node.remove();});
+      if(!first||!titleRow||!copy){
+        if(badge)badge.remove();
+        return;
+      }
+
+      var role=team.querySelector('#consultantRole');
+      var roleText=(role && role.textContent||'').trim();
+      var female=/\bconsultora\b/i.test(roleText);
+      var focus=document.getElementById('consultantFocus');
+      var id=focus&&focus.value;
+      if(!female && typeof state!=='undefined' && state && Array.isArray(state.consultants)){
+        var person=state.consultants.find(function(c){return String(c.id)===String(id)});
+        if(person)female=person.gender==='f'||person.gender==='female';
+      }
+      var label=female?'CAMPEÃ DO MÊS':'CAMPEÃO DO MÊS';
+      if(!badge){
+        badge=document.createElement('div');
+        badge.className='gm-month-champion-line';
+        var inner=document.createElement('span');
+        inner.className='gm-month-champion-badge';
+        badge.appendChild(inner);
+        titleRow.insertAdjacentElement('afterend',badge);
+      }else if(badge.previousElementSibling!==titleRow){
+        titleRow.insertAdjacentElement('afterend',badge);
+      }
+      var inner=badge.querySelector('.gm-month-champion-badge');
+      if(inner && inner.textContent!==label)inner.textContent=label;
+    }finally{running=false}
+  }
+  function schedule(){
+    if(timer)return;
+    timer=setTimeout(function(){timer=0;update();},30);
+  }
+  function boot(){
+    var team=document.getElementById('team');
+    if(!team)return;
+    new MutationObserver(schedule).observe(team,{subtree:true,childList:true,characterData:true});
+    var focus=document.getElementById('consultantFocus');
+    if(focus)focus.addEventListener('change',schedule);
+    update();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+  window.addEventListener('load',schedule);
+})();
