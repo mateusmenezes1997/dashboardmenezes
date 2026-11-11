@@ -102,3 +102,26 @@
  #leaders .gm-management-leader-card,#leaders .gm-management-leader-photo img,
  .gm-goal-track>div,#team .roster-item{transition:none!important;animation:none!important}
 }
+/* Histórico confiável apenas na área administrativa. */
+#settings .gm-audit-history{padding:24px;margin:22px 0;border-radius:21px;border:1px solid rgba(213,171,103,.27);background:linear-gradient(155deg,rgba(101,31,53,.16),#101013)}
+#settings .gm-audit-title small{font:800 10px Manrope,sans-serif;letter-spacing:.16em;color:#d5ab67}
+#settings .gm-audit-title h3{font:800 clamp(18px,2vw,24px)/1.25 Sora,sans-serif;color:#f2ede6;margin:9px 0 5px}
+#settings .gm-audit-title p{color:#bfb1ad;font:500 12px/1.5 Manrope,sans-serif}
+#settings .gm-audit-list{margin-top:18px;display:grid;gap:8px}
+#settings .gm-audit-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 25px;padding:13px 15px;border:1px solid rgba(213,171,103,.13);background:rgba(255,255,255,.025);border-radius:12px}
+#settings .gm-audit-row strong{font:750 12px/1.4 Manrope,sans-serif;color:#eee2cc}
+#settings .gm-audit-row small{font:600 11px/1.4 Manrope,sans-serif;color:#b8a8a3}
+/* Na Arena, movimento comunica disputa; brilhos fortes ficam nas conquistas. */
+#gmv-arena .gmv-champ-card[data-place="1"],#gmv-arena [data-place="1"].gmv-champion{box-shadow:0 0 0 1px rgba(213,171,103,.3),0 20px 45px rgba(0,0,0,.35)}
+#gmv-ticker{border-color:rgba(213,171,103,.27);box-shadow:0 -10px 25px rgba(0,0,0,.18)}
+#gmv-ticker #gmv-ticker-brand{color:#e5bd75}
+#gmv-arena .gmv-duel-advantage{color:#edca8f}
+#gmv-arena .gmv-vs{color:#d5ab67}
+#gmv-arena .gmv-live-dot{box-shadow:0 0 0 4px rgba(213,171,103,.13)}
+@media(max-width:560px){
+ #settings .gm-audit-row{display:block}
+ #settings .gm-audit-row small{display:block;margin-top:5px}
+ .gm-goal-progress{padding:20px 17px}
+ .gm-goal-head h3{font-size:23px}
+ .gm-goal-track{margin:22px 0 12px}
+}
