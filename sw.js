@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-arena-v10-fixedsw";
+const VERSION = "gm-pwa-executive-v11-20261111";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -993,7 +993,7 @@ self.addEventListener("fetch", (event) => {
         html = moveCommissionMoney(html);
         html = applyChampionVisual(html);
         // Evita que uma versão antiga do script da Arena fique presa no cache do PWA.
-        html = html.replace(/(performance-arena-v6\.js\?v=)\d+/g, '$1' + '8');
+        html = html.replace(/(performance-arena-v6\.js\?v=)\d+/g, '$1' + '9');
         html = applyLeaderPhotos(html);
         html = applyTraineeLeadersAccess(html);
         html = enableManagerSaleDelete(html);
