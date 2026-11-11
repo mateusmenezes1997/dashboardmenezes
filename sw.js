@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-arena-v6";
+const VERSION = "gm-pwa-arena-v7-campea";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -383,6 +383,20 @@ function applyChampionVisual(html){
     document.querySelectorAll('#team .gm-champion-rank').forEach(function(el){el.classList.remove('gm-champion-rank')});
     document.querySelectorAll('#team .gm-champion-trophy,#team .gm-champion-live').forEach(function(el){el.remove()});
 
+    // Mantém um único título, respeitando o gênero da pessoa destacada.
+    var teamRoot=document.getElementById('team');
+    if(teamRoot){
+      var isFemale=/\\bCONSULTORA\\b/i.test(teamRoot.textContent||'');
+      Array.from(teamRoot.querySelectorAll('*')).forEach(function(el){
+        if(el.children.length) return;
+        var current=(el.textContent||'').trim();
+        if(/^CAMPE(?:Ã|A)O DO (?:MOMENTO|MÊS)$/i.test(current) || /^CAMPE(?:Ã|A) DO (?:MOMENTO|MÊS)$/i.test(current)){
+          var desired=isFemale?'CAMPEÃ DO MÊS':'CAMPEÃO DO MÊS';
+          if(current!==desired) el.textContent=desired;
+        }
+      });
+    }
+
     var rank=findRankOne();
     if(!rank) return;
 
@@ -402,10 +416,7 @@ function applyChampionVisual(html){
       trophy.textContent='🏆';
       name.insertAdjacentElement('afterend',trophy);
 
-      var live=document.createElement('span');
-      live.className='gm-champion-live';
-      live.innerHTML='<i></i>Campeão do momento';
-      trophy.insertAdjacentElement('afterend',live);
+      // O título de campeão já existe no card: não inserir outro selo.
     }
   }
   var timer;
