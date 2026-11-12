@@ -691,11 +691,34 @@ function exportRankingCard(auto=false,returnCanvas=false){
   ctx.fillStyle=C.muted;ctx.font='600 10px Arial';ctx.fillText('Ranking gerado automaticamente com base nas vendas registradas no dashboard.',82,fy+46);
   ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 10px Arial';ctx.fillText('TOTAL DA GESTÃO  '+money(total),1838,fy+37);ctx.textAlign='left';
 
-  const a=document.createElement('a');
-  a.download=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
-  if(returnCanvas)return {canvas,filename:a.download,month:m};
-  a.href=canvas.toDataURL('image/png');
-  a.click();
+  const filename=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
+  if(returnCanvas)return {canvas,filename,month:m};
+
+  const btn=document.getElementById('exportRankCard');
+  const oldText=btn?btn.textContent:'';
+  if(btn&&!auto){btn.disabled=true;btn.textContent='Gerando arquivo PNG...';}
+
+  canvas.toBlob(blob=>{
+    try{
+      if(!blob)throw new Error('Não foi possível gerar o PNG.');
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=filename;
+      a.style.display='none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{
+        try{a.remove()}catch(e){}
+        URL.revokeObjectURL(url);
+      },1500);
+    }catch(error){
+      console.error('Falha ao baixar ranking:',error);
+      if(!auto)alert('Não foi possível baixar o ranking em PNG. Tente novamente.');
+    }finally{
+      if(btn&&!auto){btn.disabled=false;btn.textContent=oldText||'Baixar ranking PNG';}
+    }
+  },'image/png');
 }
 function maybeAutoExportRanking(){
   const cb=document.getElementById('autoRankExport');
@@ -1603,7 +1626,12 @@ document.getElementById('importBackupFile').onchange=e=>{
 };
 document.getElementById('resetData').onclick=()=>{if(!requireManager())return;if(confirm('Restaurar a base inicial desta versão?')){state=clone(initialState);save();init()}};
 document.getElementById('monthFilter').addEventListener('change',()=>{render();renderTeam();});
-document.getElementById('exportRankCard').onclick=()=>exportRankingCard(false);
+const exportRankButton=document.getElementById('exportRankCard');
+if(exportRankButton){
+  exportRankButton.textContent='Baixar ranking PNG';
+  exportRankButton.title='Baixa o ranking como arquivo PNG diretamente no dispositivo';
+  exportRankButton.onclick=()=>exportRankingCard(false);
+}
 document.getElementById('exportBtn').onclick=()=>{
  const m=document.getElementById('monthFilter').value,{by}=totals(m),rows=[['Posição','Consultor','Total vendido','Meta','Status da meta']];
  state.consultants.map(c=>({...c,total:by[c.id]||0})).sort((a,b)=>b.total-a.total).forEach((r,i)=>rows.push([i+1,r.name,r.total,r.target,levelInfo(r.total).name]));
