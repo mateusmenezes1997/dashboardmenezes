@@ -304,7 +304,9 @@ function showNextCelebration(){
  if(celebrationActive||!celebrationQueue.length||!authenticated())return;
  celebrationActive=true;var n=celebrationQueue.shift(),el=qs('gmv-event'),backdrop=qs('gmv-celebration-backdrop');
  if(!backdrop){backdrop=h('div');backdrop.id='gmv-celebration-backdrop';backdrop.setAttribute('aria-hidden','true')}
+ if(!el){celebrationActive=false;return}
  var host=document.fullscreenElement||document.body;host.append(backdrop,el);
+ document.body.classList.add('gmv-celebrating');
  el.replaceChildren();
  var dismiss=h('button'),small=h('small'),large=h('strong'),amount=h('div','gmv-celebration-amount'),face=h('div','gmv-celebration-photo'),message=h('p','gmv-celebration-message'),movement=h('div','gmv-celebration-movement'),rank=h('div','gmv-celebration-rank');
  dismiss.type='button';dismiss.textContent='×';dismiss.setAttribute('aria-label','Fechar mensagem de parabéns');
@@ -324,7 +326,7 @@ function showNextCelebration(){
  photoInto(face,n.person);el.append(dismiss,face,small,large,message,amount);if(n.passed&&n.passed.length)el.append(movement);el.append(rank);el.classList.add('gmv-show');backdrop.classList.add('gmv-show');
  el.setAttribute('aria-hidden','false');
  var finished=false;
- function done(){if(finished)return;finished=true;clearTimeout(toastTimer);toastTimer=0;try{el.classList.remove('gmv-show');el.setAttribute('aria-hidden','true')}catch(e){}try{backdrop.classList.remove('gmv-show');backdrop.setAttribute('aria-hidden','true');backdrop.style.pointerEvents='none'}catch(e){}celebrationActive=false;closeCelebration=null;toastTimer=setTimeout(showNextCelebration,450)}
+ function done(){if(finished)return;finished=true;clearTimeout(toastTimer);toastTimer=0;try{el.classList.remove('gmv-show');el.setAttribute('aria-hidden','true')}catch(e){}try{backdrop.classList.remove('gmv-show');backdrop.setAttribute('aria-hidden','true');backdrop.style.pointerEvents='none'}catch(e){}try{document.body.classList.remove('gmv-celebrating')}catch(e){}celebrationActive=false;closeCelebration=null;toastTimer=setTimeout(showNextCelebration,450)}
  /* A celebração fica aberta até o usuário clicar no X. */
  closeCelebration=done;dismiss.onclick=done;backdrop.onclick=function(e){e.preventDefault();e.stopPropagation()};backdrop.setAttribute('aria-hidden','false');backdrop.style.pointerEvents='auto';
  clearTimeout(toastTimer);toastTimer=0;
@@ -374,7 +376,7 @@ function sync(){
  inFlight=true;
  fetch('/api/state',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}})
  .then(function(r){
-  if(r.status===401||r.status===403){sessionDenied=true;close();var auth=qs('gmAuth');if(auth)auth.classList.remove('hidden');document.body.classList.remove('gmv-authenticated');throw new Error('Sessão encerrada')}
+  if(r.status===401||r.status===403){sessionDenied=true;close();var auth=qs('gmAuth');if(auth)auth.classList.remove('hidden');document.body.classList.remove('gmv-authenticated','gmv-celebrating');throw new Error('Sessão encerrada')}
   if(!r.ok)throw new Error('Falha na sincronização');
   return r.json();
  }).then(function(result){
@@ -391,6 +393,8 @@ function checkLogin(){
  document.body.classList.toggle('gmv-authenticated',active);
  if(!active){
   if(closeCelebration)closeCelebration();
+  document.body.classList.remove('gmv-celebrating');
+  var staleBackdrop=qs('gmv-celebration-backdrop');if(staleBackdrop){staleBackdrop.classList.remove('gmv-show');staleBackdrop.style.pointerEvents='none'}
   if(arena&&arena.classList.contains('gmv-open'))close();
   remoteState=null;lastSync=0;hasServerBaseline=false;knownSales=null;notices=[];unread=0;celebrationQueue=[];celebrationActive=false;clearTimeout(toastTimer);var popup=qs('gmv-event');if(popup)popup.classList.remove('gmv-show');var panel=qs('gmv-notify-panel');if(panel)panel.hidden=true;lastTape='';latestSignature='';
  }else if(!lastAuth){
@@ -400,6 +404,7 @@ function checkLogin(){
 }
 function boot(){
  var style=h('style');style.textContent='#gmv-celebration-backdrop{position:fixed;inset:0;z-index:10049;background:rgba(4,6,12,.48);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility .35s}#gmv-celebration-backdrop.gmv-show{opacity:1;visibility:visible;pointer-events:auto}body:not(.gmv-authenticated) #gmv-celebration-backdrop{display:none!important}#gmv-event:not(.gmv-show){visibility:hidden}#gmv-event strong{display:block;overflow-wrap:anywhere}.gmv-celebration-message{color:#e6dfe5;font:500 clamp(16px,2.5vw,21px)/1.5 Manrope,Arial;margin:18px 0 0}.gmv-celebration-rank{display:inline-block;margin-top:20px;padding:12px 18px;border:1px solid #eac78266;border-radius:14px;background:#eac78212;color:#f2cc82;font:800 clamp(15px,2.5vw,20px)/1.5 Manrope,Arial}.gmv-celebration-movement{margin:22px auto 0;width:min(610px,100%);padding:16px 18px;border-radius:16px;border:1px solid rgba(234,199,130,.48);background:linear-gradient(135deg,rgba(234,199,130,.16),rgba(126,23,50,.14));box-shadow:0 0 34px rgba(234,199,130,.10)}.gmv-celebration-movement small{display:block;color:#f0cb8c;font:900 11px/1.2 Manrope,Arial;letter-spacing:.16em}.gmv-celebration-movement strong{margin-top:8px;color:#fff;font:900 clamp(19px,3vw,30px)/1.15 Manrope,Arial;text-transform:uppercase}@media(prefers-reduced-motion:reduce){#gmv-celebration-backdrop{transition:none}}#gmv-event{top:50%;transform:translate(-50%,-45%) scale(.96);z-index:10050;width:min(700px,92vw);box-sizing:border-box;max-height:90vh;overflow:auto}#gmv-event.gmv-show{transform:translate(-50%,-50%) scale(1);pointer-events:auto}#gmv-event button{position:absolute;right:14px;top:8px;background:transparent;border:0;color:#fff;font-size:30px;cursor:pointer}#gmv-event .gmv-celebration-photo{width:90px;height:90px;border:3px solid #eac782;border-radius:50%;overflow:hidden;margin:0 auto 18px;display:grid;place-items:center;color:#eac782;font-size:28px}#gmv-event img{width:100%;height:100%;object-fit:cover}.gmv-celebration-amount{font:bold clamp(23px,4vw,40px) Arial;color:#f2cc82;margin-top:22px}body:not(.gmv-authenticated) #gmv-event,body:not(.gmv-authenticated) #gmv-notify-panel{display:none!important}#gmv-notify-panel{max-height:min(65vh,600px);width:min(430px,calc(100vw - 28px))}.gmv-notification-item strong{overflow-wrap:anywhere}@media(prefers-reduced-motion:reduce){#gmv-event{transition:none}}';document.head.appendChild(style);
+ var safeStyle=h('style');safeStyle.id='gmv-celebration-safe-style';safeStyle.textContent='#gmv-celebration-backdrop{background:rgba(3,4,8,.18)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:2147483645!important}#gmv-event{position:fixed!important;left:50%!important;top:50%!important;z-index:2147483646!important;width:min(700px,92vw)!important;max-height:88vh!important;overflow:auto!important;box-sizing:border-box!important;padding:30px!important;border:2px solid #f2c774!important;border-radius:24px!important;background:radial-gradient(ellipse at top,#673c3e 0%,#171017 58%,#080a10 100%)!important;box-shadow:0 25px 90px rgba(0,0,0,.46),0 0 70px rgba(234,199,130,.22)!important;text-align:center!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translate(-50%,-46%) scale(.96)!important;transition:opacity .28s ease,transform .36s cubic-bezier(.2,.8,.2,1)!important}#gmv-event.gmv-show{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:translate(-50%,-50%) scale(1)!important}@media(max-width:760px){#gmv-event{width:calc(100vw - 28px)!important;padding:24px 20px!important}}';document.head.appendChild(safeStyle);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeCelebration){e.preventDefault();e.stopImmediatePropagation()}},true);
  document.addEventListener('fullscreenchange',function(){if(celebrationActive){var host=document.fullscreenElement||document.body,backdrop=qs('gmv-celebration-backdrop'),popup=qs('gmv-event');if(backdrop&&popup)host.append(backdrop,popup);else if(closeCelebration)closeCelebration()}});
  try{makeUI()}catch(error){console.error('Arena: falha ao montar navegação',error)}
