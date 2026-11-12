@@ -546,7 +546,12 @@ const MANAGER_SALE_DELETE = `
   },true);
   document.addEventListener('DOMContentLoaded',schedule);
   window.addEventListener('load',schedule);
-  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  var editModalObserverTarget=document.getElementById('editSalesModal');
+  if(editModalObserverTarget){
+    new MutationObserver(function(mutations){
+      if(mutations.some(function(m){return m.type==='attributes'&&m.attributeName==='class';}))schedule();
+    }).observe(editModalObserverTarget,{attributes:true,attributeFilter:['class']});
+  }
   schedule();
 })();
 
