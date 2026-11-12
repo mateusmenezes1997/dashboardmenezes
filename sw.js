@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v20-dashboard-tools-20261111";
+const VERSION = "gm-pwa-executive-v21-fix-leader-loop-20261112";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -751,10 +751,16 @@ function applyLeaderPhotos(html){
           if(img.src!==person.photo)img.src=person.photo;
           avatar.classList.add('gm-leader-photo');
         }
-        card.querySelectorAll('.gm-leader-champion').forEach(function(el){el.remove()});
+        // Nunca remover e recriar o trofeu em toda atualizacao.
+        // Isso disparava o MutationObserver em um ciclo infinito no Safari/PWA.
+        var trophy=card.querySelector('.gm-leader-champion');
         if(card.classList.contains('rank-1')){
-          var meta=card.querySelector('.leader-head > div:last-child');
-          if(meta){var tag=document.createElement('span');tag.className='gm-leader-champion';tag.innerHTML='<span class="gm-trophy">🏆</span> Campeão do momento';meta.appendChild(tag);}
+          if(!trophy){
+            var meta=card.querySelector('.leader-head > div:last-child');
+            if(meta){var tag=document.createElement('span');tag.className='gm-leader-champion';tag.innerHTML='<span class="gm-trophy">🏆</span> Campeão do momento';meta.appendChild(tag);}
+          }
+        }else if(trophy){
+          trophy.remove();
         }
       });
 
