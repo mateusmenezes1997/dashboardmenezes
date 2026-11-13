@@ -206,7 +206,18 @@
     const filename='ranking-gestao-menezes-'+d.m+'-premium-completo.png';
     return {canvas,filename,month:d.m};
   }
+  let lastAutomaticSnapshot = '';
+  let lastAutomaticAt = 0;
   function premiumExport(auto=false,returnCanvas=false){
+    // Evita múltiplos arquivos para o mesmo lançamento, mesmo que o site dispare
+    // tanto a rotina automática antiga quanto o evento após salvar a venda.
+    if(auto&&!returnCanvas){
+      const data=getData();
+      const signature=data.m+'|'+data.rows.map(r=>r.name+':'+r.total+':'+r.qty+':'+r.launches).join('|');
+      if(lastAutomaticSnapshot===signature && Date.now()-lastAutomaticAt<15000)return null;
+      lastAutomaticSnapshot=signature;
+      lastAutomaticAt=Date.now();
+    }
     let result;
     try{result=render();}
     catch(e){console.error('Gestão Menezes: erro no ranking executivo',e);if(!auto)alert(e.message||'Não foi possível gerar o ranking.');return null;}
@@ -241,10 +252,21 @@
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
     premiumExport(false,false);
   }
+  function premiumAuto(){
+    return premiumExport(true,false);
+  }
   function install(){
-    if(window.exportRankingCard!==premiumExport)window.exportRankingCard=premiumExport;
+    // Os fluxos existentes de exportação, inclusive o disparado após salvar
+    // a venda, utilizam o MESMO PNG executivo.
+    try{if(window.exportRankingCard!==premiumExport)window.exportRankingCard=premiumExport;}catch(_){}
+    try{if(window.maybeAutoExportRanking!==premiumAuto)window.maybeAutoExportRanking=premiumAuto;}catch(_){}
   }
   document.addEventListener('click',captureClick,true);
+  window.addEventListener('gm:local-sale-saved',function(){
+    // Fallback depois da confirmação da venda. A trava por assinatura evita
+    // duas imagens quando o fluxo antigo também chama maybeAutoExportRanking.
+    setTimeout(premiumAuto,600);
+  });
   install();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
   window.addEventListener('load',install,{once:true});
