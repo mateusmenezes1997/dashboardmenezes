@@ -269,16 +269,7 @@ async function routeCoaching(req,env) {
 export default {
   async fetch(req,env) {
     const path=new URL(req.url).pathname;
-    if(!path.startsWith('/api/')) {
-      const response=await env.ASSETS.fetch(req);
-      const type=response.headers.get('content-type')||'';
-      if(req.method==='GET' && response.ok && type.includes('text/html')) {
-        return new HTMLRewriter().on('body',{
-          element(el){el.append('<script defer src="/ranking-export-completo.js?v=20261113-2"></script>',{html:true});}
-        }).transform(response);
-      }
-      return response;
-    }
+    if(!path.startsWith('/api/')) return env.ASSETS.fetch(req);
     try {
       await schema(env);
       if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,...(missing.length?{missingConfig:missing}:{})}); }
