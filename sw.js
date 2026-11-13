@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v22-ranking-executivo-20261113";
+const VERSION = "gm-pwa-executive-v23-ranking-premium-and-closefix-20261113";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -1011,7 +1011,7 @@ self.addEventListener("fetch", (event) => {
         html = applyLivePerformance(html);
         // Garante a nova arte executiva também para usuários que instalaram o PWA.
         if(!html.includes('ranking-executivo-20261113.js')) {
-          html = html.replace(/<\/body>/i,'<script defer src="/ranking-executivo-20261113.js?v=exec-v3"></script>\n</body>');
+          html = html.replace(/<\/body>/i,'<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script>\n</body>');
         }
         const headers = new Headers(response.headers);
         headers.delete("content-length");
@@ -1029,7 +1029,7 @@ self.addEventListener("fetch", (event) => {
 
   // JS e CSS do dashboard precisam refletir o deploy atual mesmo com PWA instalado.
   const path=new URL(event.request.url).pathname;
-  const applicationAsset=/^\/(?:dashboard-[\w-]+|performance-[\w-]+|menezes-refinement-[\w-]+|arena-v7|arena-v8)\.(?:js|css)$/.test(path);
+  const applicationAsset=/^\/(?:dashboard-[\w-]+|performance-[\w-]+|menezes-refinement-[\w-]+|ranking-executivo-[\w-]+|arena-v7|arena-v8)\.(?:js|css)$/.test(path);
   if(applicationAsset){
     event.respondWith(fetch(event.request,{cache:'no-store'}).catch(()=>caches.match(event.request)));
     return;
