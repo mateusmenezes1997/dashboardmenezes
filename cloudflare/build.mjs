@@ -15,7 +15,7 @@ for (const name of readdirSync(root)) {
 // Não contém senhas, dados de clientes ou estado da aplicação.
 writeFileSync(join(out, 'deploy-version.json'), JSON.stringify({
   product: 'dashboard-menezes',
-  release: 'ranking-premium-v4-celebration-fix-20261113',
+  release: 'duelo-valores-reais-v5-20261113',
   branch: 'cloudflare-migracao',
   builtAt: new Date().toISOString(),
   commit: process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA || null
