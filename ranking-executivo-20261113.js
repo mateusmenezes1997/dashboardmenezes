@@ -252,8 +252,27 @@
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
     premiumExport(false,false);
   }
+  let autoTimer=null,autoObserver=null;
   function premiumAuto(){
-    return premiumExport(true,false);
+    // Não gera um canvas pesado por cima do parabéns: só exporta quando o card
+    // já tiver sido fechado. Evita a tela preta no Safari depois da venda.
+    if(autoTimer)clearTimeout(autoTimer);
+    autoTimer=setTimeout(function(){
+      autoTimer=null;
+      const popup=document.getElementById('gmv-event');
+      if(popup&&popup.classList.contains('gmv-show')){
+        if(autoObserver)autoObserver.disconnect();
+        autoObserver=new MutationObserver(function(){
+          if(!popup.classList.contains('gmv-show')){
+            autoObserver.disconnect();autoObserver=null;
+            setTimeout(function(){premiumExport(true,false)},330);
+          }
+        });
+        autoObserver.observe(popup,{attributes:true,attributeFilter:['class']});
+        return;
+      }
+      premiumExport(true,false);
+    },850);
   }
   function install(){
     // Os fluxos existentes de exportação, inclusive o disparado após salvar
