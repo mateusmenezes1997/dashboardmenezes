@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v21-fix-leader-loop-20261112";
+const VERSION = "gm-pwa-executive-v22-ranking-executivo-20261113";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -1009,6 +1009,10 @@ self.addEventListener("fetch", (event) => {
         html = applyTraineeLeadersAccess(html);
         html = enableManagerSaleDelete(html);
         html = applyLivePerformance(html);
+        // Garante a nova arte executiva também para usuários que instalaram o PWA.
+        if(!html.includes('ranking-executivo-20261113.js')) {
+          html = html.replace(/<\/body>/i,'<script defer src="/ranking-executivo-20261113.js?v=exec-v3"></script>\n</body>');
+        }
         const headers = new Headers(response.headers);
         headers.delete("content-length");
         return new Response(html, {
