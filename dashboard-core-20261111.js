@@ -555,163 +555,205 @@ function roundRectRank(ctx,x,y,w,h,r,fill,stroke){
   if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
 }
 function exportRankingCard(auto=false,returnCanvas=false){
-  const {m,total,target,rows}=rankCardData();
-  const SCALE=2,W=1920,H=1080;
+  // Exportação editorial premium: pódio e TODOS os vendedores em um PNG de altura adaptativa.
+  const data=rankCardData();
+  const m=data.m,total=data.total,target=data.target,rows=data.rows;
+  const n=rows.length,remaining=rows.slice(3),W=1440,P=64;
+  const ROW_H=79,LIST_TOP=841;
+  const footerY=LIST_TOP+Math.max(1,remaining.length)*ROW_H+38;
+  const H=footerY+123;
+  const SCALE=H>14000?1:2;
   const canvas=document.createElement('canvas');
   canvas.width=W*SCALE;canvas.height=H*SCALE;
   const ctx=canvas.getContext('2d');
+  if(!ctx)throw new Error('Canvas indisponível para exportação do ranking.');
   ctx.scale(SCALE,SCALE);
-  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.textBaseline='alphabetic';
+  const C={bg:'#070709',bg2:'#140b12',gold:'#D1AA65',goldHi:'#F6DFA4',
+    goldDark:'#82602B',white:'#F7F4EE',soft:'#D7C8B3',muted:'#9B9397',
+    silver:'#D9DEE6',bronze:'#D6A07C',wine:'#64152E',line:'#382E2F'};
   const monthLabel=formatMonth(m).toUpperCase();
-  const list=rows.slice(0,10);
-  const individualTarget=5000000; // Meta individual fixa para as barras do ranking exportado
-  const C={
-    bg:'#040304',bg2:'#080507',panel:'#0d090b',panel2:'#120d10',
-    wine:'#5b1027',wine2:'#7c1b39',gold:'#b99452',gold2:'#efd9a0',
-    text:'#f8f1e8',muted:'#aaa0a5',line:'rgba(239,210,145,.11)',
-    line2:'rgba(239,210,145,.24)',silver:'#d8dde5',bronze:'#cc8c63'
-  };
-
-  function rr(x,y,w,h,r,fill,stroke=null,lw=1){
-    ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);
-    if(fill){ctx.fillStyle=fill;ctx.fill()} if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()}
+  const goal=5000000;
+  function rounded(x,y,w,h,r,fill,stroke,width){
+    const cr=Math.min(r,w/2,h/2);
+    ctx.beginPath();ctx.moveTo(x+cr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,cr);ctx.arcTo(x+w,y+h,x,y+h,cr);
+    ctx.arcTo(x,y+h,x,y,cr);ctx.arcTo(x,y,x+w,y,cr);ctx.closePath();
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width||1;ctx.stroke();}
   }
-  function fit(t,max,start,min=10,weight=800){
-    let z=start;while(z>min){ctx.font=`${weight} ${z}px Arial`;if(ctx.measureText(String(t)).width<=max)break;z--}return z;
+  function gradient(x,y,w,h,stops,vertical){
+    const g=ctx.createLinearGradient(x,y,vertical?x:x+w,vertical?y+h:y);
+    stops.forEach(s=>g.addColorStop(s[0],s[1]));return g;
   }
-  function tx(t,x,y,max,size,color=C.text,weight=800,align='left'){
-    ctx.textAlign=align;ctx.fillStyle=color;ctx.font=`${weight} ${fit(t,max,size,10,weight)}px Arial`;ctx.fillText(String(t),x,y);
+  function lettering(value,x,y,size,color,weight,maxWidth,align,spacing){
+    const str=String(value==null?'':value);
+    let z=size;
+    ctx.textAlign=align||'left';
+    ctx.fillStyle=color||C.white;
+    while(z>12){
+      ctx.font=(weight||700)+' '+z+'px "Arial",sans-serif';
+      if(!maxWidth||ctx.measureText(str).width<=maxWidth)break;
+      z-=1;
+    }
+    if(spacing&&typeof ctx.letterSpacing!=='undefined')ctx.letterSpacing=spacing;
+    ctx.fillText(str,x,y,maxWidth||undefined);
+    if(spacing&&typeof ctx.letterSpacing!=='undefined')ctx.letterSpacing='0px';
+    ctx.textAlign='left';
   }
-  function line(x1,y1,x2,y2,color=C.line,w=1){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke()}
-  function progress(x,y,w,h,p,a,b){
-    rr(x,y,w,h,h/2,'#282026');
-    const fw=Math.max(5,Math.min(w,w*Math.max(0,Math.min(100,p))/100));
-    const g=ctx.createLinearGradient(x,0,x+fw,0);g.addColorStop(0,a);g.addColorStop(1,b);rr(x,y,fw,h,h/2,g);
+  function line(x1,y1,x2,y2,color,width){
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+    ctx.lineWidth=width||1;ctx.strokeStyle=color||C.line;ctx.stroke();
   }
-  function trophy(cx,cy,s=1){
-    ctx.save();ctx.strokeStyle=C.gold2;ctx.lineWidth=2.6*s;ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.beginPath();ctx.moveTo(cx-8*s,cy-10*s);ctx.lineTo(cx+8*s,cy-10*s);ctx.lineTo(cx+6*s,cy+2*s);ctx.quadraticCurveTo(cx,cy+8*s,cx-6*s,cy+2*s);ctx.closePath();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx-8*s,cy-6*s);ctx.quadraticCurveTo(cx-14*s,cy-5*s,cx-11*s,cy+2*s);ctx.quadraticCurveTo(cx-9*s,cy+6*s,cx-5*s,cy+5*s);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx+8*s,cy-6*s);ctx.quadraticCurveTo(cx+14*s,cy-5*s,cx+11*s,cy+2*s);ctx.quadraticCurveTo(cx+9*s,cy+6*s,cx+5*s,cy+5*s);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy+8*s);ctx.lineTo(cx,cy+14*s);ctx.moveTo(cx-6*s,cy+14*s);ctx.lineTo(cx+6*s,cy+14*s);ctx.stroke();ctx.restore();
+  function circleGlow(x,y,r,color){
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,color);g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);
   }
-  function medal(cx,cy,place,color){
-    ctx.save();
-    ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(cx,cy-3,17,0,Math.PI*2);ctx.stroke();
-    ctx.font='900 16px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(place),cx,cy-3);
-    ctx.beginPath();ctx.moveTo(cx-9,cy+14);ctx.lineTo(cx-4,cy+29);ctx.lineTo(cx+1,cy+20);ctx.moveTo(cx+9,cy+14);ctx.lineTo(cx+4,cy+29);ctx.lineTo(cx-1,cy+20);ctx.stroke();
+  function meter(x,y,w,h,p,start,end){
+    rounded(x,y,w,h,h/2,'#352D2F');
+    const share=Math.max(0,Math.min(1,p/100));
+    if(share>0){
+      const fw=Math.max(h,share*w);
+      rounded(x,y,Math.min(w,fw),h,h/2,gradient(x,y,fw,h,[[0,start],[1,end]]));
+    }
+  }
+  function trophy(x,y,s){
+    ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+    const metal=gradient(-28,-36,56,66,[[0,'#94611F'],[.25,'#FFE9AD'],[.52,'#E3B75F'],[.8,'#AE7A2C'],[1,'#FAE5AB']]);
+    ctx.shadowColor='rgba(244,195,91,.55)';ctx.shadowBlur=22;
+    ctx.fillStyle=metal;ctx.beginPath();ctx.moveTo(-28,-30);ctx.lineTo(28,-30);
+    ctx.lineTo(23,-5);ctx.quadraticCurveTo(17,21,0,22);
+    ctx.quadraticCurveTo(-17,21,-23,-5);ctx.closePath();ctx.fill();
+    ctx.shadowBlur=0;ctx.strokeStyle='#EBC984';ctx.lineWidth=6;
+    ctx.beginPath();ctx.arc(-26,-12,16,Math.PI*.54,Math.PI*1.57,true);ctx.stroke();
+    ctx.beginPath();ctx.arc(26,-12,16,Math.PI*1.46,Math.PI*-.57,true);ctx.stroke();
+    rounded(-5,20,10,22,2,metal);rounded(-23,39,46,7,3,metal);
     ctx.restore();
   }
-
-  // background
-  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,C.bg);bg.addColorStop(1,C.bg2);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  const glow=ctx.createRadialGradient(1680,40,0,1680,40,500);glow.addColorStop(0,'rgba(91,16,39,.16)');glow.addColorStop(1,'rgba(114,25,52,0)');ctx.fillStyle=glow;ctx.fillRect(1300,0,620,500);
-
-  // title
-  ctx.fillStyle=C.gold2;ctx.font='800 10px Arial';ctx.fillText('PLACAR COMPLETO',58,48);
-  tx('Ranking dos campeões',58,102,880,46,C.text,900);
-  ctx.fillStyle='#b8adb2';ctx.font='600 14px Arial';ctx.fillText('Cada venda muda o jogo. Acompanhe sua posição e dispute o topo.',58,136);
-  ctx.textAlign='right';ctx.fillStyle=C.muted;ctx.font='800 9px Arial';ctx.fillText(monthLabel,1860,48);
-  tx('GESTÃO MENEZES',1860,77,260,19,C.gold2,900,'right');ctx.textAlign='left';
-
-  // board
-  const boardX=58,boardY=180,boardW=1804,rowH=76,boardH=rowH*10;
-  rr(boardX,boardY,boardW,boardH,28,'rgba(11,8,10,.97)','rgba(239,210,145,.16)',1);
-
-  list.forEach((r,i)=>{
-    const y=boardY+i*rowH;
-    const place=i+1;
-    const p=Math.max(0,Math.min(100,(Number(r.total)||0)/individualTarget*100));
-    const isFirst=place===1,isSecond=place===2,isThird=place===3;
-
-    if(isFirst){
-      const g=ctx.createLinearGradient(boardX,y,boardX+boardW,y);
-      g.addColorStop(0,'rgba(82,22,28,.92)');
-      g.addColorStop(.58,'rgba(57,13,26,.90)');
-      g.addColorStop(1,'rgba(18,8,12,.98)');
-      rr(boardX,y,boardW,rowH,place===1?26:0,g,'rgba(239,210,145,.36)',1.15);
-      ctx.fillStyle=C.gold2;ctx.fillRect(boardX,y,5,rowH);
-    }else if(isSecond){
-      ctx.fillStyle='rgba(215,221,229,.045)';ctx.fillRect(boardX,y,boardW,rowH);
-      ctx.fillStyle=C.silver;ctx.fillRect(boardX,y,4,rowH);
-    }else if(isThird){
-      ctx.fillStyle='rgba(204,140,99,.05)';ctx.fillRect(boardX,y,boardW,rowH);
-      ctx.fillStyle=C.bronze;ctx.fillRect(boardX,y,4,rowH);
+  function badge(x,y,kind){
+    ctx.beginPath();ctx.arc(x,y,32,0,Math.PI*2);
+    ctx.fillStyle='#1B1617';ctx.fill();ctx.strokeStyle=kind;ctx.lineWidth=2;ctx.stroke();
+    lettering(''+(kind===C.silver?2:3)+'º',x,y+9,25,kind,900,50,'center');
+  }
+  function podiumCard(r,place,x,y,w,h){
+    const champ=place===1,metal=champ?C.goldHi:place===2?C.silver:C.bronze;
+    const p=Math.min(100,Math.max(0,Number(r.total||0)/goal*100));
+    const fill=champ
+      ?gradient(x,y,w,h,[[0,'#422218'],[.36,'#211719'],[1,'#100E10']],true)
+      :gradient(x,y,w,h,[[0,'#272126'],[1,'#111013']],true);
+    ctx.save();
+    if(champ){ctx.shadowColor='rgba(220,168,77,.28)';ctx.shadowBlur=40;}
+    rounded(x,y,w,h,25,fill,champ?'#DAB66D':'#685952',champ?2.6:1.3);
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath();ctx.rect(x+2,y+2,w-4,h-4);ctx.clip();
+    circleGlow(x+w*.5,y+30,champ?290:170,champ?'rgba(213,160,67,.19)':'rgba(176,130,112,.065)');
+    ctx.fillStyle=gradient(x,y,w,6,[[0,'rgba(255,255,255,0)'],[.5,metal],[1,'rgba(255,255,255,0)']]);
+    ctx.fillRect(x+19,y,w-38,3);ctx.restore();
+    if(champ){
+      circleGlow(x+w/2,y+105,135,'rgba(237,184,71,.22)');
+      trophy(x+w/2,y+91,1.05);
+      lettering('PRIMEIRO LUGAR',x+w/2,y+168,14,C.goldHi,900,w-56,'center','2px');
+    }else{
+      badge(x+w/2,y+62,metal);
+      lettering(place===2?'VICE-LIDERANÇA':'TERCEIRO LUGAR',x+w/2,y+123,12,metal,900,w-45,'center','1.8px');
     }
-    if(i>0) line(boardX+20,y,boardX+boardW-20,y,'rgba(255,255,255,.055)');
+    const nameY=champ?218:179;
+    lettering(String(r.name||'CONSULTOR').toUpperCase(),x+w/2,y+nameY,champ?34:27,C.white,900,w-46,'center');
+    lettering(money(Number(r.total)||0),x+w/2,y+nameY+51,champ?36:30,metal,900,w-40,'center');
+    const barY=y+h-62;
+    line(x+30,barY-30,x+w-30,barY-30,'rgba(224,201,157,.12)',1);
+    lettering('META INDIVIDUAL',x+30,barY-9,10,C.muted,800,w*.58);
+    lettering(p.toFixed(1).replace('.',',')+'%',x+w-28,barY-9,13,metal,900,100,'right');
+    meter(x+30,barY+5,w-60,9,p,champ?'#86501E':'#684452',metal);
+    lettering((Number(r.qty)||0)+' '+((Number(r.qty)||0)===1?'COTA':'COTAS')+'  •  '+(Number(r.launches)||0)+' VENDAS',x+w/2,y+h-17,10,C.muted,700,w-50,'center');
+  }
 
-    // rank icon/number
-    if(isFirst){
-      rr(boardX+22,y+12,52,52,16,'#21150d','rgba(239,210,145,.26)',1);
-      trophy(boardX+48,y+36,1.15);
-    }else if(isSecond){
-      medal(boardX+46,y+36,2,C.silver);
-    }else if(isThird){
-      medal(boardX+46,y+36,3,C.bronze);
-    }
+  // Fundo e detalhes de identidade
+  ctx.fillStyle=gradient(0,0,W,H,[[0,C.bg],[.48,'#0D090D'],[1,'#050607']],true);
+  ctx.fillRect(0,0,W,H);
+  circleGlow(180,220,700,'rgba(115,20,48,.23)');
+  circleGlow(1290,200,550,'rgba(143,80,26,.12)');
+  circleGlow(1120,H-270,630,'rgba(103,19,40,.13)');
+  for(let i=0;i<9;i++){
+    line(920+i*76,0,1360+i*76,490,'rgba(226,189,111,.018)',1);
+  }
+  rounded(64,40,5,30,2,C.gold);
+  lettering('GESTÃO MENEZES',83,61,20,C.goldHi,900,350,'left','1px');
+  rounded(W-374,39,309,44,22,'rgba(201,166,104,.08)','rgba(230,192,125,.29)');
+  lettering(monthLabel,W-219,67,17,C.goldHi,900,282,'center');
+  lettering('RANKING DE ELITE',P,148,67,C.white,900,W-2*P);
+  lettering('PERFORMANCE, RESULTADO E CONQUISTAS',P+4,181,16,C.soft,700,900,'left','1.6px');
+  line(P,204,W-P,204,'rgba(222,187,123,.25)',1);
 
-    const rankColor=isFirst?C.gold2:isSecond?C.silver:isThird?C.bronze:C.gold2;
-    tx(String(place).padStart(2,'0'),boardX+92,y+47,60,19,rankColor,900);
+  // Indicadores — sem inserir valores fictícios
+  const statY=225,statH=104,statGap=14,statW=(W-2*P-statGap*2)/3;
+  function stat(i,eyebrow,value,col){
+    const x=P+i*(statW+statGap);
+    rounded(x,statY,statW,statH,17,'rgba(25,20,23,.91)','rgba(220,180,104,.17)');
+    ctx.fillStyle=col;ctx.fillRect(x+1,statY+24,3,55);
+    lettering(eyebrow,x+21,statY+32,12,C.muted,800,statW-43,'left','1px');
+    lettering(value,x+21,statY+77,30,col,900,statW-42);
+  }
+  stat(0,'VOLUME DA GESTÃO',money(total),C.goldHi);
+  stat(1,'CONSULTORES COM VENDAS',String(n).padStart(2,'0'),C.white);
+  stat(2,'META DA GESTÃO',target>0?money(target):'NÃO DEFINIDA',C.soft);
 
-    // name
-    tx(r.name.toUpperCase(),boardX+160,y+33,400,isFirst?20:17,C.text,900);
-    if(isFirst){
-      rr(boardX+160,y+44,138,22,11,'#d8b76d',null);
-      ctx.fillStyle='#1a1009';ctx.font='900 8px Arial';ctx.fillText('CAMPEÃO DO MÊS',boardX+176,y+58);
-    }
+  // Pódio — campeão central, vice à esquerda, terceiro à direita
+  if(rows[1])podiumCard(rows[1],2,P,390,376,306);
+  if(rows[0])podiumCard(rows[0],1,457,347,526,349);
+  if(rows[2])podiumCard(rows[2],3,1000,390,376,306);
+  if(!rows.length){
+    rounded(P,362,W-2*P,334,26,'rgba(28,22,25,.94)','rgba(225,182,105,.25)');
+    trophy(W/2,445,1.25);
+    lettering('O PRÓXIMO CAMPEÃO PODE ESTAR AQUI',W/2,552,30,C.goldHi,900,W-180,'center');
+    lettering('O ranking aparecerá após a primeira venda do mês.',W/2,602,17,C.soft,600,W-180,'center');
+  }
 
-    // progress
-    const barX=boardX+520,barY=y+34,barW=500;
-    const barA=isSecond?'#777d86':isThird?'#8c593b':C.wine2;
-    const barB=isSecond?C.silver:isThird?C.bronze:C.gold2;
-    progress(barX,barY,barW,9,p,barA,barB);
-    ctx.textAlign='right';ctx.fillStyle=rankColor;ctx.font='900 10px Arial';ctx.fillText(Number(p.toFixed(1)).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%',barX+barW+48,y+39);ctx.textAlign='left';
-
-    // total
-    line(boardX+1110,y+18,boardX+1110,y+58,'rgba(239,210,145,.13)');
-    ctx.fillStyle=C.muted;ctx.font='800 7px Arial';ctx.fillText('TOTAL VENDIDO',boardX+1140,y+24);
-    tx(money(r.total),boardX+1140,y+50,330,21,isFirst?C.gold2:'#ead9b3',900);
-
-    // qty / launches
-    line(boardX+1500,y+18,boardX+1500,y+58,'rgba(239,210,145,.13)');
-    const qty=Number(r.qty||0),launches=Number(r.launches||0);
-    const qLabel=qty===1?'1 cota':qty+' cotas';
-    const lLabel=launches===1?'1 lançamento':launches+' lançamentos';
-    tx(qLabel,boardX+1530,y+31,140,12,C.text,800);
-    tx(lLabel,boardX+1690,y+31,150,12,C.text,800);
-    ctx.fillStyle=C.muted;ctx.font='700 7px Arial';ctx.fillText('COTAS',boardX+1530,y+50);ctx.fillText('LANÇAMENTOS',boardX+1690,y+50);
+  // Classificação contínua: todos os consultores, sem slice(0,10)
+  lettering('CLASSIFICAÇÃO COMPLETA',P,775,28,C.white,900,940);
+  lettering(n===1?'01 VENDEDOR':String(n).padStart(2,'0')+' VENDEDORES',W-P,772,14,C.goldHi,900,290,'right');
+  lettering(remaining.length?'DO 4º LUGAR EM DIANTE':'PÓDIO DO MÊS',P+2,800,12,C.muted,800,520,'left','1.1px');
+  line(P,819,W-P,819,'rgba(231,195,130,.25)',1);
+  if(!remaining.length){
+    rounded(P,LIST_TOP,W-P*2,ROW_H-4,15,'rgba(29,23,25,.73)','rgba(215,187,133,.13)');
+    lettering(n?'Todos os consultores com vendas estão no pódio acima.':'Nenhum consultor com vendas no período.',P+28,LIST_TOP+48,18,C.soft,600,W-2*P-45);
+  }
+  remaining.forEach((r,i)=>{
+    const place=i+4,x=P,y=LIST_TOP+i*ROW_H,w=W-2*P,h=ROW_H-9;
+    const p=Math.max(0,Math.min(100,Number(r.total||0)/goal*100));
+    rounded(x,y,w,h,14,i%2===0?'rgba(29,23,27,.93)':'rgba(19,17,21,.94)','rgba(219,179,114,.13)');
+    rounded(x+14,y+13,49,44,10,'rgba(212,173,108,.09)','rgba(212,173,108,.2)');
+    lettering(String(place).padStart(2,'0'),x+38,y+43,21,C.goldHi,900,42,'center');
+    lettering(String(r.name||'').toUpperCase(),x+82,y+30,21,C.white,900,430);
+    lettering((Number(r.qty)||0)+' cotas  •  '+(Number(r.launches)||0)+' vendas',x+83,y+51,11,C.muted,700,330);
+    meter(x+610,y+25,250,9,p,'#6D2840','#D9B66D');
+    lettering(p.toFixed(1).replace('.',',')+'% DA META',x+610,y+52,11,C.soft,800,250);
+    line(x+925,y+17,x+925,y+53,'rgba(216,189,143,.16)',1);
+    lettering(money(Number(r.total)||0),x+w-25,y+43,25,C.goldHi,900,338,'right');
   });
 
-  // footer
-  const fy=970;
-  rr(58,fy,1804,66,18,'rgba(255,255,255,.012)','rgba(239,210,145,.14)',1);
-  ctx.fillStyle=C.gold2;ctx.font='900 10px Arial';ctx.fillText('GESTÃO MENEZES • RESULTADOS DO MÊS',82,fy+27);
-  ctx.fillStyle=C.muted;ctx.font='600 10px Arial';ctx.fillText('Ranking gerado automaticamente com base nas vendas registradas no dashboard.',82,fy+46);
-  ctx.textAlign='right';ctx.fillStyle=C.gold2;ctx.font='900 10px Arial';ctx.fillText('TOTAL DA GESTÃO  '+money(total),1838,fy+37);ctx.textAlign='left';
+  line(P,footerY-10,W-P,footerY-10,'rgba(231,195,130,.28)',1);
+  lettering('GESTÃO MENEZES',P,footerY+34,20,C.goldHi,900,500,'left','1px');
+  lettering('RESULTADO QUE INSPIRA. EXCELÊNCIA QUE TRANSFORMA.',P,footerY+62,12,C.soft,700,900);
+  lettering('Vendas registradas no dashboard  •  '+monthLabel,W-P,footerY+62,11,C.muted,600,500,'right');
 
-  const filename=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
+  const filename='ranking-elite-gestao-menezes-'+m+(auto?'-automatico':'')+'.png';
   if(returnCanvas)return {canvas,filename,month:m};
 
   const btn=document.getElementById('exportRankCard');
   const oldText=btn?btn.textContent:'';
-  if(btn&&!auto){btn.disabled=true;btn.textContent='Gerando arquivo PNG...';}
-
-  canvas.toBlob(blob=>{
+  if(btn&&!auto){btn.disabled=true;btn.textContent='Gerando ranking premium...';}
+  canvas.toBlob(function(blob){
     try{
-      if(!blob)throw new Error('Não foi possível gerar o PNG.');
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url;
-      a.download=filename;
-      a.style.display='none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{
-        try{a.remove()}catch(e){}
-        URL.revokeObjectURL(url);
-      },1500);
+      if(!blob)throw new Error('Não foi possível gerar o arquivo PNG.');
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=filename;a.style.display='none';
+      document.body.appendChild(a);a.click();
+      setTimeout(function(){a.remove();URL.revokeObjectURL(url);},2000);
     }catch(error){
       console.error('Falha ao baixar ranking:',error);
       if(!auto)alert('Não foi possível baixar o ranking em PNG. Tente novamente.');
