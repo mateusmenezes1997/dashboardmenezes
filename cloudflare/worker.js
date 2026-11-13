@@ -273,7 +273,7 @@ export default {
       const response=await env.ASSETS.fetch(req);
       if(req.method!=='GET'||!response.ok||!(response.headers.get('content-type')||'').includes('text/html')) return response;
       let html=await response.text();
-      const premium='<script defer src="/ranking-executivo-20261113.js?v=exec-v3"></script>';
+      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script>';
       if(!html.includes('ranking-executivo-20261113.js')) {
         if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,premium+'\n</body>');
         else html+=premium;
@@ -282,7 +282,7 @@ export default {
       headers.delete('content-length');
       headers.delete('content-encoding');
       headers.set('cache-control','no-store');
-      headers.set('x-gm-ranking-version','executivo-v3-20261113');
+      headers.set('x-gm-ranking-version','premium-v4-20261113');
       return new Response(html,{status:response.status,statusText:response.statusText,headers});
     }
     try {
