@@ -554,7 +554,70 @@ function roundRectRank(ctx,x,y,w,h,r,fill,stroke){
   if(fill){ctx.fillStyle=fill;ctx.fill()}
   if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
 }
+function exportRankingPortrait(auto,returnCanvas,data){
+  const {m,total,rows}=data;
+  const W=1120,rowH=82,head=254,footer=120,H=head+rows.length*rowH+footer;
+  // Controle de memória para Safari/iPhone, mantendo todos os nomes sem cortar linhas.
+  const SCALE=Math.min(2,Math.sqrt(14500000/(W*H)),16000/H);
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.floor(W*SCALE));
+  canvas.height=Math.max(1,Math.floor(H*SCALE));
+  const ctx=canvas.getContext('2d');
+  if(!ctx)throw new Error('Canvas indisponível');
+  ctx.scale(canvas.width/W,canvas.height/H);
+  const colors={gold:'#eccb83',silver:'#d6dce5',bronze:'#c99b76',wine:'#7b2443'};
+  function rr(x,y,w,h,r,fill,stroke){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+    if(fill){ctx.fillStyle=fill;ctx.fill()}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
+  }
+  function text(t,x,y,max,size,color,weight,align){
+    ctx.textAlign=align||'left';ctx.fillStyle=color;ctx.font=(weight||700)+' '+size+'px Arial';
+    let str=String(t);
+    while(ctx.measureText(str).width>max && str.length>2)str=str.slice(0,-2)+'…';
+    ctx.fillText(str,x,y);
+  }
+  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#08080c');bg.addColorStop(.55,'#22111c');bg.addColorStop(1,'#0a0a0d');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=colors.gold;ctx.fillRect(50,46,95,5);
+  text('GESTÃO MENEZES',50,102,700,25,colors.gold,900);
+  text('RANKING DOS CAMPEÕES',50,168,1030,47,'#ffffff',900);
+  text(formatMonth(m).toUpperCase()+'  •  '+rows.length+' CONSULTORES COM VENDAS',50,211,1030,22,'#c8b5ac',700);
+  rows.forEach((r,i)=>{
+    const y=head+i*rowH,place=i+1;
+    const medal=place===1?colors.gold:place===2?colors.silver:place===3?colors.bronze:null;
+    rr(48,y,1024,rowH-8,14,place===1?'#3b2027':place===2?'#292d36':place===3?'#35251f':i%2?'#161319':'#211820',medal);
+    ctx.fillStyle=medal||'#bba8a6';ctx.font='900 27px Arial';ctx.textAlign='left';
+    ctx.fillText(String(place).padStart(2,'0'),72,y+42);
+    text(r.name.toUpperCase(),160,y+36,480,place<4?23:21,'#fff4e9',place<4?900:700);
+    const p=Math.max(0,Math.min(100,(Number(r.total)||0)/5000000*100));
+    rr(160,y+50,400,7,3,'#30242b');
+    if(p>0)rr(160,y+50,Math.max(5,400*p/100),7,3,medal||colors.wine);
+    text(money(r.total),1032,y+36,410,26,medal||'#f4ded2',900,'right');
+    const qty=Number(r.qty||0),launches=Number(r.launches||0);
+    text(qty+' '+(qty===1?'cota':'cotas')+'  •  '+launches+' '+(launches===1?'lançamento':'lançamentos'),1032,y+60,400,14,'#bba7aa',600,'right');
+  });
+  rr(48,H-100,1024,64,14,'#181319','#634b43');
+  text('RESULTADOS REGISTRADOS NO DASHBOARD',72,H-61,660,18,colors.gold,900);
+  text('TOTAL DA GESTÃO  '+money(total),1040,H-61,430,19,'#ead4b0',900,'right');
+  const filename='ranking-gestao-menezes-'+m+(auto?'-automatico':'')+'-completo.png';
+  if(returnCanvas)return {canvas,filename,month:m};
+  const btn=document.getElementById('exportRankCard'),original=btn?.textContent;
+  if(btn&&!auto){btn.disabled=true;btn.textContent='Gerando PNG completo...'}
+  canvas.toBlob(blob=>{
+    try{
+      if(!blob)throw new Error('PNG indisponível');
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+      setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},2500);
+    }catch(error){console.error(error);if(!auto)alert('Não foi possível baixar o PNG.')}
+    finally{if(btn&&!auto){btn.disabled=false;btn.textContent=original||'Baixar ranking PNG'}}
+  },'image/png');
+}
 function exportRankingCard(auto=false,returnCanvas=false){
+  const data=rankCardData();
+  if(data.rows.length>10)return exportRankingPortrait(auto,returnCanvas,data);
   const {m,total,target,rows}=rankCardData();
   const SCALE=2,W=1920,H=1080;
   const canvas=document.createElement('canvas');
