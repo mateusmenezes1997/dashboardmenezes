@@ -1,0 +1,3 @@
+Primeiro build do Dashboard Gestão Menezes na Cloudflare.
+Branch: cloudflare-migracao.
+Este arquivo apenas inicia uma nova compilação pelo GitHub; não altera dados de vendas.
