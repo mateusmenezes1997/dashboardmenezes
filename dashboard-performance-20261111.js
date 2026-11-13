@@ -150,7 +150,7 @@ function drawDuel(people){
  if(tied){a=top[0];b=top[1];best=0}
  var aPos=people.findIndex(function(p){return p.id===a.id})+1;
  var bPos=people.findIndex(function(p){return p.id===b.id})+1;
- var currency=function(n){return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:2})};
+ var currency=function(n){var v=Number(n)||0;return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:Math.round(v*100)%100===0?0:2,maximumFractionDigits:2})};
  var diff=best/100;
  var share=a.total?Math.min(100,Math.max(0,b.total/a.total*100)):0;
  var label=tied?'EMPATE REAL':'DIFERENÇA ENTRE OS DOIS';
