@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "dashboardmenezes",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-13",
+  "assets": {
+    "directory": "./.cloudflare-public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "gestao-menezes-db",
+    "database_id": "14b8c10f-0290-4bd0-9fad-daba4808701c"
+  }]
+}
