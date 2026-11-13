@@ -269,7 +269,22 @@ async function routeCoaching(req,env) {
 export default {
   async fetch(req,env) {
     const path=new URL(req.url).pathname;
-    if(!path.startsWith('/api/')) return env.ASSETS.fetch(req);
+    if(!path.startsWith('/api/')) {
+      const response=await env.ASSETS.fetch(req);
+      if(req.method!=='GET'||!response.ok||!(response.headers.get('content-type')||'').includes('text/html')) return response;
+      let html=await response.text();
+      const premium='<script defer src="/ranking-executivo-20261113.js?v=exec-v3"></script>';
+      if(!html.includes('ranking-executivo-20261113.js')) {
+        if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,premium+'\n</body>');
+        else html+=premium;
+      }
+      const headers=new Headers(response.headers);
+      headers.delete('content-length');
+      headers.delete('content-encoding');
+      headers.set('cache-control','no-store');
+      headers.set('x-gm-ranking-version','executivo-v3-20261113');
+      return new Response(html,{status:response.status,statusText:response.statusText,headers});
+    }
     try {
       await schema(env);
       if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,...(missing.length?{missingConfig:missing}:{})}); }
