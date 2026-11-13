@@ -225,7 +225,7 @@ function refresh(){
 }
 function boot(){
  if(booted)return;booted=true;
- var style=document.createElement('link');style.rel='stylesheet';style.href='/dashboard-performance-20261111.css?v=3';document.head.appendChild(style);
+ var style=document.createElement('link');style.rel='stylesheet';style.href='/dashboard-performance-20261111.css?v=4';document.head.appendChild(style);
  makeLayout();makeTools();refresh();
  var m=byId('monthFilter');if(m)m.addEventListener('change',function(){lastKey='';setTimeout(refresh,80)});
  window.addEventListener('gm:performance-state',function(ev){if(ev.detail&&Array.isArray(ev.detail.consultants)){remote=ev.detail;lastKey='';refresh()}});
