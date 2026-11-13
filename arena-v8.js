@@ -389,7 +389,7 @@ function installPopupWatcher(){
    }else if(tier==='overtake')small.textContent='ULTRAPASSAGEM CONFIRMADA';
    else small.textContent='NOVA VENDA • GESTÃO MENEZES';
   }
-  if(tier==='sale')setTimeout(function(){if(popup.classList.contains('gmv-show')&&popup.classList.contains('gmv8-tier-sale')){var close=popup.querySelector('button[aria-label="Fechar mensagem de parabéns"]');if(close)close.click()}},6500);
+  /* Mantém o parabéns visível até clicar no X; nenhuma outra camada deve fechá-lo por tempo. */
  }
  new MutationObserver(process).observe(popup,{attributes:true,attributeFilter:['class'],childList:true});
 }
