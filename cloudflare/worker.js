@@ -73,25 +73,54 @@ async function parse(req) {
   try{return await req.json();}catch{throw new HttpError(400,'Dados JSON inválidos');}
 }
 let schemaReady=false;
+const MAX_IMPORT_BYTES=15_000_000;
+const CHUNK_LENGTH=140_000;
 async function schema(env) {
   if(schemaReady||!env.DB) return;
   await env.DB.prepare('CREATE TABLE IF NOT EXISTS app_documents (id TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0, data TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS app_document_chunks (document_key TEXT NOT NULL, chunk_index INTEGER NOT NULL, data TEXT NOT NULL, PRIMARY KEY (document_key, chunk_index))').run();
   schemaReady=true;
 }
 async function readDoc(env,id) {
   const row=await env.DB.prepare('SELECT revision, data FROM app_documents WHERE id = ?').bind(id).first();
-  return row?{revision:Number(row.revision),...JSON.parse(row.data)}:null;
+  if(!row) return null;
+  const stored=JSON.parse(row.data);
+  if(!stored?.__gm_chunks_v1) return {revision:Number(row.revision),...stored};
+  const key=stored.__gm_chunks_v1, expected=stored.chunkCount;
+  if(typeof key!=='string'||!Number.isInteger(expected)||expected<1||expected>200) throw new HttpError(500,'Documento armazenado inválido');
+  const rows=await env.DB.prepare('SELECT chunk_index, data FROM app_document_chunks WHERE document_key=? ORDER BY chunk_index').bind(key).all();
+  const chunks=rows.results||[];
+  if(chunks.length!==expected||chunks.some((r,i)=>Number(r.chunk_index)!==i)) throw new HttpError(503,'Backup parcialmente armazenado. Nenhum dado foi alterado.');
+  return {revision:Number(row.revision),...JSON.parse(chunks.map(x=>x.data).join(''))};
 }
 async function writeDoc(env,id,data,prev) {
   const raw=JSON.stringify(data);
-  if(encoder.encode(raw).byteLength>MAX_BYTES) throw new HttpError(413,'O backup ultrapassa o limite de um registro D1. Não tente importar sem dividir os dados.');
-  let result;
-  if(prev===null) {
-    result=await env.DB.prepare('INSERT OR IGNORE INTO app_documents (id, revision, data) VALUES (?, 1, ?)').bind(id,raw).run();
-  } else {
-    result=await env.DB.prepare('UPDATE app_documents SET revision=revision+1,data=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND revision=?').bind(raw,id,prev).run();
+  if(encoder.encode(raw).byteLength>MAX_IMPORT_BYTES) throw new HttpError(413,'O backup ultrapassa 15 MB. É necessário importar imagens separadamente.');
+  const isChunked=raw.length>CHUNK_LENGTH;
+  let stored=raw, chunkKey=null;
+  if(isChunked) {
+    chunkKey=crypto.randomUUID();
+    const tasks=[];
+    for(let i=0,n=0;i<raw.length;i+=CHUNK_LENGTH,n++) {
+      tasks.push(env.DB.prepare('INSERT INTO app_document_chunks (document_key,chunk_index,data) VALUES (?,?,?)').bind(chunkKey,n,raw.slice(i,i+CHUNK_LENGTH)));
+    }
+    for(let i=0;i<tasks.length;i+=50) await env.DB.batch(tasks.slice(i,i+50));
+    stored=JSON.stringify({__gm_chunks_v1:chunkKey,chunkCount:tasks.length});
   }
-  return result.meta?.changes===1;
+  let result;
+  try {
+    if(prev===null) {
+      result=await env.DB.prepare('INSERT OR IGNORE INTO app_documents (id, revision, data) VALUES (?, 1, ?)').bind(id,stored).run();
+    } else {
+      result=await env.DB.prepare('UPDATE app_documents SET revision=revision+1,data=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND revision=?').bind(stored,id,prev).run();
+    }
+  } catch(e) {
+    if(chunkKey) await env.DB.prepare('DELETE FROM app_document_chunks WHERE document_key=?').bind(chunkKey).run().catch(()=>{});
+    throw e;
+  }
+  const success=result.meta?.changes===1;
+  if(!success && chunkKey) await env.DB.prepare('DELETE FROM app_document_chunks WHERE document_key=?').bind(chunkKey).run().catch(()=>{});
+  return success;
 }
 function validState(s) {return !!(s&&Array.isArray(s.consultants)&&Array.isArray(s.sales)&&s.settings&&typeof s.settings==='object');}
 function withAudit(s,previous,user,action,details={}) {
