@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Restaurar backup | Gestão Menezes</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b0b10;color:#f4f2ef}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -20%,#4b2530 0%,transparent 55%),#0b0b10}
+main{max-width:790px;margin:5vh auto;padding:20px}.panel{background:#10151a;border:1px solid #5d4b32;border-radius:24px;padding:clamp(23px,5vw,44px);box-shadow:0 15px 60px #0007}
+.kicker{font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;color:#d6ad70;font-weight:800}
+h1{font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.1;margin:.8rem 0 1rem}
+p{color:#c8c9ce;line-height:1.6}strong{color:#fafafa}a{color:#edc787}
+.notice{padding:14px 17px;background:#241c1a;border-left:3px solid #d7ac6c;border-radius:8px;font-size:.92rem}
+label.file{display:block;padding:24px;margin:24px 0 15px;text-align:center;border:2px dashed #837253;border-radius:14px;cursor:pointer;color:#f5d5a0}
+input[type=file]{max-width:100%}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0}
+.metric{background:#171f26;padding:15px;border-radius:12px;border:1px solid #343639}
+.metric span{display:block;color:#adafb8;font-size:.82rem;margin-bottom:6px}
+.metric b{display:block;font-size:clamp(1.1rem,3vw,1.5rem);overflow-wrap:anywhere}
+.big{grid-column:1/-1}.big b{color:#e5be80;font-size:clamp(1.65rem,5vw,2.4rem)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+button,.button{border:0;background:linear-gradient(100deg,#c79750,#edcd98);color:#111;font-size:1rem;font-weight:800;padding:14px 21px;border-radius:12px;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.42}
+.button{background:#232931;color:#f0f0f0;text-decoration:none;border:1px solid #555}
+#status{font-size:.95rem;padding-top:14px;white-space:pre-wrap;overflow-wrap:break-word}
+.err{color:#ff9298}.ok{color:#a4e6b2}
+.checkbox{display:flex;gap:10px;align-items:flex-start;color:#d5d5dc;font-size:.94rem;line-height:1.5;margin:20px 0}
+.checkbox input{accent-color:#d3a564;margin-top:5px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body><main><div class="panel">
+<div class="kicker">Gestão Menezes · Cloudflare</div>
+<h1>Restauração segura das vendas</h1>
+<p>Use exclusivamente o <strong>backup original da Vercel</strong> para iniciar a base compartilhada. Esta página <strong>não substitui</strong> uma base já existente.</p>
+<div class="notice">Importante: abra esta página no <strong>mesmo navegador</strong> em que você já entrou no Dashboard com o perfil <strong>Gestor</strong>. Não use um backup de navegador desatualizado.</div>
+<div id="status" aria-live="polite">Verificando seu acesso e o banco…</div>
+<section id="form-area" hidden>
+<label class="file" for="backup">Selecione o arquivo <strong>state-v1.json</strong> que você baixou da Vercel</label>
+<input id="backup" type="file" accept=".json,application/json">
+<div id="preview" hidden>
+<div class="metrics">
+<div class="metric big"><span>Total de novembro de 2026</span><b id="total">—</b></div>
+<div class="metric"><span>Vendas registradas em novembro</span><b id="sales">—</b></div>
+<div class="metric"><span>Lançamentos iniciais de novembro</span><b id="opening">—</b></div>
+<div class="metric"><span>Consultores</span><b id="consultants">—</b></div>
+<div class="metric"><span>Vendas de todos os meses</span><b id="all-sales">—</b></div>
+<div class="metric"><span>Fotos incorporadas</span><b id="photos">—</b></div>
+</div>
+<p>Fotos, cargos, líderes e configurações presentes no backup serão transferidos. A interface, os efeitos e os layouts continuam sendo fornecidos pelo código do Dashboard.</p>
+<label class="checkbox"><input id="confirm" type="checkbox"> <span>Conferi que este é o backup correto e autorizo iniciar a base vazia com os registros exibidos.</span></label>
+</div>
+<div class="actions">
+<button id="restore" type="button" disabled>Importar backup validado</button>
+<a class="button" href="/">Voltar ao Dashboard</a>
+</div>
+</section>
+</div></main>
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);
+ const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
+ let ready=false,prepared=null,busy=false;
+ function show(msg,isError=false,isSuccess=false){$('status').textContent=msg;$('status').className=isError?'err':isSuccess?'ok':''}
+ function enable(){ $('restore').disabled = !ready || !prepared || !$('confirm').checked || busy; }
+ async function check(){
+  try{
+    const auth=await fetch('/api/session',{credentials:'same-origin',cache:'no-store'});
+    const info=await auth.json();
+    if(!auth.ok||info.role!=='gestor'){show('Você precisa entrar primeiro com o perfil Gestor. Abra o Dashboard, faça login e retorne a esta página.',true);return;}
+    const res=await fetch('/api/state',{credentials:'same-origin',cache:'no-store'});
+    const doc=await res.json();
+    if(!res.ok){show('Não foi possível verificar o banco: '+(doc.error||res.status),true);return;}
+    if(doc.state || doc.revision!==0){show('O banco já contém uma base. Por segurança, esta página bloqueia importação para não sobrescrever dados. Não envie outro backup sem uma conferência.',true);return;}
+    ready=true;$('form-area').hidden=false;show('Acesso Gestor confirmado. Banco vazio. Selecione o backup da Vercel.');
+   }catch(e){show('Falha na verificação de segurança. Verifique a conexão e atualize a página.',true);}
+ }
+ $('backup').addEventListener('change',async e=>{
+   prepared=null;$('confirm').checked=false;$('preview').hidden=true;enable();
+   const file=e.target.files?.[0];
+   if(!file)return;
+   if(file.size>15000000){show('Arquivo muito grande para a importação. Não foi enviado.',true);return;}
+   try{
+     const data=JSON.parse(await file.text());
+     const s=data?.state??data;
+     if(!s || !Array.isArray(s.consultants) || !Array.isArray(s.sales) || !s.settings){show('Este arquivo não tem a estrutura do backup de vendas. Nenhum dado foi enviado.',true);return;}
+     const sales=s.sales.filter(v=>String(v.date||'').startsWith('2026-11')).reduce((a,v)=>a+(Number(v.amount)||0),0);
+     const openings=s.consultants.reduce((a,c)=>a+(Number(c.monthOpenings?.['2026-11']?.total)||0),0);
+     const total=Math.round((sales+openings)*100)/100;
+     if(!Number.isFinite(total)||total<=3300000){show('Backup abaixo do mínimo de R$ 3,3 milhões. Importação bloqueada: confira se é o arquivo mais atualizado.',true);return;}
+     const ids=s.sales.map(x=>x.id);
+     if(new Set(ids).size!==ids.length){show('Existem identificadores de vendas duplicados no arquivo. Importação bloqueada.',true);return;}
+     $('total').textContent=money(total);
+     $('sales').textContent=money(sales)+' · '+s.sales.filter(v=>String(v.date||'').startsWith('2026-11')).length+' registros';
+     $('opening').textContent=money(openings);
+     $('consultants').textContent=String(s.consultants.length);
+     $('all-sales').textContent=String(s.sales.length);
+     $('photos').textContent=String(s.consultants.filter(c=>typeof c.photo==='string'&&c.photo.startsWith('data:image/')).length);
+     prepared=s;$('preview').hidden=false;
+     show('Backup carregado apenas para conferência. Nenhum dado foi enviado à Cloudflare.');enable();
+   }catch(e){show('Não consegui ler esse arquivo JSON. Nenhum dado foi enviado.',true);}
+ });
+ $('confirm').addEventListener('change',enable);
+ $('restore').addEventListener('click',async()=>{
+  if(!ready||!prepared||!$('confirm').checked||busy)return;
+  busy=true;enable();show('Enviando backup para a Cloudflare… Não feche esta página.');
+  try{
+    const res=await fetch('/api/state',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({action:'initialize',state:prepared})});
+    const out=await res.json();
+    if(!res.ok){show('Importação não concluída: '+(out.error||res.status)+'. Nenhum dado existente foi substituído.',true);return;}
+    const chk=await fetch('/api/state',{credentials:'same-origin',cache:'no-store'});
+    const result=await chk.json();
+    const s=result?.state;
+    const after=(s?.sales||[]).filter(v=>String(v.date||'').startsWith('2026-11')).reduce((a,v)=>a+(Number(v.amount)||0),0)+(s?.consultants||[]).reduce((a,c)=>a+(Number(c.monthOpenings?.['2026-11']?.total)||0),0);
+    const expected=(prepared.sales||[]).filter(v=>String(v.date||'').startsWith('2026-11')).reduce((a,v)=>a+(Number(v.amount)||0),0)+(prepared.consultants||[]).reduce((a,c)=>a+(Number(c.monthOpenings?.['2026-11']?.total)||0),0);
+    if(!chk.ok||!s||Math.abs(after-expected)>0.01){show('Backup enviado, mas a conferência posterior ficou inconclusiva. Não tente importar novamente; envie esta mensagem para o suporte.',true);return;}
+    ready=false;prepared=null;$('restore').disabled=true;
+    show('Restauração concluída e conferida: '+money(after)+'. Retorne ao Dashboard para validar os rankings e as fotos.',false,true);
+  }catch(e){show('A conexão falhou durante a importação. Confira o banco e atualize a página antes de tentar novamente; não duplique o envio.',true);}
+  finally{busy=false;enable();}
+ });
+ check();
+})();
+</script>
+</body></html>
