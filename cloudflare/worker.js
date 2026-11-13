@@ -232,7 +232,7 @@ export default {
     if(!path.startsWith('/api/')) return env.ASSETS.fetch(req);
     try {
       await schema(env);
-      if(path==='/api/health'&&req.method==='GET') return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB});
+      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,...(missing.length?{missingConfig:missing}:{})}); }
       if(path==='/api/session') return await routeSession(req,env);
       if(path==='/api/state') return await routeState(req,env);
       if(path==='/api/coaching') return await routeCoaching(req,env);
