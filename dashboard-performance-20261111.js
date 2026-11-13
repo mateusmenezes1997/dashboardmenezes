@@ -137,12 +137,41 @@ function drawWeeks(data,m){
  }).join('');
 }
 function drawDuel(people){
- var host=byId('gm-p2-duel');if(people.length<2){host.innerHTML='<div class="gm-p2-empty">É preciso ter pelo menos dois vendedores com resultado para iniciar uma disputa.</div>';return}
- var a=people[0],b=people[1],min=Infinity;
- for(var i=0;i<people.length-1;i++){var gap=people[i].total-people[i+1].total;if(gap<min){min=gap;a=people[i];b=people[i+1]}}
- host.innerHTML='<div class="gm-p2-duel-pair"><span class="gm-p2-duel-name">'+esc(a.name)+'</span><span class="gm-p2-duel-versus">VS</span><span class="gm-p2-duel-name">'+esc(b.name)+'</span></div>'+
- '<div><span class="gm-p2-label">DIFERENÇA ATUAL</span><div class="gm-p2-duel-gap">'+brl(min)+'</div></div>'+
- '<p>'+esc(b.name)+' precisa vender mais de '+brl(min)+' para ultrapassar '+esc(a.name)+'.</p>';
+ var host=byId('gm-p2-duel');if(!host)return;
+ if(people.length<2){host.innerHTML='<div class="gm-p2-empty">A disputa começa quando pelo menos dois consultores registrarem vendas neste mês.</div>';return}
+ // Comparações somente entre vendedores ativos e os seis primeiros do ranking oficial.
+ // Empates não se tornam falsas disputas de ultrapassagem.
+ var top=people.slice(0,6),a=top[0],b=top[1],best=Infinity;
+ for(var i=0;i<top.length-1;i++){
+  var delta=Math.round(top[i].total*100)-Math.round(top[i+1].total*100);
+  if(delta>0&&delta<best){best=delta;a=top[i];b=top[i+1]}
+ }
+ var tied=best===Infinity;
+ if(tied){a=top[0];b=top[1];best=0}
+ var aPos=people.findIndex(function(p){return p.id===a.id})+1;
+ var bPos=people.findIndex(function(p){return p.id===b.id})+1;
+ var currency=function(n){return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:2})};
+ var diff=best/100;
+ var share=a.total?Math.min(100,Math.max(0,b.total/a.total*100)):0;
+ var label=tied?'EMPATE REAL':'DIFERENÇA ENTRE OS DOIS';
+ var summary=tied
+  ?'Os dois estão empatados com '+currency(a.total)+' vendidos. A próxima venda poderá definir quem assume a frente.'
+  :esc(b.name)+' precisa superar '+currency(diff)+' em novas vendas para ultrapassar '+esc(a.name)+'.';
+ function contestant(p,rank,leading){
+  return '<div class="gm-p2-duel-competitor'+(leading?' is-ahead':'')+'">'+
+   '<span class="gm-p2-duel-rank">'+rank+'º NO RANKING</span>'+
+   '<strong class="gm-p2-duel-person">'+esc(p.name)+'</strong>'+
+   '<span class="gm-p2-duel-amount">'+currency(p.total)+'</span>'+
+   '<span class="gm-p2-duel-amount-label">TOTAL VENDIDO NO MÊS</span></div>';
+ }
+ host.innerHTML='<div class="gm-p2-duel-competitors">'+
+   contestant(a,aPos,true)+'<span class="gm-p2-duel-versus" aria-hidden="true">VS</span>'+contestant(b,tied?aPos:bPos,false)+
+  '</div><div class="gm-p2-duel-difference">'+
+   '<div><span class="gm-p2-label">'+label+'</span><strong class="gm-p2-duel-gap">'+(tied?'EMPATADOS':currency(diff))+'</strong></div>'+
+   '<span class="gm-p2-duel-status">'+(tied?'DISPUTA ABERTA':'ULTRAPASSAGEM EM JOGO')+'</span></div>'+
+  '<div class="gm-p2-duel-progress" role="meter" aria-label="Proximidade entre os consultores" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(share)+'"><span style="width:'+share.toFixed(2)+'%"></span></div>'+
+  '<p class="gm-p2-duel-explanation">'+summary+'</p>'+
+  '<small class="gm-p2-duel-origin">Valores reais do ranking do mês selecionado, incluindo o saldo de abertura e as vendas registradas.</small>';
 }
 function drawLeaders(source,data,m){
  var host=byId('gm-p2-leaders'),leaderRows=[];
