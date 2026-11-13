@@ -3,7 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "build": "node cloudflare/build.mjs"
+  },
   "dependencies": {
     "@vercel/blob": "2.8.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
   }
 }
