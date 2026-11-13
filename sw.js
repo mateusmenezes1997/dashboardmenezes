@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v23-ranking-premium-and-closefix-20261113";
+const VERSION = "gm-pwa-executive-v24-duelo-real-20261113";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
