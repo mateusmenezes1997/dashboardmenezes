@@ -69,8 +69,11 @@ async function auth(role,password,env) {
 }
 class HttpError extends Error {constructor(status,message){super(message);this.status=status;}}
 async function parse(req) {
-  if(Number(req.headers.get('content-length')||0)>MAX_BYTES+100000) throw new HttpError(413,'Arquivo grande demais');
-  try{return await req.json();}catch{throw new HttpError(400,'Dados JSON inválidos');}
+  if(Number(req.headers.get('content-length')||0)>MAX_IMPORT_BYTES+100000) throw new HttpError(413,'Arquivo grande demais');
+  let raw;
+  try {raw=await req.text();} catch {throw new HttpError(400,'Não foi possível ler os dados enviados');}
+  if(encoder.encode(raw).byteLength>MAX_IMPORT_BYTES+100000) throw new HttpError(413,'Arquivo grande demais');
+  try{return JSON.parse(raw);}catch{throw new HttpError(400,'Dados JSON inválidos');}
 }
 let schemaReady=false;
 const MAX_IMPORT_BYTES=15_000_000;
@@ -123,6 +126,12 @@ async function writeDoc(env,id,data,prev) {
   return success;
 }
 function validState(s) {return !!(s&&Array.isArray(s.consultants)&&Array.isArray(s.sales)&&s.settings&&typeof s.settings==='object');}
+function novemberTotal(s) {
+  const sales=s.sales.reduce((sum,sale)=>sum+(String(sale.date||'').startsWith('2026-11')?Math.max(0,Number(sale.amount)||0):0),0);
+  const openings=s.consultants.reduce((sum,c)=>sum+Math.max(0,Number(c.monthOpenings?.['2026-11']?.total)||0),0);
+  return Math.round((sales+openings)*100)/100;
+}
+
 function withAudit(s,previous,user,action,details={}) {
   const trail=Array.isArray(previous?.auditTrail)?previous.auditTrail:[];
   return {...s,auditTrail:[...trail.slice(-79),{id:crypto.randomUUID(),at:new Date().toISOString(),actor:user.role,action,details}]};
@@ -219,6 +228,8 @@ async function routeState(req,env) {
   if(body?.action==='initialize') {
     if(doc) return json(409,{error:'Base já inicializada'});
     if(!validState(body.state)) return json(400,{error:'Backup inicial inválido'});
+    const nov=novemberTotal(body.state);
+    if(nov<=3300000) return json(422,{error:'Backup desatualizado: a importação exige vendas comprovadas acima de R$ 3,3 milhões em novembro de 2026. Verifique a base antes de continuar.',novemberTotal:nov});
     const state=withAudit(body.state,null,user,'BASE_INICIALIZADA');
     if(!(await writeDoc(env,'state',{state},null))) return json(409,{error:'Base já inicializada'});
     return json(200,{revision:1,state,ok:true});
