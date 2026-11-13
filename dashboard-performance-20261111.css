@@ -193,3 +193,21 @@
    width:min(290px,calc(100vw - 28px))!important;
  }
 }
+/* Duelo comercial premium: mostra vendas reais e diferencia empate de ultrapassagem. */
+#dashboard .gm-p2-duel{display:grid;gap:15px;min-width:0}
+#dashboard .gm-p2-duel-competitors{display:grid;grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);align-items:stretch;gap:10px;min-width:0}
+#dashboard .gm-p2-duel-competitor{display:flex;flex-direction:column;gap:7px;min-width:0;padding:15px 12px 13px;border:1px solid rgba(230,200,161,.17);border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.038),rgba(255,255,255,.008))}
+#dashboard .gm-p2-duel-competitor.is-ahead{border-color:rgba(225,183,108,.38);background:linear-gradient(140deg,rgba(192,127,54,.105),rgba(35,20,26,.12))}
+#dashboard .gm-p2-duel-rank{font-size:9px;letter-spacing:.08em;font-weight:900;color:#c5a47b}
+#dashboard .gm-p2-duel-person{font-size:13px;line-height:1.35;color:#fff;font-weight:850;overflow-wrap:anywhere;min-height:35px}
+#dashboard .gm-p2-duel-amount{font-family:Sora,Manrope,sans-serif;font-size:clamp(13px,1.4vw,19px);font-weight:850;line-height:1.2;color:#f4dfbc;letter-spacing:-.04em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#dashboard .gm-p2-duel-amount-label{font-size:9px;line-height:1.4;letter-spacing:.045em;font-weight:700;color:#a89ba2}
+#dashboard .gm-p2-duel-versus{align-self:center;text-align:center;font-size:12px;color:#d8b271;opacity:.95}
+#dashboard .gm-p2-duel-difference{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid rgba(230,197,147,.12);padding-top:13px}
+#dashboard .gm-p2-duel-difference .gm-p2-duel-gap{display:block;font-size:clamp(20px,2.1vw,28px);font-weight:900;margin-top:3px;line-height:1.25;color:#f4cf94;font-variant-numeric:tabular-nums}
+#dashboard .gm-p2-duel-status{display:inline-flex;align-items:center;padding:7px 9px;border-radius:20px;border:1px solid rgba(209,168,100,.24);font-size:9px;line-height:1.25;letter-spacing:.04em;font-weight:800;color:#c9b39a;text-align:center;max-width:135px}
+#dashboard .gm-p2-duel-progress{height:6px;overflow:hidden;background:rgba(255,255,255,.075);border-radius:10px}
+#dashboard .gm-p2-duel-progress span{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#713444,#ba7d62,#ecd09a);transition:width .55s ease}
+#dashboard .gm-p2-duel .gm-p2-duel-explanation{font-size:12px;line-height:1.6;color:#d6c9c9;margin:0}
+#dashboard .gm-p2-duel-origin{font-size:10px;line-height:1.5;color:#93878e}
+@media(max-width:430px){#dashboard .gm-p2-duel-competitors{grid-template-columns:minmax(0,1fr) 23px minmax(0,1fr);gap:5px}#dashboard .gm-p2-duel-competitor{padding:12px 9px;gap:6px}#dashboard .gm-p2-duel-person{font-size:12px}#dashboard .gm-p2-duel-amount{font-size:13px}#dashboard .gm-p2-duel-status{font-size:8px;max-width:104px}}
