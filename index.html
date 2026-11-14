@@ -558,6 +558,67 @@ body[data-role="viewer"] #leaders{display:none!important}
 <link rel="stylesheet" href="/arena-v7.css?v=1">
 <link rel="stylesheet" href="/arena-v8.css?v=5">
 <style id="gm-remove-access-box-v2">.access-box{display:none!important;visibility:hidden!important;pointer-events:none!important}</style>
+
+<style>
+/* commission-priority-alert-v1 */
+.commission-priority-wrap{margin:0 0 18px}
+#team>.commission-priority-wrap{margin:2px 0 18px}
+.commission-priority-wrap .commission-countdown-card{
+  width:100%;
+  min-height:0;
+  border:1px solid rgba(197,155,66,.36);
+  background:
+    radial-gradient(circle at 92% 18%,rgba(197,155,66,.12),transparent 28%),
+    linear-gradient(135deg,rgba(255,255,255,.98),rgba(252,249,242,.96));
+  box-shadow:0 14px 35px rgba(41,28,13,.08);
+}
+.commission-countdown-card.commission-urgent{
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(238,160,28,.82)!important;
+  background:
+    radial-gradient(circle at 94% 16%,rgba(255,191,55,.28),transparent 28%),
+    linear-gradient(135deg,#fffaf0 0%,#fff4d8 52%,#fffaf2 100%)!important;
+  box-shadow:0 16px 38px rgba(201,126,10,.18),0 0 0 1px rgba(255,184,45,.16) inset!important;
+}
+.commission-countdown-card.commission-urgent:before{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 15%,rgba(255,255,255,.48) 42%,transparent 66%);
+  transform:translateX(-120%);
+  animation:commissionSweep 3.6s ease-in-out infinite;
+  pointer-events:none;
+}
+.commission-countdown-card.commission-urgent .commission-kicker,
+.commission-countdown-card.commission-urgent .commission-days strong,
+.commission-countdown-card.commission-urgent .commission-footer b{color:#9a5d00!important}
+.commission-countdown-card.commission-urgent .commission-status{
+  color:#7a4500!important;
+  background:rgba(255,184,45,.22)!important;
+  border-color:rgba(224,145,13,.35)!important;
+}
+.commission-countdown-card.commission-urgent .commission-status i{
+  background:#f59e0b!important;
+  box-shadow:0 0 0 5px rgba(245,158,11,.13);
+  animation:commissionPulse 1.6s ease-in-out infinite;
+}
+.commission-countdown-card.commission-urgent .commission-copy b{color:#734300!important}
+.commission-countdown-card.commission-urgent .commission-copy p{color:#8b5a13!important;font-weight:800}
+.commission-countdown-card.commission-today{
+  border-color:rgba(222,118,20,.92)!important;
+  background:linear-gradient(135deg,#fff4e6,#ffe7bd)!important;
+}
+.dashboard-commission-card{margin-top:2px}
+.dashboard-commission-card .countdown-main{align-items:center}
+.dashboard-commission-card .commission-copy p{max-width:760px}
+@keyframes commissionPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.7}}
+@keyframes commissionSweep{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(130%)}}
+@media(max-width:760px){
+  .commission-priority-wrap{margin-bottom:12px}
+  .commission-priority-wrap .countdown-main{gap:14px}
+  .commission-priority-wrap .countdown-days strong{font-size:42px}
+}
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -1709,5 +1770,116 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
 <script defer src="/arena-v7.js?v=1"></script>
 <script defer src="/arena-v8.js?v=5"></script>
 <script defer src="/menezes-refinement-20261111.js?v=4"></script>
+
+<script>
+(function(){
+  const NOV_2026_EXTENDED = new Date(2026,10,16);
+
+  function atMidnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function getClosingDate(now){
+    const today = atMidnight(now);
+    let close = (now.getFullYear()===2026 && now.getMonth()===10)
+      ? new Date(2026,10,16)
+      : new Date(now.getFullYear(), now.getMonth(), 15);
+
+    if(today > close){
+      const y = now.getMonth()===11 ? now.getFullYear()+1 : now.getFullYear();
+      const m = (now.getMonth()+1)%12;
+      close = (y===2026 && m===10) ? new Date(2026,10,16) : new Date(y,m,15);
+    }
+    return close;
+  }
+  function formatDM(d){ return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0"); }
+
+  function state(now){
+    const close=getClosingDate(now), today=atMidnight(now);
+    const days=Math.max(0,Math.round((close-today)/86400000));
+    const urgent=days<=3;
+    const special=close.getFullYear()===2026&&close.getMonth()===10&&close.getDate()===16;
+    return {close,days,urgent,special};
+  }
+
+  function updateCard(card, prefix){
+    if(!card) return;
+    const s=state(new Date());
+    card.classList.toggle("commission-urgent",s.urgent);
+    card.classList.toggle("commission-today",s.days===0);
+
+    const q=(suffix)=>card.querySelector('[data-commission="'+suffix+'"]') || document.getElementById(prefix+suffix);
+    const days=q("DaysLeft"), label=q("DaysLabel"), status=q("Status"), title=q("Title"), msg=q("Message"), end=q("WindowEnd");
+    if(days) days.textContent=String(s.days);
+    if(label) label.textContent=s.days===1?"dia":"dias";
+    if(end) end.textContent="ATÉ "+formatDM(s.close);
+
+    if(status){
+      status.innerHTML="<i></i>"+(s.urgent ? (s.days===0?"FECHA HOJE":"RETA FINAL") : "Próximo fechamento");
+    }
+    if(title){
+      title.textContent=s.days===0 ? "para o fechamento da comissão" : "para fechar a próxima comissão";
+    }
+    if(msg){
+      if(s.days===0) msg.textContent="Último dia. Ainda dá tempo — acelere agora.";
+      else if(s.urgent) msg.textContent="Ainda dá tempo. Faltam "+s.days+" "+(s.days===1?"dia":"dias")+" para aumentar sua comissão.";
+      else msg.textContent=s.special ? "Excepcionalmente neste mês, a janela fecha em 16/11." : "A janela fecha todo dia 15.";
+    }
+  }
+
+  function buildDashboardCard(){
+    const dashboard=document.getElementById("dashboard");
+    if(!dashboard || document.getElementById("dashboardCommissionCard")) return;
+    const top=dashboard.querySelector(".topbar");
+    if(!top) return;
+    const wrap=document.createElement("div");
+    wrap.className="commission-priority-wrap";
+    wrap.innerHTML=`
+      <div class="mini-card countdown-card commission-countdown-card dashboard-commission-card" id="dashboardCommissionCard">
+        <div class="countdown-head">
+          <div class="countdown-kicker commission-kicker">
+            <span class="commission-money-float" aria-hidden="true">R$</span>
+            <span>Fechamento de comissão</span>
+          </div>
+          <span class="countdown-status commission-status" id="dashboardCommissionStatus"><i></i>Próximo fechamento</span>
+        </div>
+        <div class="countdown-main">
+          <div class="countdown-days commission-days">
+            <strong id="dashboardCommissionDaysLeft">--</strong>
+            <span id="dashboardCommissionDaysLabel">dias</span>
+          </div>
+          <div class="countdown-copy commission-copy">
+            <b id="dashboardCommissionTitle">para fechar a próxima comissão</b>
+            <p id="dashboardCommissionMessage">A janela fecha todo dia 15.</p>
+          </div>
+        </div>
+        <div class="countdown-footer commission-footer">
+          <span>Janela atual</span>
+          <b id="dashboardCommissionWindowEnd">ATÉ --/--</b>
+        </div>
+      </div>`;
+    top.insertAdjacentElement("afterend",wrap);
+  }
+
+  function elevateTeamCard(){
+    const team=document.getElementById("team");
+    const card=document.getElementById("commissionCountdownCard");
+    const top=team && team.querySelector(".topbar");
+    if(!team||!card||!top) return;
+    if(card.parentElement && card.parentElement.classList.contains("commission-priority-wrap")) return;
+    const wrap=document.createElement("div");
+    wrap.className="commission-priority-wrap";
+    wrap.appendChild(card);
+    top.insertAdjacentElement("afterend",wrap);
+  }
+
+  function refresh(){
+    buildDashboardCard();
+    elevateTeamCard();
+    updateCard(document.getElementById("commissionCountdownCard"),"commission");
+    updateCard(document.getElementById("dashboardCommissionCard"),"dashboardCommission");
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",refresh);
+  else refresh();
+  setInterval(refresh,60000);
+})();
+</script>
 </body>
 </html>
