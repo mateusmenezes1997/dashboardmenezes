@@ -693,6 +693,180 @@ body[data-role="viewer"] #leaders{display:none!important}
   opacity:.96!important;
 }
 </style>
+
+<style id="gm-dashboard-commission-alert-v3">
+/* Dashboard: alerta de comissão compacto, no topo e com leitura imediata */
+#dashboard>.dashboard-alert-wrap{
+  display:flex;
+  justify-content:flex-end;
+  margin:0 0 10px;
+}
+#dashboard .dashboard-commission-alert{
+  position:relative;
+  width:min(100%,760px);
+  min-height:50px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:9px 12px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(213,171,103,.28);
+  background:
+    linear-gradient(90deg,rgba(126,26,46,.16),rgba(19,16,18,.98) 34%,rgba(13,16,20,.98));
+  box-shadow:0 8px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025);
+}
+#dashboard .dashboard-alert-icon{
+  width:30px;height:30px;border-radius:10px;
+  display:grid;place-items:center;
+  color:#f0cf91;
+  border:1px solid rgba(213,171,103,.30);
+  background:rgba(213,171,103,.08);
+  font:900 16px/1 var(--font-impact,"Sora",sans-serif);
+}
+#dashboard .dashboard-alert-copy{min-width:0}
+#dashboard .dashboard-alert-kicker{
+  display:block;
+  margin-bottom:2px;
+  color:#d5ab67;
+  font-size:8px;
+  line-height:1.1;
+  font-weight:950;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+#dashboard .dashboard-alert-copy strong{
+  display:block;
+  color:#f7f4ef;
+  font-size:12px;
+  line-height:1.25;
+  font-weight:850;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#dashboard .dashboard-alert-copy strong #dashboardCommissionDaysLeft{
+  color:#f0cf91;
+  font-family:var(--font-impact,"Sora",sans-serif);
+  font-size:17px;
+  font-weight:950;
+}
+#dashboard .dashboard-alert-copy p{
+  margin:2px 0 0;
+  color:#aeb6c0;
+  font-size:9px;
+  line-height:1.25;
+  font-weight:650;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#dashboard .dashboard-alert-meta{
+  min-width:112px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:3px;
+  padding-left:12px;
+  border-left:1px solid rgba(255,255,255,.07);
+}
+#dashboard .dashboard-alert-status{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:#aab2bc;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+#dashboard .dashboard-alert-status i{
+  width:5px;height:5px;border-radius:50%;
+  background:#d5ab67;
+  box-shadow:0 0 0 3px rgba(213,171,103,.09);
+}
+#dashboard .dashboard-alert-meta b{
+  color:#f0cf91;
+  font-size:11px;
+  line-height:1;
+  font-weight:950;
+  white-space:nowrap;
+}
+#dashboard .dashboard-commission-alert.commission-urgent{
+  border-color:rgba(255,181,62,.68);
+  background:
+    radial-gradient(circle at 92% 50%,rgba(255,166,35,.12),transparent 30%),
+    linear-gradient(90deg,rgba(112,25,28,.94),rgba(42,24,17,.98) 48%,rgba(19,17,14,.99));
+  box-shadow:0 9px 25px rgba(0,0,0,.24),0 0 18px rgba(244,162,31,.07),inset 0 1px 0 rgba(255,220,145,.05);
+}
+#dashboard .dashboard-commission-alert.commission-urgent::before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,#ffd06f,#f59e0b);
+  box-shadow:0 0 12px rgba(245,158,11,.34);
+}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-icon{
+  color:#191109;
+  background:linear-gradient(135deg,#ffd36f,#f4a11c);
+  border-color:transparent;
+  box-shadow:0 0 16px rgba(245,158,11,.20);
+}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-kicker,
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-meta b,
+#dashboard .dashboard-commission-alert.commission-urgent #dashboardCommissionDaysLeft{
+  color:#ffd36f;
+}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy strong{color:#fffaf0}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy p{color:#eadfcf;font-weight:750}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-status{color:#ffd98a}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-status i{
+  background:#ffb52f;
+  box-shadow:0 0 0 3px rgba(255,181,47,.12),0 0 10px rgba(255,181,47,.34);
+  animation:gmDashboardAlertPulse 1.6s ease-in-out infinite;
+}
+#dashboard .dashboard-commission-alert.commission-today{
+  border-color:rgba(255,133,53,.88);
+  background:linear-gradient(90deg,#6f171c,#34180f 52%,#19120d);
+}
+@keyframes gmDashboardAlertPulse{
+  0%,100%{opacity:.75;transform:scale(.9)}
+  50%{opacity:1;transform:scale(1.16)}
+}
+@media(max-width:920px){
+  #dashboard>.dashboard-alert-wrap{justify-content:stretch}
+  #dashboard .dashboard-commission-alert{width:100%}
+}
+@media(max-width:620px){
+  #dashboard>.dashboard-alert-wrap{margin-bottom:12px}
+  #dashboard .dashboard-commission-alert{
+    grid-template-columns:30px minmax(0,1fr);
+    gap:9px;
+    padding:9px 10px;
+  }
+  #dashboard .dashboard-alert-icon{width:28px;height:28px;border-radius:9px}
+  #dashboard .dashboard-alert-meta{
+    grid-column:2;
+    min-width:0;
+    padding:6px 0 0;
+    margin-top:2px;
+    border-left:0;
+    border-top:1px solid rgba(255,255,255,.07);
+    flex-direction:row;
+    justify-content:space-between;
+    align-items:center;
+  }
+  #dashboard .dashboard-alert-copy strong,
+  #dashboard .dashboard-alert-copy p{white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){
+  #dashboard .dashboard-alert-status i{animation:none!important}
+}
+</style>
+
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -1904,32 +2078,21 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
     const top=dashboard.querySelector(".topbar");
     if(!top) return;
     const wrap=document.createElement("div");
-    wrap.className="commission-priority-wrap";
+    wrap.className="dashboard-alert-wrap";
     wrap.innerHTML=`
-      <div class="mini-card countdown-card commission-countdown-card dashboard-commission-card" id="dashboardCommissionCard">
-        <div class="countdown-head">
-          <div class="countdown-kicker commission-kicker">
-            <span class="commission-money-float" aria-hidden="true">R$</span>
-            <span>Fechamento de comissão</span>
-          </div>
-          <span class="countdown-status commission-status" id="dashboardCommissionStatus"><i></i>Próximo fechamento</span>
+      <div class="dashboard-commission-alert" id="dashboardCommissionCard" role="status" aria-live="polite">
+        <div class="dashboard-alert-icon" aria-hidden="true">!</div>
+        <div class="dashboard-alert-copy">
+          <span class="dashboard-alert-kicker">ALERTA • FECHAMENTO DE COMISSÃO</span>
+          <strong><span id="dashboardCommissionDaysLeft">--</span> <span id="dashboardCommissionDaysLabel">dias</span> <span id="dashboardCommissionTitle">para fechar a próxima comissão</span></strong>
+          <p id="dashboardCommissionMessage">A janela fecha todo dia 15.</p>
         </div>
-        <div class="countdown-main">
-          <div class="countdown-days commission-days">
-            <strong id="dashboardCommissionDaysLeft">--</strong>
-            <span id="dashboardCommissionDaysLabel">dias</span>
-          </div>
-          <div class="countdown-copy commission-copy">
-            <b id="dashboardCommissionTitle">para fechar a próxima comissão</b>
-            <p id="dashboardCommissionMessage">A janela fecha todo dia 15.</p>
-          </div>
-        </div>
-        <div class="countdown-footer commission-footer">
-          <span>Janela atual</span>
+        <div class="dashboard-alert-meta">
+          <span class="dashboard-alert-status" id="dashboardCommissionStatus"><i></i>Próximo fechamento</span>
           <b id="dashboardCommissionWindowEnd">ATÉ --/--</b>
         </div>
       </div>`;
-    top.insertAdjacentElement("afterend",wrap);
+    top.insertAdjacentElement("beforebegin",wrap);
   }
 
   function elevateTeamCard(){
