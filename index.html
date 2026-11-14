@@ -695,53 +695,53 @@ body[data-role="viewer"] #leaders{display:none!important}
 </style>
 
 <style id="gm-dashboard-commission-alert-v3">
-/* Dashboard: alerta de comissão compacto, no topo e com leitura imediata */
-#dashboard>.dashboard-alert-wrap{
-  display:flex;
-  justify-content:flex-end;
-  margin:0 0 10px;
+/* Dashboard: alerta de comissão integrado ao cabeçalho */
+#dashboard .topbar>.dashboard-alert-wrap{
+  min-width:0;
+  width:100%;
+  align-self:end;
 }
 #dashboard .dashboard-commission-alert{
   position:relative;
-  width:min(100%,760px);
-  min-height:50px;
+  width:100%;
+  min-height:56px;
   box-sizing:border-box;
   display:grid;
-  grid-template-columns:34px minmax(0,1fr) auto;
+  grid-template-columns:32px minmax(0,1fr) auto;
   align-items:center;
-  gap:11px;
-  padding:9px 12px;
+  gap:10px;
+  padding:8px 11px;
   border-radius:14px;
   overflow:hidden;
   border:1px solid rgba(213,171,103,.28);
   background:
     linear-gradient(90deg,rgba(126,26,46,.16),rgba(19,16,18,.98) 34%,rgba(13,16,20,.98));
-  box-shadow:0 8px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025);
+  box-shadow:0 7px 20px rgba(0,0,0,.17),inset 0 1px 0 rgba(255,255,255,.025);
 }
 #dashboard .dashboard-alert-icon{
-  width:30px;height:30px;border-radius:10px;
+  width:30px;height:30px;border-radius:9px;
   display:grid;place-items:center;
   color:#f0cf91;
   border:1px solid rgba(213,171,103,.30);
   background:rgba(213,171,103,.08);
-  font:900 16px/1 var(--font-impact,"Sora",sans-serif);
+  font:900 15px/1 var(--font-impact,"Sora",sans-serif);
 }
 #dashboard .dashboard-alert-copy{min-width:0}
 #dashboard .dashboard-alert-kicker{
   display:block;
   margin-bottom:2px;
   color:#d5ab67;
-  font-size:8px;
-  line-height:1.1;
+  font-size:7px;
+  line-height:1.05;
   font-weight:950;
-  letter-spacing:.12em;
+  letter-spacing:.11em;
   text-transform:uppercase;
 }
 #dashboard .dashboard-alert-copy strong{
   display:block;
   color:#f7f4ef;
-  font-size:12px;
-  line-height:1.25;
+  font-size:11px;
+  line-height:1.18;
   font-weight:850;
   white-space:nowrap;
   overflow:hidden;
@@ -750,26 +750,26 @@ body[data-role="viewer"] #leaders{display:none!important}
 #dashboard .dashboard-alert-copy strong #dashboardCommissionDaysLeft{
   color:#f0cf91;
   font-family:var(--font-impact,"Sora",sans-serif);
-  font-size:17px;
+  font-size:16px;
   font-weight:950;
 }
 #dashboard .dashboard-alert-copy p{
   margin:2px 0 0;
   color:#aeb6c0;
-  font-size:9px;
-  line-height:1.25;
+  font-size:8px;
+  line-height:1.15;
   font-weight:650;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 #dashboard .dashboard-alert-meta{
-  min-width:112px;
+  min-width:94px;
   display:flex;
   flex-direction:column;
   align-items:flex-end;
   gap:3px;
-  padding-left:12px;
+  padding-left:10px;
   border-left:1px solid rgba(255,255,255,.07);
 }
 #dashboard .dashboard-alert-status{
@@ -777,9 +777,9 @@ body[data-role="viewer"] #leaders{display:none!important}
   align-items:center;
   gap:5px;
   color:#aab2bc;
-  font-size:7px;
+  font-size:6.5px;
   font-weight:950;
-  letter-spacing:.08em;
+  letter-spacing:.07em;
   text-transform:uppercase;
   white-space:nowrap;
 }
@@ -790,7 +790,7 @@ body[data-role="viewer"] #leaders{display:none!important}
 }
 #dashboard .dashboard-alert-meta b{
   color:#f0cf91;
-  font-size:11px;
+  font-size:10px;
   line-height:1;
   font-weight:950;
   white-space:nowrap;
@@ -800,7 +800,7 @@ body[data-role="viewer"] #leaders{display:none!important}
   background:
     radial-gradient(circle at 92% 50%,rgba(255,166,35,.12),transparent 30%),
     linear-gradient(90deg,rgba(112,25,28,.94),rgba(42,24,17,.98) 48%,rgba(19,17,14,.99));
-  box-shadow:0 9px 25px rgba(0,0,0,.24),0 0 18px rgba(244,162,31,.07),inset 0 1px 0 rgba(255,220,145,.05);
+  box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 16px rgba(244,162,31,.06),inset 0 1px 0 rgba(255,220,145,.05);
 }
 #dashboard .dashboard-commission-alert.commission-urgent::before{
   content:"";
@@ -813,13 +813,11 @@ body[data-role="viewer"] #leaders{display:none!important}
   color:#191109;
   background:linear-gradient(135deg,#ffd36f,#f4a11c);
   border-color:transparent;
-  box-shadow:0 0 16px rgba(245,158,11,.20);
+  box-shadow:0 0 14px rgba(245,158,11,.18);
 }
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-kicker,
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-meta b,
-#dashboard .dashboard-commission-alert.commission-urgent #dashboardCommissionDaysLeft{
-  color:#ffd36f;
-}
+#dashboard .dashboard-commission-alert.commission-urgent #dashboardCommissionDaysLeft{color:#ffd36f}
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy strong{color:#fffaf0}
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy p{color:#eadfcf;font-weight:750}
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-status{color:#ffd98a}
@@ -836,23 +834,48 @@ body[data-role="viewer"] #leaders{display:none!important}
   0%,100%{opacity:.75;transform:scale(.9)}
   50%{opacity:1;transform:scale(1.16)}
 }
-@media(max-width:920px){
-  #dashboard>.dashboard-alert-wrap{justify-content:stretch}
+
+/* Em telas largas, o cabeçalho vira exatamente 3 blocos:
+   título | alerta | ferramentas */
+@media(min-width:1560px){
+  #dashboard .topbar{
+    display:grid!important;
+    grid-template-columns:minmax(510px,.95fr) minmax(470px,.82fr) auto;
+    align-items:end!important;
+    gap:22px!important;
+    flex-wrap:nowrap!important;
+  }
+  #dashboard .topbar>.actions{
+    justify-content:flex-end;
+    flex-wrap:nowrap;
+  }
+}
+@media(min-width:1100px) and (max-width:1559px){
+  #dashboard .topbar>.dashboard-alert-wrap{
+    order:3;
+    flex:1 1 100%;
+  }
+  #dashboard .dashboard-commission-alert{max-width:760px;margin-left:auto}
+}
+@media(max-width:1099px){
+  #dashboard .topbar>.dashboard-alert-wrap{
+    order:3;
+    flex:1 1 100%;
+  }
   #dashboard .dashboard-commission-alert{width:100%}
 }
 @media(max-width:620px){
-  #dashboard>.dashboard-alert-wrap{margin-bottom:12px}
   #dashboard .dashboard-commission-alert{
     grid-template-columns:30px minmax(0,1fr);
     gap:9px;
-    padding:9px 10px;
+    padding:8px 10px;
   }
   #dashboard .dashboard-alert-icon{width:28px;height:28px;border-radius:9px}
   #dashboard .dashboard-alert-meta{
     grid-column:2;
     min-width:0;
-    padding:6px 0 0;
-    margin-top:2px;
+    padding:5px 0 0;
+    margin-top:1px;
     border-left:0;
     border-top:1px solid rgba(255,255,255,.07);
     flex-direction:row;
@@ -2092,7 +2115,9 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
           <b id="dashboardCommissionWindowEnd">ATÉ --/--</b>
         </div>
       </div>`;
-    top.insertAdjacentElement("beforebegin",wrap);
+    const actions=top.querySelector(".actions");
+    if(actions) top.insertBefore(wrap,actions);
+    else top.appendChild(wrap);
   }
 
   function elevateTeamCard(){
