@@ -267,3 +267,81 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  script.src='/dashboard-performance-20261111.js?v=3';script.defer=true;
  document.head.appendChild(script);
 })();
+
+
+/* GM_COMMISSION_HEADER_ALERT_V1 */
+(function(){
+  'use strict';
+  if(window.__gmCommissionHeaderAlertV1)return;
+  window.__gmCommissionHeaderAlertV1=true;
+
+  function spToday(){
+    try{
+      var parts=new Intl.DateTimeFormat('en-CA',{
+        timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'
+      }).formatToParts(new Date()).reduce(function(acc,p){acc[p.type]=p.value;return acc},{});
+      return {y:Number(parts.year),m:Number(parts.month),d:Number(parts.day)};
+    }catch(e){
+      var n=new Date();return {y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate()};
+    }
+  }
+  function closeInfo(){
+    var t=spToday(),cy=t.y,cm=t.m,cd=15;
+    if(t.y===2026&&t.m===11&&t.d<=16){
+      cy=2026;cm=11;cd=16;
+    }else if(t.d>15){
+      cm=t.m+1;if(cm===13){cm=1;cy=t.y+1}
+    }
+    var todayUTC=Date.UTC(t.y,t.m-1,t.d);
+    var closeUTC=Date.UTC(cy,cm-1,cd);
+    var days=Math.max(0,Math.round((closeUTC-todayUTC)/86400000));
+    return {days:days,label:String(cd).padStart(2,'0')+'/'+String(cm).padStart(2,'0')};
+  }
+  function ensure(){
+    var page=document.getElementById('dashboard');
+    if(!page)return;
+    var top=page.querySelector('.topbar');
+    if(!top)return;
+
+    var sourceCard=page.querySelector('#commissionCountdownCard');
+    if(sourceCard)sourceCard.classList.add('gm-source-hidden-on-dashboard');
+
+    var host=document.getElementById('gmCommissionHeaderAlert');
+    if(!host){
+      host=document.createElement('aside');
+      host.id='gmCommissionHeaderAlert';
+      host.className='gm-commission-header-alert';
+      host.setAttribute('role','status');
+      host.setAttribute('aria-live','polite');
+      host.innerHTML=
+        '<div class="gm-cha-icon" aria-hidden="true">!</div>'+
+        '<div class="gm-cha-copy">'+
+          '<small>Fechamento de comissão</small>'+
+          '<strong><b data-gm-cha-days>-- dias</b> • até <span data-gm-cha-date>--/--</span></strong>'+
+          '<span data-gm-cha-message>Janela atual de comissão</span>'+
+        '</div>'+
+        '<div class="gm-cha-badge" data-gm-cha-badge>ALERTA</div>';
+      var actions=top.querySelector('.actions');
+      if(actions)top.insertBefore(host,actions);else top.appendChild(host);
+    }
+
+    var info=closeInfo();
+    var daysText=info.days===0?'HOJE':info.days+' '+(info.days===1?'dia':'dias');
+    var message=info.days===0?'Fechamento hoje. Última chamada para esta janela.':
+      info.days===1?'Último dia amanhã para aumentar sua comissão.':
+      info.days<=3?'Reta final para aumentar sua comissão.':
+      'Acompanhe a janela atual de comissão.';
+    host.querySelector('[data-gm-cha-days]').textContent=daysText;
+    host.querySelector('[data-gm-cha-date]').textContent=info.label;
+    host.querySelector('[data-gm-cha-message]').textContent=message;
+    host.querySelector('[data-gm-cha-badge]').textContent=info.days<=3?'ALERTA':'COMISSÃO';
+    host.classList.toggle('urgent',info.days<=3);
+    host.classList.toggle('today',info.days===0);
+  }
+  function boot(){
+    ensure();
+    setInterval(ensure,1800);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)ensure()});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
