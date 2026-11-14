@@ -1457,15 +1457,19 @@ function renderTeam(){
  if(commissionCard&&commissionDaysLeftEl&&commissionDaysLabelEl&&commissionTitleEl&&commissionMessageEl&&commissionStatusEl&&commissionWindowEndEl){
    const today=new Date();
    const todayStart=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+   const closingDayFor=(year,month)=>(year===2026&&month===10?16:15);
+   const currentClosingDay=closingDayFor(today.getFullYear(),today.getMonth());
    let closeDate;
-   if(today.getDate()<=15){
-     closeDate=new Date(today.getFullYear(),today.getMonth(),15);
+   if(today.getDate()<=currentClosingDay){
+     closeDate=new Date(today.getFullYear(),today.getMonth(),currentClosingDay);
    }else{
-     closeDate=new Date(today.getFullYear(),today.getMonth()+1,15);
+     const nextBase=new Date(today.getFullYear(),today.getMonth()+1,1);
+     closeDate=new Date(nextBase.getFullYear(),nextBase.getMonth(),closingDayFor(nextBase.getFullYear(),nextBase.getMonth()));
    }
    const commissionMonthDate=new Date(closeDate.getFullYear(),closeDate.getMonth()+1,1);
-   const nextWindowStart=new Date(closeDate.getFullYear(),closeDate.getMonth(),16);
-   const nextCloseDate=new Date(closeDate.getFullYear(),closeDate.getMonth()+1,15);
+   const nextWindowStart=new Date(closeDate.getFullYear(),closeDate.getMonth(),closeDate.getDate()+1);
+   const nextBaseClose=new Date(closeDate.getFullYear(),closeDate.getMonth()+1,1);
+   const nextCloseDate=new Date(nextBaseClose.getFullYear(),nextBaseClose.getMonth(),closingDayFor(nextBaseClose.getFullYear(),nextBaseClose.getMonth()));
    const nextCommissionMonthDate=new Date(nextCloseDate.getFullYear(),nextCloseDate.getMonth()+1,1);
    const oneDay=24*60*60*1000;
    const commissionDaysLeft=Math.max(0,Math.round((closeDate-todayStart)/oneDay));
