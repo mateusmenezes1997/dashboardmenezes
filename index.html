@@ -619,6 +619,80 @@ body[data-role="viewer"] #leaders{display:none!important}
   .commission-priority-wrap .countdown-days strong{font-size:42px}
 }
 </style>
+
+<style>
+/* commission-priority-alert-v2 */
+#team .commission-countdown-card.commission-urgent,
+#dashboard .dashboard-commission-card.commission-urgent{
+  border-color:rgba(255,190,65,.88)!important;
+  background:
+    radial-gradient(circle at 90% 12%,rgba(255,184,45,.16),transparent 28%),
+    linear-gradient(135deg,#071b14 0%,#0a2119 52%,#17170f 100%)!important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.34),
+    0 0 28px rgba(244,173,41,.11),
+    inset 0 0 0 1px rgba(255,201,92,.06)!important;
+}
+#team .commission-countdown-card.commission-urgent::after,
+#dashboard .dashboard-commission-card.commission-urgent::after{
+  opacity:.18!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-kicker,
+#dashboard .dashboard-commission-card.commission-urgent .commission-kicker{
+  color:#ffc85a!important;
+  text-shadow:0 0 16px rgba(255,193,70,.18);
+}
+#team .commission-countdown-card.commission-urgent .commission-days strong,
+#dashboard .dashboard-commission-card.commission-urgent .commission-days strong{
+  color:#ffd36b!important;
+  text-shadow:0 0 22px rgba(255,190,67,.22);
+}
+#team .commission-countdown-card.commission-urgent .commission-days span,
+#dashboard .dashboard-commission-card.commission-urgent .commission-days span{
+  color:#fff7e8!important;
+  font-weight:950!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-copy b,
+#dashboard .dashboard-commission-card.commission-urgent .commission-copy b{
+  color:#fffaf0!important;
+  font-weight:950!important;
+  text-shadow:0 1px 10px rgba(0,0,0,.18);
+}
+#team .commission-countdown-card.commission-urgent .commission-copy p,
+#dashboard .dashboard-commission-card.commission-urgent .commission-copy p{
+  color:#dbe6e1!important;
+  font-weight:750!important;
+  line-height:1.48!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-status,
+#dashboard .dashboard-commission-card.commission-urgent .commission-status{
+  color:#ffd36b!important;
+  background:rgba(255,184,45,.13)!important;
+  border:1px solid rgba(255,191,65,.34)!important;
+  font-weight:950!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-status i,
+#dashboard .dashboard-commission-card.commission-urgent .commission-status i{
+  background:#ffb82e!important;
+  box-shadow:0 0 0 4px rgba(255,184,46,.12),0 0 14px rgba(255,184,46,.38)!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-footer span,
+#dashboard .dashboard-commission-card.commission-urgent .commission-footer span{
+  color:#aebcb6!important;
+  font-weight:850!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-footer b,
+#dashboard .dashboard-commission-card.commission-urgent .commission-footer b{
+  color:#ffd36b!important;
+  font-weight:950!important;
+}
+#team .commission-countdown-card.commission-urgent .commission-money-float,
+#dashboard .dashboard-commission-card.commission-urgent .commission-money-float{
+  color:#a8f3c5!important;
+  border-color:rgba(103,235,158,.54)!important;
+  opacity:.96!important;
+}
+</style>
 </head>
 <body>
 <div id="gmSplash" aria-hidden="true">
@@ -1396,7 +1470,7 @@ body[data-role="viewer"] #leaders{display:none!important}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="/dashboard-core-20261111.js?v=ranking-completo-20261113"></script>
+<script src="/dashboard-core-20261111.js?v=commission-1611-legibility-20261114"></script>
 
 <!-- deployment-refresh: leaders-photos-direct-v1 -->
 <script>
