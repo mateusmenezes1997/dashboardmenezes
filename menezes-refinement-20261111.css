@@ -167,3 +167,137 @@
 @media(prefers-reduced-motion:reduce){
  #team .consultant-photo img,#team .consultant-photo-frame img{transition:none!important;transform:none!important}
 }
+
+
+/* GM_COMMISSION_HEADER_ALERT_V1 */
+#dashboard .topbar{
+  align-items:center;
+}
+#dashboard .gm-commission-header-alert{
+  position:relative;
+  flex:0 1 410px;
+  min-width:330px;
+  max-width:430px;
+  min-height:68px;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:10px 12px;
+  margin-left:auto;
+  border:1px solid rgba(213,171,103,.42);
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 0 0,rgba(213,171,103,.10),transparent 42%),
+    linear-gradient(135deg,rgba(27,18,18,.98),rgba(15,13,15,.98));
+  box-shadow:0 10px 25px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035);
+  overflow:hidden;
+  isolation:isolate;
+}
+#dashboard .gm-commission-header-alert:before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:3px;
+  background:linear-gradient(180deg,#f1c268,#b77928);
+  box-shadow:0 0 15px rgba(241,194,104,.28);
+}
+#dashboard .gm-commission-header-alert .gm-cha-icon{
+  width:34px;height:34px;border-radius:11px;
+  display:grid;place-items:center;
+  border:1px solid rgba(240,190,95,.42);
+  background:rgba(202,133,38,.10);
+  color:#f1c268;
+  font:900 19px/1 Sora,Manrope,sans-serif;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
+#dashboard .gm-commission-header-alert .gm-cha-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+#dashboard .gm-commission-header-alert .gm-cha-copy small{
+  color:#c6a466;
+  font:800 8.5px/1.2 Manrope,sans-serif;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+#dashboard .gm-commission-header-alert .gm-cha-copy strong{
+  color:#fff8ec;
+  font:800 15px/1.2 Sora,Manrope,sans-serif;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+}
+#dashboard .gm-commission-header-alert .gm-cha-copy strong b{
+  color:#f2c86f;
+  font-weight:900;
+}
+#dashboard .gm-commission-header-alert .gm-cha-copy span{
+  color:#c6bab0;
+  font:650 9.5px/1.25 Manrope,sans-serif;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#dashboard .gm-commission-header-alert .gm-cha-badge{
+  align-self:start;
+  margin-top:1px;
+  padding:5px 7px;
+  border-radius:999px;
+  border:1px solid rgba(218,169,80,.36);
+  background:rgba(190,120,34,.12);
+  color:#eac36f;
+  font:900 7.5px/1 Manrope,sans-serif;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+#dashboard .gm-commission-header-alert.urgent{
+  border-color:rgba(238,166,54,.72);
+  background:
+    radial-gradient(circle at 0 0,rgba(219,142,35,.16),transparent 44%),
+    linear-gradient(135deg,rgba(36,20,17,.99),rgba(17,13,14,.99));
+  box-shadow:0 10px 28px rgba(0,0,0,.24),0 0 20px rgba(224,148,39,.08),inset 0 1px 0 rgba(255,255,255,.04);
+}
+#dashboard .gm-commission-header-alert.urgent .gm-cha-icon{
+  animation:gmChaPulse 1.8s ease-in-out infinite;
+}
+#dashboard .gm-commission-header-alert.today{
+  border-color:rgba(230,93,70,.78);
+}
+#dashboard .gm-commission-header-alert.today:before{
+  background:linear-gradient(180deg,#ff9a75,#d84a38);
+}
+#dashboard .gm-source-hidden-on-dashboard{
+  display:none!important;
+}
+@keyframes gmChaPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,174,63,.0),inset 0 0 0 1px rgba(255,255,255,.02)}
+  50%{box-shadow:0 0 0 5px rgba(239,174,63,.07),0 0 16px rgba(239,174,63,.12),inset 0 0 0 1px rgba(255,255,255,.02)}
+}
+@media(max-width:1560px){
+  #dashboard .gm-commission-header-alert{flex-basis:370px;max-width:390px;min-width:310px}
+  #dashboard .gm-commission-header-alert .gm-cha-copy strong{font-size:14px}
+}
+@media(max-width:1260px){
+  #dashboard .gm-commission-header-alert{
+    order:3;
+    flex:1 1 100%;
+    width:min(100%,520px);
+    max-width:520px;
+    margin-left:0;
+  }
+}
+@media(max-width:680px){
+  #dashboard .gm-commission-header-alert{
+    width:100%;max-width:none;min-width:0;
+    grid-template-columns:34px minmax(0,1fr);
+    min-height:62px;padding:9px 10px;
+  }
+  #dashboard .gm-commission-header-alert .gm-cha-badge{display:none}
+  #dashboard .gm-commission-header-alert .gm-cha-copy strong{font-size:13px}
+  #dashboard .gm-commission-header-alert .gm-cha-copy span{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  #dashboard .gm-commission-header-alert .gm-cha-icon{animation:none!important}
+}
