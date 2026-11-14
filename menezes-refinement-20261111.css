@@ -167,3 +167,51 @@
 @media(prefers-reduced-motion:reduce){
  #team .consultant-photo img,#team .consultant-photo-frame img{transition:none!important;transform:none!important}
 }
+
+
+/* Comissão • selo ALERTA FINAL sem caixa — 2026-11-14 */
+#team .commission-countdown-card.commission-urgent .countdown-status.commission-status,
+#team .commission-countdown-card.commission-today .countdown-status.commission-status{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:0!important;
+  color:#ffd36b!important;
+  font-size:11px!important;
+  line-height:1.25!important;
+  letter-spacing:.085em!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+#team .commission-countdown-card.commission-urgent .countdown-status.commission-status::before,
+#team .commission-countdown-card.commission-urgent .countdown-status.commission-status::after,
+#team .commission-countdown-card.commission-today .countdown-status.commission-status::before,
+#team .commission-countdown-card.commission-today .countdown-status.commission-status::after{
+  content:none!important;
+  display:none!important;
+}
+#team .commission-countdown-card.commission-urgent .countdown-status.commission-status i,
+#team .commission-countdown-card.commission-today .countdown-status.commission-status i{
+  display:inline-block!important;
+  flex:0 0 9px!important;
+  width:9px!important;
+  height:9px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:#ffbf3d!important;
+  box-shadow:0 0 0 3px rgba(255,184,46,.10),0 0 8px rgba(255,184,46,.24)!important;
+}
+@media(max-width:420px){
+  #team .commission-countdown-card.commission-urgent .countdown-status.commission-status,
+  #team .commission-countdown-card.commission-today .countdown-status.commission-status{
+    gap:6px!important;
+    font-size:10px!important;
+    letter-spacing:.055em!important;
+  }
+}
