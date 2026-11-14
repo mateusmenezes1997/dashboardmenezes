@@ -909,6 +909,45 @@ body[data-role="viewer"] #leaders{display:none!important}
 @media(prefers-reduced-motion:reduce){
   #dashboard .dashboard-alert-status i{animation:none!important}
 }
+
+#dashboard .dashboard-commission-alert-simple{
+  grid-template-columns:30px minmax(0,1fr)!important;
+  min-height:48px;
+  padding:7px 11px;
+}
+#dashboard .dashboard-commission-alert-simple .dashboard-alert-copy{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+#dashboard .dashboard-commission-alert-simple .dashboard-alert-single-line{
+  display:block;
+  margin:0;
+  color:#f7f0e6;
+  font-family:var(--font-impact,"Sora",sans-serif);
+  font-size:12px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#dashboard .dashboard-commission-alert-simple .dashboard-alert-single-line #dashboardCommissionDaysLeft{
+  color:#f0c86f;
+  font-size:17px;
+  font-weight:950;
+}
+@media(max-width:620px){
+  #dashboard .dashboard-commission-alert-simple{
+    grid-template-columns:28px minmax(0,1fr)!important;
+  }
+  #dashboard .dashboard-commission-alert-simple .dashboard-alert-single-line{
+    white-space:normal;
+    font-size:11px;
+  }
+}
+
 </style>
 
 </head>
@@ -2124,16 +2163,10 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
     const wrap=document.createElement("div");
     wrap.className="dashboard-alert-wrap";
     wrap.innerHTML=`
-      <div class="dashboard-commission-alert" id="dashboardCommissionCard" role="status" aria-live="polite">
+      <div class="dashboard-commission-alert dashboard-commission-alert-simple" id="dashboardCommissionCard" role="status" aria-live="polite">
         <div class="dashboard-alert-icon" aria-hidden="true">!</div>
         <div class="dashboard-alert-copy">
-          <span class="dashboard-alert-kicker">ALERTA • FECHAMENTO DE COMISSÃO</span>
-          <strong><span id="dashboardCommissionDaysLeft">--</span> <span id="dashboardCommissionDaysLabel">dias</span> <span id="dashboardCommissionTitle">para fechar a próxima comissão</span></strong>
-          <p id="dashboardCommissionMessage">A janela fecha todo dia 15.</p>
-        </div>
-        <div class="dashboard-alert-meta">
-          <span class="dashboard-alert-status" id="dashboardCommissionStatus"><i></i>Próximo fechamento</span>
-          <b id="dashboardCommissionWindowEnd">ATÉ --/--</b>
+          <strong class="dashboard-alert-single-line"><span id="dashboardCommissionDaysLeft">--</span> DIAS PRA VOCÊ FECHAR SUA COMISSÃO DE DEZEMBRO</strong>
         </div>
       </div>`;
     const actions=top.querySelector(".actions");
