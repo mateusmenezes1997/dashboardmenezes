@@ -695,7 +695,7 @@ body[data-role="viewer"] #leaders{display:none!important}
 </style>
 
 <style id="gm-dashboard-commission-alert-v3">
-/* Dashboard: alerta de comissão integrado ao cabeçalho */
+/* Dashboard: alerta executivo de comissão integrado ao cabeçalho */
 #dashboard .topbar>.dashboard-alert-wrap{
   min-width:0;
   width:100%;
@@ -704,135 +704,156 @@ body[data-role="viewer"] #leaders{display:none!important}
 #dashboard .dashboard-commission-alert{
   position:relative;
   width:100%;
-  min-height:56px;
+  min-height:50px;
   box-sizing:border-box;
   display:grid;
-  grid-template-columns:32px minmax(0,1fr) auto;
+  grid-template-columns:30px minmax(0,1fr) auto;
   align-items:center;
   gap:10px;
-  padding:8px 11px;
-  border-radius:14px;
+  padding:7px 11px;
+  border-radius:11px;
   overflow:hidden;
-  border:1px solid rgba(213,171,103,.28);
+  border:1px solid rgba(208,166,83,.24);
   background:
-    linear-gradient(90deg,rgba(126,26,46,.16),rgba(19,16,18,.98) 34%,rgba(13,16,20,.98));
-  box-shadow:0 7px 20px rgba(0,0,0,.17),inset 0 1px 0 rgba(255,255,255,.025);
+    radial-gradient(circle at 10% 50%,rgba(94,20,38,.12),transparent 34%),
+    linear-gradient(90deg,#191014 0%,#171316 42%,#121315 72%,#111315 100%);
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.018);
 }
 #dashboard .dashboard-alert-icon{
-  width:30px;height:30px;border-radius:9px;
+  width:28px;height:28px;border-radius:8px;
   display:grid;place-items:center;
-  color:#f0cf91;
-  border:1px solid rgba(213,171,103,.30);
-  background:rgba(213,171,103,.08);
-  font:900 15px/1 var(--font-impact,"Sora",sans-serif);
+  color:#e8c16f;
+  border:1px solid rgba(214,174,92,.24);
+  background:rgba(214,174,92,.07);
+  font:900 14px/1 var(--font-impact,"Sora",sans-serif);
 }
 #dashboard .dashboard-alert-copy{min-width:0}
 #dashboard .dashboard-alert-kicker{
   display:block;
-  margin-bottom:2px;
-  color:#d5ab67;
-  font-size:7px;
+  margin-bottom:1px;
+  color:#caa458;
+  font-size:6.5px;
   line-height:1.05;
-  font-weight:950;
-  letter-spacing:.11em;
+  font-weight:900;
+  letter-spacing:.10em;
   text-transform:uppercase;
 }
 #dashboard .dashboard-alert-copy strong{
   display:block;
-  color:#f7f4ef;
-  font-size:11px;
-  line-height:1.18;
-  font-weight:850;
+  color:#f4f0ea;
+  font-size:10.5px;
+  line-height:1.15;
+  font-weight:820;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 #dashboard .dashboard-alert-copy strong #dashboardCommissionDaysLeft{
-  color:#f0cf91;
+  color:#edc66f;
   font-family:var(--font-impact,"Sora",sans-serif);
-  font-size:16px;
+  font-size:17px;
   font-weight:950;
+  letter-spacing:-.03em;
 }
 #dashboard .dashboard-alert-copy p{
-  margin:2px 0 0;
-  color:#aeb6c0;
-  font-size:8px;
-  line-height:1.15;
-  font-weight:650;
+  margin:1px 0 0;
+  color:#a89fa2;
+  font-size:7.5px;
+  line-height:1.12;
+  font-weight:620;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 #dashboard .dashboard-alert-meta{
-  min-width:94px;
+  min-width:90px;
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  gap:3px;
+  gap:2px;
   padding-left:10px;
-  border-left:1px solid rgba(255,255,255,.07);
+  border-left:1px solid rgba(255,255,255,.055);
 }
 #dashboard .dashboard-alert-status{
   display:inline-flex;
   align-items:center;
   gap:5px;
-  color:#aab2bc;
-  font-size:6.5px;
-  font-weight:950;
+  color:#a99b8d;
+  font-size:6px;
+  font-weight:900;
   letter-spacing:.07em;
   text-transform:uppercase;
   white-space:nowrap;
 }
 #dashboard .dashboard-alert-status i{
   width:5px;height:5px;border-radius:50%;
-  background:#d5ab67;
-  box-shadow:0 0 0 3px rgba(213,171,103,.09);
+  background:#c79b3b;
+  box-shadow:0 0 0 3px rgba(199,155,59,.08);
 }
 #dashboard .dashboard-alert-meta b{
-  color:#f0cf91;
-  font-size:10px;
+  color:#efca76;
+  font-size:10.5px;
   line-height:1;
   font-weight:950;
   white-space:nowrap;
+  letter-spacing:-.02em;
 }
 #dashboard .dashboard-commission-alert.commission-urgent{
-  border-color:rgba(255,181,62,.68);
+  border-color:rgba(219,167,58,.52);
   background:
-    radial-gradient(circle at 92% 50%,rgba(255,166,35,.12),transparent 30%),
-    linear-gradient(90deg,rgba(112,25,28,.94),rgba(42,24,17,.98) 48%,rgba(19,17,14,.99));
-  box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 16px rgba(244,162,31,.06),inset 0 1px 0 rgba(255,220,145,.05);
+    radial-gradient(circle at 8% 50%,rgba(96,22,38,.20),transparent 34%),
+    linear-gradient(90deg,#241217 0%,#1e1516 38%,#191513 66%,#141514 100%);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,.22),
+    0 0 12px rgba(203,151,46,.035),
+    inset 0 1px 0 rgba(255,224,158,.035);
 }
 #dashboard .dashboard-commission-alert.commission-urgent::before{
   content:"";
   position:absolute;
-  left:0;top:0;bottom:0;width:3px;
-  background:linear-gradient(180deg,#ffd06f,#f59e0b);
-  box-shadow:0 0 12px rgba(245,158,11,.34);
+  left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,#e8bd60,#c98b22);
+  box-shadow:0 0 8px rgba(201,139,34,.22);
 }
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-icon{
-  color:#191109;
-  background:linear-gradient(135deg,#ffd36f,#f4a11c);
+  color:#17120b;
+  background:linear-gradient(135deg,#efc86e,#d99a2b);
   border-color:transparent;
-  box-shadow:0 0 14px rgba(245,158,11,.18);
+  box-shadow:0 0 10px rgba(201,145,40,.14);
 }
-#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-kicker,
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-kicker{
+  color:#d7ad57;
+}
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-meta b,
-#dashboard .dashboard-commission-alert.commission-urgent #dashboardCommissionDaysLeft{color:#ffd36f}
-#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy strong{color:#fffaf0}
-#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy p{color:#eadfcf;font-weight:750}
-#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-status{color:#ffd98a}
+#dashboard .dashboard-commission-alert.commission-urgent #dashboardCommissionDaysLeft{
+  color:#f0c86f;
+}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy strong{
+  color:#f8f3eb;
+}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-copy p{
+  color:#c5b9b4;
+  font-weight:680;
+}
+#dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-status{
+  color:#d2b36f;
+}
 #dashboard .dashboard-commission-alert.commission-urgent .dashboard-alert-status i{
-  background:#ffb52f;
-  box-shadow:0 0 0 3px rgba(255,181,47,.12),0 0 10px rgba(255,181,47,.34);
-  animation:gmDashboardAlertPulse 1.6s ease-in-out infinite;
+  background:#d79b2c;
+  box-shadow:0 0 0 3px rgba(215,155,44,.10),0 0 7px rgba(215,155,44,.22);
+  animation:gmDashboardAlertPulse 1.8s ease-in-out infinite;
 }
 #dashboard .dashboard-commission-alert.commission-today{
-  border-color:rgba(255,133,53,.88);
-  background:linear-gradient(90deg,#6f171c,#34180f 52%,#19120d);
+  border-color:rgba(222,139,54,.64);
+  background:
+    radial-gradient(circle at 8% 50%,rgba(111,26,38,.24),transparent 34%),
+    linear-gradient(90deg,#291216 0%,#201412 48%,#151413 100%);
 }
 @keyframes gmDashboardAlertPulse{
-  0%,100%{opacity:.75;transform:scale(.9)}
-  50%{opacity:1;transform:scale(1.16)}
+  0%,100%{opacity:.72;transform:scale(.92)}
+  50%{opacity:1;transform:scale(1.10)}
 }
 
 /* Em telas largas, o cabeçalho vira exatamente 3 blocos:
@@ -866,18 +887,18 @@ body[data-role="viewer"] #leaders{display:none!important}
 }
 @media(max-width:620px){
   #dashboard .dashboard-commission-alert{
-    grid-template-columns:30px minmax(0,1fr);
-    gap:9px;
-    padding:8px 10px;
+    grid-template-columns:28px minmax(0,1fr);
+    gap:8px;
+    padding:7px 9px;
   }
-  #dashboard .dashboard-alert-icon{width:28px;height:28px;border-radius:9px}
+  #dashboard .dashboard-alert-icon{width:26px;height:26px;border-radius:7px}
   #dashboard .dashboard-alert-meta{
     grid-column:2;
     min-width:0;
     padding:5px 0 0;
     margin-top:1px;
     border-left:0;
-    border-top:1px solid rgba(255,255,255,.07);
+    border-top:1px solid rgba(255,255,255,.055);
     flex-direction:row;
     justify-content:space-between;
     align-items:center;
