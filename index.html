@@ -3717,14 +3717,90 @@ function exportRankingCard(auto=false,returnCanvas=false){
   const a=document.createElement('a');
   a.download=`ranking-gestao-menezes-${m}${auto?'-automatico':''}-4k.png`;
   if(returnCanvas)return {canvas,filename:a.download,month:m};
-  a.href=canvas.toDataURL('image/png');
-  a.click();
+
+  // Safari: evita converter o canvas 4K em dataURL de forma síncrona.
+  // A conversão síncrona, quando executada junto com o modal de parabéns,
+  // pode bloquear a thread principal e deixar o backdrop preso.
+  const triggerDownload=(href,revoke=false)=>{
+    a.href=href;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    if(revoke)setTimeout(()=>URL.revokeObjectURL(href),1800);
+  };
+  try{
+    if(typeof canvas.toBlob==='function'){
+      canvas.toBlob(blob=>{
+        if(!blob)return;
+        triggerDownload(URL.createObjectURL(blob),true);
+      },'image/png');
+    }else{
+      triggerDownload(canvas.toDataURL('image/png'));
+    }
+  }catch(error){
+    console.error('Falha ao exportar ranking:',error);
+  }
 }
+
+let gmAutoRankExportTimer=null;
+let gmAutoRankExportRunning=false;
+
+function gmHasBlockingOverlay(){
+  if(document.body.style.overflow==='hidden')return true;
+  if(document.querySelector('dialog[open], [aria-modal="true"]:not(.hidden), .edit-modal-backdrop:not(.hidden), #gmLivePerformance.open'))return true;
+
+  const candidates=document.querySelectorAll('[class*="modal"],[class*="overlay"],[class*="backdrop"],[style*="position:fixed"],[style*="position: fixed"]');
+  const vw=Math.max(window.innerWidth||0,1),vh=Math.max(window.innerHeight||0,1);
+  for(const el of candidates){
+    if(el.id==='gmSplash' && el.classList.contains('gm-hide'))continue;
+    const cs=getComputedStyle(el);
+    if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)===0)continue;
+    const r=el.getBoundingClientRect();
+    if(r.width*r.height>=vw*vh*.55 && cs.position==='fixed')return true;
+  }
+  return false;
+}
+
 function maybeAutoExportRanking(){
   const cb=document.getElementById('autoRankExport');
-  if(cb && cb.checked){
-    setTimeout(()=>exportRankingCard(true),120);
-  }
+  if(!cb || !cb.checked)return;
+
+  // Não disputa a thread com a animação/foto de parabéns.
+  // O ranking só baixa quando a interface estiver novamente livre.
+  if(gmAutoRankExportTimer)clearTimeout(gmAutoRankExportTimer);
+  const started=Date.now();
+
+  const attempt=()=>{
+    if(!cb.checked)return;
+    if(gmAutoRankExportRunning || document.hidden || gmHasBlockingOverlay()){
+      if(Date.now()-started<90000){
+        gmAutoRankExportTimer=setTimeout(attempt,800);
+      }
+      return;
+    }
+
+    gmAutoRankExportRunning=true;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      try{
+        exportRankingCard(true);
+      }catch(error){
+        console.error('Falha no ranking automático:',error);
+      }finally{
+        gmAutoRankExportRunning=false;
+        gmAutoRankExportTimer=null;
+        // Garante que um download nunca deixe o scroll/tela preso.
+        setTimeout(()=>{
+          if(!gmHasBlockingOverlay()){
+            document.body.style.overflow='';
+            document.documentElement.style.overflow='';
+          }
+        },250);
+      }
+    }));
+  };
+
+  // Dá tempo para renderizar o dashboard e exibir o parabéns antes do download.
+  gmAutoRankExportTimer=setTimeout(attempt,1800);
 }
 
 function renderLeadership(rows){
