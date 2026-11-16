@@ -786,21 +786,72 @@ function exportRankingCard(auto=false,returnCanvas=false){
     }
   },'image/png');
 }
+let gmAutoRankExportTimer=null;
+let gmAutoRankCelebrationClosedHandler=null;
+
 function maybeAutoExportRanking(){
   const cb=document.getElementById('autoRankExport');
   if(!(cb&&cb.checked))return;
-  const run=(attempt=0)=>{
+
+  // Cancela qualquer exportação pendente anterior para nunca empilhar downloads.
+  if(gmAutoRankExportTimer){
+    clearTimeout(gmAutoRankExportTimer);
+    gmAutoRankExportTimer=null;
+  }
+  if(gmAutoRankCelebrationClosedHandler){
+    window.removeEventListener('gm:celebration-closed',gmAutoRankCelebrationClosedHandler);
+    gmAutoRankCelebrationClosedHandler=null;
+  }
+
+  let finished=false;
+  const cleanup=()=>{
+    if(gmAutoRankExportTimer){
+      clearTimeout(gmAutoRankExportTimer);
+      gmAutoRankExportTimer=null;
+    }
+    if(gmAutoRankCelebrationClosedHandler){
+      window.removeEventListener('gm:celebration-closed',gmAutoRankCelebrationClosedHandler);
+      gmAutoRankCelebrationClosedHandler=null;
+    }
+  };
+
+  const run=()=>{
+    if(finished)return;
+    if(!(cb&&cb.checked)){cleanup();return;}
+
     const popup=document.getElementById('gmv-event');
-    const celebrationVisible=document.body.classList.contains('gmv-celebrating') || Boolean(popup&&popup.classList.contains('gmv-show'));
-    if((window.gmRankingExportBusy||celebrationVisible)&&attempt<48){
-      setTimeout(()=>run(attempt+1),250);
+    const celebrationVisible=
+      document.body.classList.contains('gmv-celebrating') ||
+      Boolean(popup&&popup.classList.contains('gmv-show'));
+
+    // Regra principal: NUNCA gerar/baixar o ranking enquanto o parabéns estiver aberto.
+    // A celebração fica na tela até o usuário clicar no X, então não há mais limite
+    // de tentativas que force o download por baixo do overlay.
+    if(window.gmRankingExportBusy||celebrationVisible){
+      gmAutoRankExportTimer=setTimeout(run,400);
       return;
     }
-    if(window.gmRankingExportBusy)return;
+
+    finished=true;
+    cleanup();
     try{exportRankingCard(true)}
-    catch(error){window.gmRankingExportBusy=false;console.error('Falha no ranking automático:',error)}
+    catch(error){
+      window.gmRankingExportBusy=false;
+      console.error('Falha no ranking automático:',error);
+    }
   };
-  setTimeout(()=>run(0),180);
+
+  // Se o usuário fechar o parabéns antes do tempo de segurança, baixa logo depois.
+  gmAutoRankCelebrationClosedHandler=()=>{
+    if(finished)return;
+    if(gmAutoRankExportTimer)clearTimeout(gmAutoRankExportTimer);
+    gmAutoRankExportTimer=setTimeout(run,350);
+  };
+  window.addEventListener('gm:celebration-closed',gmAutoRankCelebrationClosedHandler);
+
+  // Janela suficiente para a Arena sincronizar a venda e abrir o card de parabéns.
+  // Se não houver celebração, o ranking baixa normalmente depois desse intervalo.
+  gmAutoRankExportTimer=setTimeout(run,5000);
 }
 
 
@@ -1639,6 +1690,15 @@ async function saveSaleEntry(shareRanking=false){
  updateSaleTotalPreview();
  document.getElementById('monthFilter').value=monthKey(date);
  render();switchView('dashboard');
+
+ // Avisa a Arena imediatamente para ela sincronizar e mostrar o parabéns
+ // antes de qualquer exportação automática do ranking.
+ try{
+   window.dispatchEvent(new CustomEvent('gm:local-sale-saved',{detail:{saleId:sale.id}}));
+ }catch(error){
+   try{window.dispatchEvent(new Event('gm:local-sale-saved'))}catch(_){}
+ }
+
  if(shareRanking)prepareRankingShare();else maybeAutoExportRanking();
 }
 document.getElementById('saveSale').onclick=()=>saveSaleEntry(false);
