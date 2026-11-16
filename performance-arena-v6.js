@@ -302,6 +302,7 @@ function renderNotifications(){
 }
 function showNextCelebration(){
  if(celebrationActive||!celebrationQueue.length||!authenticated())return;
+ if(window.gmRankingExportBusy){setTimeout(showNextCelebration,300);return;}
  celebrationActive=true;var n=celebrationQueue.shift(),el=qs('gmv-event'),backdrop=qs('gmv-celebration-backdrop');
  if(!backdrop){backdrop=h('div');backdrop.id='gmv-celebration-backdrop';backdrop.setAttribute('aria-hidden','true')}
  if(!el){celebrationActive=false;return}
@@ -323,10 +324,13 @@ function showNextCelebration(){
   movement.remove();
   text(rank,n.position?'Agora você está em '+n.position+'º lugar no ranking do mês!':'Mais uma conquista para a Gestão Menezes!');
  }
- photoInto(face,n.person);el.append(dismiss,face,small,large,message,amount);if(n.passed&&n.passed.length)el.append(movement);el.append(rank);el.classList.add('gmv-show');backdrop.classList.add('gmv-show');
+ photoInto(face,n.person);el.append(dismiss,face,small,large,message,amount);if(n.passed&&n.passed.length)el.append(movement);el.append(rank);
+ el.style.pointerEvents='auto';backdrop.style.pointerEvents='auto';
+ el.classList.add('gmv-show');backdrop.classList.add('gmv-show');
  el.setAttribute('aria-hidden','false');
+ try{window.dispatchEvent(new Event('gm:celebration-opened'))}catch(e){}
  var finished=false;
- function done(){if(finished)return;finished=true;clearTimeout(toastTimer);toastTimer=0;try{el.classList.remove('gmv-show');el.setAttribute('aria-hidden','true');el.style.pointerEvents='none'}catch(e){}try{backdrop.classList.remove('gmv-show');backdrop.setAttribute('aria-hidden','true');backdrop.style.pointerEvents='none';backdrop.remove()}catch(e){}try{document.body.classList.remove('gmv-celebrating');if(!document.body.classList.contains('gmv-immersive')&&document.body.style.overflow==='hidden'&&!document.querySelector('#gmLivePerformance.open,.gmv-open,[role="dialog"]:not(.hidden):not([aria-hidden="true"])'))document.body.style.overflow=''}catch(e){}celebrationActive=false;closeCelebration=null;toastTimer=setTimeout(showNextCelebration,450)}
+ function done(){if(finished)return;finished=true;clearTimeout(toastTimer);toastTimer=0;try{el.classList.remove('gmv-show');el.setAttribute('aria-hidden','true');el.style.pointerEvents='none'}catch(e){}try{backdrop.classList.remove('gmv-show');backdrop.setAttribute('aria-hidden','true');backdrop.style.pointerEvents='none';backdrop.remove()}catch(e){}try{document.body.classList.remove('gmv-celebrating');if(!document.body.classList.contains('gmv-immersive')&&!document.querySelector('#gmLivePerformance.open,.gmv-open,[role="dialog"]:not(.hidden):not([aria-hidden="true"])'))document.body.style.overflow=''}catch(e){}celebrationActive=false;closeCelebration=null;try{window.dispatchEvent(new Event('gm:celebration-closed'))}catch(e){}toastTimer=setTimeout(showNextCelebration,450)}
  /* A celebração fica aberta até o usuário clicar no X. */
  closeCelebration=done;dismiss.onclick=done;backdrop.onclick=function(e){e.preventDefault();e.stopPropagation()};backdrop.setAttribute('aria-hidden','false');backdrop.style.pointerEvents='auto';
  clearTimeout(toastTimer);toastTimer=0;
