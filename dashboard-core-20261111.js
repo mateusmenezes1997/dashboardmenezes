@@ -555,6 +555,7 @@ function roundRectRank(ctx,x,y,w,h,r,fill,stroke){
   if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
 }
 function exportRankingPortrait(auto,returnCanvas,data){
+  if(auto&&!returnCanvas)window.gmRankingExportBusy=true;
   const {m,total,rows}=data;
   const W=1120,rowH=82,head=254,footer=120,H=head+rows.length*rowH+footer;
   // Controle de memória para Safari/iPhone, mantendo todos os nomes sem cortar linhas.
@@ -612,12 +613,13 @@ function exportRankingPortrait(auto,returnCanvas,data){
       a.href=url;a.download=filename;document.body.appendChild(a);a.click();
       setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},2500);
     }catch(error){console.error(error);if(!auto)alert('Não foi possível baixar o PNG.')}
-    finally{if(btn&&!auto){btn.disabled=false;btn.textContent=original||'Baixar ranking PNG'}}
+    finally{if(auto)window.gmRankingExportBusy=false;if(btn&&!auto){btn.disabled=false;btn.textContent=original||'Baixar ranking PNG'}}
   },'image/png');
 }
 function exportRankingCard(auto=false,returnCanvas=false){
   const data=rankCardData();
   if(data.rows.length>10)return exportRankingPortrait(auto,returnCanvas,data);
+  if(auto&&!returnCanvas)window.gmRankingExportBusy=true;
   const {m,total,target,rows}=rankCardData();
   const SCALE=2,W=1920,H=1080;
   const canvas=document.createElement('canvas');
@@ -779,15 +781,26 @@ function exportRankingCard(auto=false,returnCanvas=false){
       console.error('Falha ao baixar ranking:',error);
       if(!auto)alert('Não foi possível baixar o ranking em PNG. Tente novamente.');
     }finally{
+      if(auto)window.gmRankingExportBusy=false;
       if(btn&&!auto){btn.disabled=false;btn.textContent=oldText||'Baixar ranking PNG';}
     }
   },'image/png');
 }
 function maybeAutoExportRanking(){
   const cb=document.getElementById('autoRankExport');
-  if(cb && cb.checked){
-    setTimeout(()=>exportRankingCard(true),120);
-  }
+  if(!(cb&&cb.checked))return;
+  const run=(attempt=0)=>{
+    const popup=document.getElementById('gmv-event');
+    const celebrationVisible=document.body.classList.contains('gmv-celebrating') || Boolean(popup&&popup.classList.contains('gmv-show'));
+    if((window.gmRankingExportBusy||celebrationVisible)&&attempt<48){
+      setTimeout(()=>run(attempt+1),250);
+      return;
+    }
+    if(window.gmRankingExportBusy)return;
+    try{exportRankingCard(true)}
+    catch(error){window.gmRankingExportBusy=false;console.error('Falha no ranking automático:',error)}
+  };
+  setTimeout(()=>run(0),180);
 }
 
 
