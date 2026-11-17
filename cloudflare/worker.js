@@ -273,7 +273,7 @@ export default {
       const response=await env.ASSETS.fetch(req);
       if(req.method!=='GET'||!response.ok||!(response.headers.get('content-type')||'').includes('text/html')) return response;
       let html=await response.text();
-      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script>';
+      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script>';
       if(!html.includes('ranking-executivo-20261113.js')) {
         if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,premium+'\n</body>');
         else html+=premium;
