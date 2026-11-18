@@ -254,19 +254,25 @@ function cleanPersonalData(input) {
   if(sales.length>5000||clients.length>5000) throw new HttpError(413,'A base pessoal ultrapassou o limite de registros');
   const cleanText=(v,max=500)=>String(v??'').slice(0,max);
   const cleanMoney=v=>Math.max(0,Number(v)||0);
+  const allowedConditions=new Set(['motors13','lar100','lar85','lar70','lar50']);
   const outSales=sales.map(s=>{
     if(!s||typeof s.id!=='string'||!s.id||s.id.length>200) throw new HttpError(400,'Há uma venda inválida na base pessoal');
     if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s.date||''))) throw new HttpError(400,'Há uma venda com data inválida');
+    const credit=cleanMoney(s.credit);
+    const product=cleanText(s.product,60);
+    const requested=String(s.condition||'');
+    const condition=allowedConditions.has(requested)?requested:(product.toLowerCase().includes('motor')?'motors13':'lar50');
     return {
       id:s.id,
       ...(s.sourceId?{sourceId:cleanText(s.sourceId,200)}:{}),
       date:String(s.date),
       clientName:cleanText(s.clientName,180),
-      product:cleanText(s.product,60),
-      credit:cleanMoney(s.credit),
+      product,
+      condition,
+      credit,
       qty:Math.max(1,Math.min(9999,Math.round(Number(s.qty)||1))),
       status:cleanText(s.status,80),
-      commissionExpected:cleanMoney(s.commissionExpected),
+      commissionExpected:Math.round(credit*0.022*100)/100,
       commissionReceived:cleanMoney(s.commissionReceived),
       note:cleanText(s.note,2000)
     };
@@ -347,7 +353,7 @@ export default {
       const response=await env.ASSETS.fetch(req);
       if(req.method!=='GET'||!response.ok||!(response.headers.get('content-type')||'').includes('text/html')) return response;
       let html=await response.text();
-      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script><script defer src="/me-dashboard-v6-20261118.js?v=me-v6"></script>';
+      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script><script defer src="/me-dashboard-v7-20261118.js?v=me-v7"></script>';
       if(!html.includes('ranking-executivo-20261113.js')) {
         if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,premium+'\n</body>');
         else html+=premium;
@@ -357,7 +363,7 @@ export default {
       headers.delete('content-encoding');
       headers.set('cache-control','no-store');
       headers.set('x-gm-ranking-version','premium-v4-20261113');
-      headers.set('x-gm-me-version','me-v6-photo-cleanup-20261118');
+      headers.set('x-gm-me-version','me-v7-commission-22-20261118');
       return new Response(html,{status:response.status,statusText:response.statusText,headers});
     }
     try {
