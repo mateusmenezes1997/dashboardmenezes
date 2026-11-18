@@ -1,0 +1,32 @@
+name: Verify EU navigation live
+
+on:
+  push:
+    branches:
+      - cloudflare-migracao
+    paths:
+      - '.github/workflows/verify-eu-nav-live.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live EU script injection
+        run: |
+          set -e
+          for i in $(seq 1 24); do
+            curl --fail --silent --show-error -D /tmp/headers.txt \
+              https://dashboardmenezes.mateusademicon7.workers.dev/ -o /tmp/page.html || true
+            VERSION=$(tr -d '\r' < /tmp/headers.txt | awk -F': ' 'tolower($1)=="x-gm-me-version"{print $2}' | tail -1)
+            if grep -q 'me-dashboard-v7-20261118.js?v=me-v10-navfix' /tmp/page.html && [ "$VERSION" = "me-v10-navfix-20261118" ]; then
+              echo "EU live version verified: $VERSION"
+              exit 0
+            fi
+            echo "Attempt $i: version=$VERSION"
+            sleep 5
+          done
+          echo "EU live version not verified"
+          cat /tmp/headers.txt || true
+          grep -o 'me-dashboard[^"<]*' /tmp/page.html || true
+          exit 1
