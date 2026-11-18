@@ -357,6 +357,7 @@ export default {
       headers.delete('content-encoding');
       headers.set('cache-control','no-store');
       headers.set('x-gm-ranking-version','premium-v4-20261113');
+      headers.set('x-gm-me-version','me-v1-20261118');
       return new Response(html,{status:response.status,statusText:response.statusText,headers});
     }
     try {
