@@ -327,7 +327,7 @@ function build(){
  var sel=document.getElementById('gmMePeriod');sel.innerHTML='<option value="">Todos os períodos</option>';
  var now=new Date();
  for(var i=0;i<36;i++){var d=new Date(now.getFullYear(),now.getMonth()-i,1),m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),o=document.createElement('option');o.value=m;o.textContent=monthLabel(m);sel.appendChild(o)}
- period=currentMonth();sel.value=period;
+ period='';sel.value=period;
  app.addEventListener('click',function(e){
   var t=e.target.closest('button');if(!t)return;
   if(t.id==='gmMeClose')return close();
