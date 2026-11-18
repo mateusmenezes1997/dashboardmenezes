@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v25-eu-sidebar-fix-20261118";
+const VERSION = "gm-pwa-executive-v26-eu-photo-20261118";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
