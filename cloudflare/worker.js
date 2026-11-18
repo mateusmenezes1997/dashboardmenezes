@@ -303,6 +303,71 @@ function cleanPersonalData(input) {
     updatedAt:new Date().toISOString()
   };
 }
+
+const PERSONAL_HISTORICAL_SALES_IMPORT_ID='personal-me-import-20261118-historical-sales-v1';
+const PERSONAL_HISTORICAL_SALES=[
+  ['2026-02-04','RIO DAS OSTRAS ODONTO',103480.00],
+  ['2026-02-04','RIO DAS OSTRAS ODONTO',103480.00],
+  ['2026-02-27','PEDRO HENRIQUE BERNARDINO DE SOUZA',141989.01],
+  ['2026-04-15','GUSTAVO HENRIQUE FELISBINO',80000.00],
+  ['2026-05-31','LUCAS MOLITOR SOUZA PICOLO',100000.00],
+  ['2026-06-03','MATHEUS OLIVEIRA PASSIANO',160000.00],
+  ['2026-06-18','GABRIEL NASCIMENTO SOUZA',150000.00],
+  ['2026-07-07','JULLIA MOREIRA SOUSA PASSIANO',800000.00],
+  ['2026-07-15','OSMAR BESSA DA SILVA',80000.00],
+  ['2026-08-07','THIAGO HENRIQUE PROTASIO DE OLIVEIRA',200000.00],
+  ['2026-09-04','FELIPE FERREIRA HUEMER ULHOA CINTRA',90000.00],
+  ['2026-10-13','SERWATH SOLUCOES CONTABEIS',1033203.60],
+  ['2026-10-17','MATEUS HENRIQUE SANTOS MENEZES',80000.00],
+  ['2026-11-04','MARCO ANTONIO DE PAULA OLIVEIRA',100000.00],
+  ['2026-11-09','MAICON PEREIRA FIGUEIREDO',100000.00],
+  ['2026-11-11','MATEUS HENRIQUE SANTOS MENEZES',90000.00]
+];
+function personalSaleImportKey(date,name,credit){
+  const normalized=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+  return String(date||'')+'|'+normalized+'|'+Math.round((Number(credit)||0)*100);
+}
+function personalSeedId(date,name,credit,occurrence){
+  const slug=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,70);
+  return 'me-hist-'+String(date).replace(/-/g,'')+'-'+slug+'-'+Math.round((Number(credit)||0)*100)+'-'+occurrence;
+}
+async function ensureHistoricalPersonalSales(env){
+  const done=await readDoc(env,PERSONAL_HISTORICAL_SALES_IMPORT_ID);
+  if(done) return done.result||{added:0,skipped:PERSONAL_HISTORICAL_SALES.length,total:PERSONAL_HISTORICAL_SALES.length};
+  const original=await readDoc(env,'personal-me');
+  const base=original?.data||{sales:[],clients:[],settings:{monthlySalesTarget:5000000,monthlyCommissionTarget:0}};
+  const sales=Array.isArray(base.sales)?base.sales.slice():[];
+  const existingCounts=new Map();
+  sales.forEach(s=>{
+    const k=personalSaleImportKey(s.date,s.clientName,s.credit);
+    existingCounts.set(k,(existingCounts.get(k)||0)+1);
+  });
+  const consumed=new Map();
+  let added=0,skipped=0;
+  PERSONAL_HISTORICAL_SALES.forEach(([date,clientName,credit])=>{
+    const k=personalSaleImportKey(date,clientName,credit);
+    const used=consumed.get(k)||0;
+    const have=existingCounts.get(k)||0;
+    consumed.set(k,used+1);
+    if(used<have){skipped++;return;}
+    const occurrence=used+1;
+    sales.push({
+      id:personalSeedId(date,clientName,credit,occurrence),
+      date,clientName,product:'Lar',condition:'lar50',credit,qty:1,status:'Ativa',
+      commissionExpected:Math.round(credit*0.022*100)/100,commissionReceived:0,
+      note:'Venda histórica própria'
+    });
+    added++;
+  });
+  const data=cleanPersonalData({...base,sales});
+  if(added){
+    const ok=await writeDoc(env,'personal-me',{data},original?original.revision:null);
+    if(!ok) throw new HttpError(409,'A base pessoal mudou durante a importação histórica. Tente novamente.');
+  }
+  await writeDoc(env,PERSONAL_HISTORICAL_SALES_IMPORT_ID,{result:{added,skipped,total:PERSONAL_HISTORICAL_SALES.length,importedAt:new Date().toISOString()}},null);
+  return {added,skipped,total:PERSONAL_HISTORICAL_SALES.length};
+}
+
 async function routeMe(req,env) {
   if(!configured(env)) return json(503,{error:'Servidor ainda não configurado'});
   const user=await session(req,env);
@@ -368,6 +433,7 @@ export default {
     }
     try {
       await schema(env);
+      await ensureHistoricalPersonalSales(env);
       if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,...(missing.length?{missingConfig:missing}:{})}); }
       if(path==='/api/session') return await routeSession(req,env);
       if(path==='/api/state') return await routeState(req,env);
