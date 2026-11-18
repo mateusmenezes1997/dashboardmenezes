@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v27-eu-photo-hover-20261118";
+const VERSION = "gm-pwa-executive-v28-eu-photo-cleanup-20261118";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
