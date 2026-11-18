@@ -168,12 +168,19 @@ function syncOwnSales(){
   var s=r.state;if(!s||!Array.isArray(s.sales)||!Array.isArray(s.consultants))throw new Error('A base principal ainda não está disponível.');
   var me=s.consultants.find(function(c){return String(c.id||'').toLowerCase()==='mateus'||String(c.name||'').toLocaleLowerCase('pt-BR').includes('mateus menezes')});
   if(!me)throw new Error('Não encontrei seu cadastro na equipe.');
-  var existing=new Set(data.sales.map(function(x){return String(x.sourceId||'')}));
-  var imports=s.sales.filter(function(x){return x.consultantId===me.id&&!existing.has(String(x.id||''))}).map(function(x){
-   return {id:id(),sourceId:String(x.id||''),date:x.date||today(),clientName:'',product:String(x.product||'').toLowerCase().includes('motor')?'Motors':'Lar',credit:Math.max(0,num(x.amount)),qty:Math.max(1,Math.round(num(x.qty)||1)),status:'Ativa',commissionExpected:0,commissionReceived:0,note:String(x.note||'')};
+  var own=s.sales.filter(function(x){return x.consultantId===me.id}),added=0,updated=0;
+  own.forEach(function(x){
+   var sourceId=String(x.id||''),raw=String(x.product||'').toLowerCase(),product=raw.includes('motor')?'Motors':raw.includes('lar')?'Lar':'Outro';
+   var found=data.sales.find(function(y){return String(y.sourceId||'')===sourceId});
+   if(found){
+    var nextCredit=Math.max(0,num(x.amount)),nextQty=Math.max(1,Math.round(num(x.qty)||1)),nextDate=x.date||found.date||today();
+    if(found.credit!==nextCredit||found.qty!==nextQty||found.date!==nextDate||found.product!==product){found.credit=nextCredit;found.qty=nextQty;found.date=nextDate;found.product=product;updated++}
+   }else{
+    data.sales.push({id:id(),sourceId:sourceId,date:x.date||today(),clientName:'',product:product,credit:Math.max(0,num(x.amount)),qty:Math.max(1,Math.round(num(x.qty)||1)),status:'Ativa',commissionExpected:0,commissionReceived:0,note:String(x.note||'')});added++;
+   }
   });
-  if(!imports.length){toast('Suas vendas do dashboard já estão sincronizadas.');return false}
-  data.sales=data.sales.concat(imports);return save().then(function(ok){if(ok)toast(imports.length+' venda'+(imports.length===1?' sincronizada.':'s sincronizadas.'));return ok})
+  if(!added&&!updated){toast('Suas vendas do dashboard já estão sincronizadas.');return false}
+  return save().then(function(ok){if(ok)toast((added?added+' nova'+(added===1?' venda':'s vendas'):'')+(added&&updated?' e ':'')+(updated?updated+' atualizada'+(updated===1?'':'s'):'')+'.');return ok})
  }).catch(function(e){toast(e.message,true)}).finally(function(){setLoading(false)})
 }
 function build(){
