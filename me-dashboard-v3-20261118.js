@@ -233,8 +233,8 @@ function open(){build();app.classList.add('open');app.setAttribute('aria-hidden'
 function close(){if(!app)return;app.classList.remove('open');app.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 function installNav(){
  var legacy=document.getElementById('gmMeNav');
- if(legacy)legacy.remove();
- if(!document.getElementById('gmMeLegacySentinel')){var sentinel=document.createElement('span');sentinel.id='gmMeNav';sentinel.hidden=true;sentinel.setAttribute('aria-hidden','true');sentinel.dataset.meLegacySentinel='1';(document.body||document.documentElement).appendChild(sentinel);sentinel.id='gmMeLegacySentinel';}
+ if(legacy&&legacy.dataset.meLegacySentinel!=='1')legacy.remove();
+ if(!document.getElementById('gmMeNav')){var sentinel=document.createElement('span');sentinel.id='gmMeNav';sentinel.hidden=true;sentinel.setAttribute('aria-hidden','true');sentinel.dataset.meLegacySentinel='1';(document.body||document.documentElement).appendChild(sentinel);}
  var old=document.getElementById('gmMeNavV3');
  if(old){
    var side=old.closest('.sidebar,aside');
