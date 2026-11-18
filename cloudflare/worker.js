@@ -246,6 +246,80 @@ async function routeState(req,env) {
   }
   return json(400,{error:'Operação não reconhecida'});
 }
+
+function cleanPersonalData(input) {
+  if(!input||typeof input!=='object') throw new HttpError(400,'Base pessoal inválida');
+  const sales=Array.isArray(input.sales)?input.sales:[];
+  const clients=Array.isArray(input.clients)?input.clients:[];
+  if(sales.length>5000||clients.length>5000) throw new HttpError(413,'A base pessoal ultrapassou o limite de registros');
+  const cleanText=(v,max=500)=>String(v??'').slice(0,max);
+  const cleanMoney=v=>Math.max(0,Number(v)||0);
+  const outSales=sales.map(s=>{
+    if(!s||typeof s.id!=='string'||!s.id||s.id.length>200) throw new HttpError(400,'Há uma venda inválida na base pessoal');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s.date||''))) throw new HttpError(400,'Há uma venda com data inválida');
+    return {
+      id:s.id,
+      ...(s.sourceId?{sourceId:cleanText(s.sourceId,200)}:{}),
+      date:String(s.date),
+      clientName:cleanText(s.clientName,180),
+      product:cleanText(s.product,60),
+      credit:cleanMoney(s.credit),
+      qty:Math.max(1,Math.min(9999,Math.round(Number(s.qty)||1))),
+      status:cleanText(s.status,80),
+      commissionExpected:cleanMoney(s.commissionExpected),
+      commissionReceived:cleanMoney(s.commissionReceived),
+      note:cleanText(s.note,2000)
+    };
+  });
+  const outClients=clients.map(x=>{
+    if(!x||typeof x.id!=='string'||!x.id||x.id.length>200) throw new HttpError(400,'Há um cliente inválido na base pessoal');
+    const next=String(x.nextContact||'');
+    if(next&&!/^\d{4}-\d{2}-\d{2}$/.test(next)) throw new HttpError(400,'Há um próximo contato com data inválida');
+    return {
+      id:x.id,
+      name:cleanText(x.name,180),
+      phone:cleanText(x.phone,40),
+      product:cleanText(x.product,60),
+      credit:cleanMoney(x.credit),
+      status:cleanText(x.status,80),
+      nextContact:next,
+      note:cleanText(x.note,2000)
+    };
+  });
+  const settings=input.settings&&typeof input.settings==='object'?input.settings:{};
+  return {
+    sales:outSales,
+    clients:outClients,
+    settings:{
+      monthlySalesTarget:cleanMoney(settings.monthlySalesTarget)||5000000,
+      monthlyCommissionTarget:cleanMoney(settings.monthlyCommissionTarget)
+    },
+    updatedAt:new Date().toISOString()
+  };
+}
+async function routeMe(req,env) {
+  if(!configured(env)) return json(503,{error:'Servidor ainda não configurado'});
+  const user=await session(req,env);
+  if(!user) return json(401,{error:'Faça login para continuar'});
+  if(user.role!=='gestor') return json(403,{error:'Área exclusiva do gestor'});
+  if(!['GET','POST'].includes(req.method)) return json(405,{error:'Método não permitido'});
+  const doc=await readDoc(env,'personal-me');
+  if(req.method==='GET') {
+    return json(200,{
+      revision:doc?.revision||0,
+      data:doc?.data||{sales:[],clients:[],settings:{monthlySalesTarget:5000000,monthlyCommissionTarget:0}}
+    });
+  }
+  const body=await parse(req);
+  if(body?.action!=='replace') return json(400,{error:'Operação não reconhecida'});
+  const expected=doc?.revision||0;
+  if(Number(body.revision)!==expected) return json(409,{error:'Sua base pessoal mudou em outra sessão. Reabra a aba EU antes de salvar novamente.'});
+  const data=cleanPersonalData(body.data);
+  const ok=await writeDoc(env,'personal-me',{data},doc?doc.revision:null);
+  if(!ok) return json(409,{error:'A base pessoal mudou durante a gravação. Reabra a aba EU antes de tentar novamente.'});
+  return json(200,{ok:true,revision:expected+1,data});
+}
+
 async function routeCoaching(req,env) {
   if(!configured(env)) return json(503,{error:'Armazenamento indisponível'});
   const user=await session(req,env);
@@ -273,7 +347,7 @@ export default {
       const response=await env.ASSETS.fetch(req);
       if(req.method!=='GET'||!response.ok||!(response.headers.get('content-type')||'').includes('text/html')) return response;
       let html=await response.text();
-      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script>';
+      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script><script defer src="/me-dashboard-20261118.js?v=me-v1"></script>';
       if(!html.includes('ranking-executivo-20261113.js')) {
         if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,premium+'\n</body>');
         else html+=premium;
@@ -290,6 +364,7 @@ export default {
       if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,...(missing.length?{missingConfig:missing}:{})}); }
       if(path==='/api/session') return await routeSession(req,env);
       if(path==='/api/state') return await routeState(req,env);
+      if(path==='/api/me') return await routeMe(req,env);
       if(path==='/api/coaching') return await routeCoaching(req,env);
       return json(404,{error:'Rota não encontrada'});
     } catch(e) {
