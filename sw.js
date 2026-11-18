@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v24-duelo-real-20261113";
+const VERSION = "gm-pwa-executive-v25-eu-sidebar-fix-20261118";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
@@ -1029,7 +1029,7 @@ self.addEventListener("fetch", (event) => {
 
   // JS e CSS do dashboard precisam refletir o deploy atual mesmo com PWA instalado.
   const path=new URL(event.request.url).pathname;
-  const applicationAsset=/^\/(?:dashboard-[\w-]+|performance-[\w-]+|menezes-refinement-[\w-]+|ranking-executivo-[\w-]+|arena-v7|arena-v8)\.(?:js|css)$/.test(path);
+  const applicationAsset=/^\/(?:dashboard-[\w-]+|performance-[\w-]+|menezes-refinement-[\w-]+|ranking-executivo-[\w-]+|me-dashboard-[\w-]+|arena-v7|arena-v8)\.(?:js|css)$/.test(path);
   if(applicationAsset){
     event.respondWith(fetch(event.request,{cache:'no-store'}).catch(()=>caches.match(event.request)));
     return;
