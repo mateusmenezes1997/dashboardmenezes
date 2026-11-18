@@ -433,8 +433,8 @@ export default {
     }
     try {
       await schema(env);
-      await ensureHistoricalPersonalSales(env);
-      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,...(missing.length?{missingConfig:missing}:{})}); }
+      const personalImport=await ensureHistoricalPersonalSales(env);
+      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,personalImport,...(missing.length?{missingConfig:missing}:{})}); }
       if(path==='/api/session') return await routeSession(req,env);
       if(path==='/api/state') return await routeState(req,env);
       if(path==='/api/me') return await routeMe(req,env);
