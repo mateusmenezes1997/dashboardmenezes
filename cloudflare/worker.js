@@ -435,6 +435,75 @@ async function reconcileHistoricalPersonalSales(env){
   return result;
 }
 
+
+const PERSONAL_HISTORICAL_REPAIR_V3_ID='personal-me-reconcile-20261118-v3';
+async function reconcileHistoricalPersonalSalesV3(env){
+  const done=await readDoc(env,PERSONAL_HISTORICAL_REPAIR_V3_ID);
+  if(done) return done.result||{reconciled:true};
+  const original=await readDoc(env,'personal-me');
+  if(!original?.data){
+    const result={reconciled:true,removedDuplicates:0,enrichedExisting:0,keptImported:0,total:PERSONAL_HISTORICAL_SALES.length};
+    await writeDoc(env,PERSONAL_HISTORICAL_REPAIR_V3_ID,{result},null);
+    return result;
+  }
+  const base=original.data;
+  const sales=Array.isArray(base.sales)?base.sales.map(x=>({...x})):[];
+  const occurrences=new Map();
+  const desired=PERSONAL_HISTORICAL_SALES.map(([date,clientName,credit])=>{
+    const k=personalSaleImportKey(date,clientName,credit);
+    const occurrence=(occurrences.get(k)||0)+1;
+    occurrences.set(k,occurrence);
+    return {date,clientName,credit,occurrence,id:personalSeedId(date,clientName,credit,occurrence)};
+  });
+  const importedIds=new Set(desired.map(x=>x.id));
+  const used=new Set(),removeIds=new Set();
+  let removedDuplicates=0,enrichedExisting=0,keptImported=0;
+
+  desired.forEach(d=>{
+    const desiredName=normalizePersonalClientName(d.clientName);
+    const amountCents=Math.round(Number(d.credit)*100);
+    const desiredMonth=String(d.date).slice(0,7);
+    const candidates=[];
+    sales.forEach((s,i)=>{
+      if(importedIds.has(String(s.id||''))||used.has(i)) return;
+      if(Math.round((Number(s.credit)||0)*100)!==amountCents) return;
+      const name=normalizePersonalClientName(s.clientName);
+      const month=String(s.date||'').slice(0,7);
+      const isSynced=!!s.sourceId;
+      const isBlank=!name||name==='VENDA PROPRIA'||name==='CLIENTE NAO INFORMADO';
+      candidates.push({i,s,name,month,isSynced,isBlank});
+    });
+    let match=
+      candidates.find(x=>String(x.s.date||'')===d.date&&x.name===desiredName) ||
+      candidates.find(x=>String(x.s.date||'')===d.date&&(x.isSynced||x.isBlank)) ||
+      candidates.find(x=>x.month===desiredMonth&&(x.isSynced||x.isBlank)) ||
+      candidates.find(x=>x.month===desiredMonth&&x.name===desiredName);
+
+    const imported=sales.find(s=>String(s.id||'')===d.id);
+    if(match){
+      used.add(match.i);
+      match.s.date=d.date;
+      match.s.clientName=d.clientName;
+      if(!match.s.status) match.s.status='Ativa';
+      enrichedExisting++;
+      if(imported){
+        removeIds.add(String(imported.id));
+        removedDuplicates++;
+      }
+    }else if(imported){
+      keptImported++;
+    }
+  });
+
+  const repaired=sales.filter(s=>!removeIds.has(String(s.id||'')));
+  const data=cleanPersonalData({...base,sales:repaired});
+  const ok=await writeDoc(env,'personal-me',{data},original.revision);
+  if(!ok) throw new HttpError(409,'A base pessoal mudou durante a reconciliação final. Tente novamente.');
+  const result={reconciled:true,removedDuplicates,enrichedExisting,keptImported,total:PERSONAL_HISTORICAL_SALES.length,finalSales:data.sales.length};
+  await writeDoc(env,PERSONAL_HISTORICAL_REPAIR_V3_ID,{result},null);
+  return result;
+}
+
 async function routeMe(req,env) {
   if(!configured(env)) return json(503,{error:'Servidor ainda não configurado'});
   const user=await session(req,env);
@@ -502,7 +571,8 @@ export default {
       await schema(env);
       const personalImport=await ensureHistoricalPersonalSales(env);
       const personalRepair=await reconcileHistoricalPersonalSales(env);
-      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,personalImport,personalRepair,...(missing.length?{missingConfig:missing}:{})}); }
+      const personalRepairV3=await reconcileHistoricalPersonalSalesV3(env);
+      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,personalImport,personalRepair,personalRepairV3,...(missing.length?{missingConfig:missing}:{})}); }
       if(path==='/api/session') return await routeSession(req,env);
       if(path==='/api/state') return await routeState(req,env);
       if(path==='/api/me') return await routeMe(req,env);
