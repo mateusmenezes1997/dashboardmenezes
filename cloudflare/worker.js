@@ -554,7 +554,7 @@ export default {
       const response=await env.ASSETS.fetch(req);
       if(req.method!=='GET'||!response.ok||!(response.headers.get('content-type')||'').includes('text/html')) return response;
       let html=await response.text();
-      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script><script defer src="/me-dashboard-v7-20261118.js?v=me-v7"></script>';
+      const premium='<script defer src="/ranking-executivo-20261113.js?v=premium-v4"></script><script defer src="/month-close-alert-20261117.js?v=month-close-v1"></script><script defer src="/me-dashboard-v7-20261118.js?v=me-v8-all-periods"></script>';
       if(!html.includes('ranking-executivo-20261113.js')) {
         if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,premium+'\n</body>');
         else html+=premium;
@@ -564,7 +564,7 @@ export default {
       headers.delete('content-encoding');
       headers.set('cache-control','no-store');
       headers.set('x-gm-ranking-version','premium-v4-20261113');
-      headers.set('x-gm-me-version','me-v7-commission-22-20261118');
+      headers.set('x-gm-me-version','me-v8-all-periods-20261118');
       return new Response(html,{status:response.status,statusText:response.statusText,headers});
     }
     try {
