@@ -1,8 +1,8 @@
 
 (function(){
 'use strict';
-if(window.__gmMeDashboardV1)return;
-window.__gmMeDashboardV1=true;
+if(window.__gmMeDashboardV3)return;
+window.__gmMeDashboardV3=true;
 
 var app=null,data={sales:[],clients:[],settings:{monthlySalesTarget:5000000,monthlyCommissionTarget:0}},revision=0,period='',active='overview',saving=false;
 var brl=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
@@ -232,7 +232,10 @@ function load(){
 function open(){build();app.classList.add('open');app.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';load()}
 function close(){if(!app)return;app.classList.remove('open');app.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 function installNav(){
- var old=document.getElementById('gmMeNav');
+ var legacy=document.getElementById('gmMeNav');
+ if(legacy)legacy.remove();
+ if(!document.getElementById('gmMeLegacySentinel')){var sentinel=document.createElement('span');sentinel.id='gmMeNav';sentinel.hidden=true;sentinel.setAttribute('aria-hidden','true');sentinel.dataset.meLegacySentinel='1';(document.body||document.documentElement).appendChild(sentinel);sentinel.id='gmMeLegacySentinel';}
+ var old=document.getElementById('gmMeNavV3');
  if(old){
    var side=old.closest('.sidebar,aside');
    var looksWrong=!side || old.getBoundingClientRect().width>320;
@@ -248,7 +251,7 @@ function installNav(){
  if(!template)return;
 
  var b=template.cloneNode(true);
- b.id='gmMeNav';
+ b.id='gmMeNavV3';
  b.removeAttribute('href');
  b.removeAttribute('aria-current');
  b.classList.remove('active','selected','current');
@@ -275,6 +278,7 @@ function installNav(){
 }
 async function boot(){
  try{var r=await api('/api/session');if(r.role!=='gestor')return}catch(e){return}
+ document.querySelectorAll('link[href*="me-dashboard-20261118.css"]').forEach(function(el){el.remove()});
  var link=document.createElement('link');link.rel='stylesheet';link.href='/me-dashboard-v3-20261118.css?v=3';document.head.appendChild(link);
  build();installNav();setInterval(installNav,1800);
 }
