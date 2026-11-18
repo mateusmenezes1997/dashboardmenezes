@@ -233,9 +233,39 @@ function open(){build();app.classList.add('open');app.setAttribute('aria-hidden'
 function close(){if(!app)return;app.classList.remove('open');app.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 function installNav(){
  if(document.getElementById('gmMeNav'))return;
- var nav=document.querySelector('.sidebar nav,.sidebar .nav,.sidebar');
+ var nav=document.querySelector('.sidebar nav')||document.querySelector('.sidebar .nav')||document.querySelector('aside nav')||document.querySelector('aside .nav');
  if(!nav)return;
- var b=document.createElement('button');b.type='button';b.id='gmMeNav';b.innerHTML='<span class="gm-me-nav-dot"></span><span>EU · Painel Pessoal</span>';b.addEventListener('click',open);nav.appendChild(b);
+ var template=nav.querySelector('button,a,[role="button"]');
+ var b;
+ if(template){
+   b=template.cloneNode(true);
+   b.removeAttribute('id');
+   b.querySelectorAll('[id]').forEach(function(el){el.removeAttribute('id')});
+   Array.from(b.attributes||[]).forEach(function(attr){
+     if(/^data-(view|target|page|section|tab)$/i.test(attr.name))b.removeAttribute(attr.name);
+   });
+   b.querySelectorAll('[data-view],[data-target],[data-page],[data-section],[data-tab]').forEach(function(el){
+     el.removeAttribute('data-view');el.removeAttribute('data-target');el.removeAttribute('data-page');el.removeAttribute('data-section');el.removeAttribute('data-tab');
+   });
+   var textNodes=[];
+   (function walk(n){Array.from(n.childNodes||[]).forEach(function(ch){if(ch.nodeType===3&&ch.nodeValue.trim())textNodes.push(ch);else if(ch.nodeType===1)walk(ch)})})(b);
+   if(textNodes.length){textNodes[textNodes.length-1].nodeValue=' EU';}
+   else {
+     var label=b.querySelector('span,strong,b')||b;
+     if(label===b)b.textContent='EU';else label.textContent='EU';
+   }
+ }else{
+   b=document.createElement('button');
+   b.type='button';
+   b.textContent='EU';
+ }
+ b.id='gmMeNav';
+ b.type='button';
+ b.setAttribute('aria-label','EU · Painel Pessoal');
+ b.title='EU · Painel Pessoal';
+ b.classList.remove('active','selected','current');
+ b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();open()});
+ nav.appendChild(b);
 }
 async function boot(){
  try{var r=await api('/api/session');if(r.role!=='gestor')return}catch(e){return}
