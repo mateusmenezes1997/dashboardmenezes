@@ -1,0 +1,27 @@
+name: Trigger EU historical sales import
+
+on:
+  push:
+    branches:
+      - cloudflare-migracao
+    paths:
+      - '.github/workflows/trigger-eu-import.yml'
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger production health endpoint
+        run: |
+          set -e
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 \
+            https://dashboardmenezes.mateusademicon7.workers.dev/api/health | tee /tmp/health.json
+          echo
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/health.json'))
+          print("personalImport=", data.get("personalImport"))
+          if not data.get("ok"):
+              raise SystemExit("Health endpoint did not return ok=true")
+          PY
