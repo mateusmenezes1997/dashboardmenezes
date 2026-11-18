@@ -37,6 +37,41 @@ function commissionSchedule(s){
  return {cfg:cfg,rows:cfg.rows.map(function(r){return {label:r[0],rate:r[1],count:r[2],each:credit*r[1],total:credit*r[1]*r[2]}})};
 }
 function commissionRateLabel(rate){return (rate*100).toFixed(4).replace('.',',').replace(/0+$/,'').replace(/,$/,'')+'%'}
+function moneyRound(v){return Math.round((num(v)+Number.EPSILON)*100)/100}
+function addMonthsKey(monthKey,amount){
+ var p=String(monthKey||'').split('-'),y=Number(p[0]),m=Number(p[1]);
+ if(!y||!m)return '';
+ var d=new Date(Date.UTC(y,m-1+Number(amount||0),1));
+ return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0');
+}
+function commissionInstallments(s){
+ var sc=commissionSchedule(s),expected=moneyRound(commissionExpectedFor(s)),out=[],offset=0;
+ sc.rows.forEach(function(r){
+  for(var i=0;i<r.count;i++){out.push({index:offset+1,monthOffset:offset,rate:r.rate,amount:moneyRound(r.each)});offset++}
+ });
+ if(out.length){
+  var total=moneyRound(out.reduce(function(a,x){return a+x.amount},0));
+  out[out.length-1].amount=moneyRound(out[out.length-1].amount+(expected-total));
+ }
+ return out;
+}
+function monthlyCommissionProjection(){
+ var rows={};
+ data.sales.forEach(function(s,saleIndex){
+  var start=monthOf(s.date);if(!start)return;
+  commissionInstallments(s).forEach(function(inst){
+   var k=addMonthsKey(start,inst.monthOffset);if(!k)return;
+   if(!rows[k])rows[k]={gross:0,net:0,installments:0,salesMap:{},newSales:0};
+   rows[k].gross=moneyRound(rows[k].gross+inst.amount);
+   rows[k].net=moneyRound(rows[k].net+inst.amount*(1-COMMISSION_TAX_RATE));
+   rows[k].installments+=1;
+   rows[k].salesMap[String(s.id||saleIndex)]=true;
+   if(inst.monthOffset===0)rows[k].newSales+=1;
+  });
+ });
+ Object.keys(rows).forEach(function(k){rows[k].sales=Object.keys(rows[k].salesMap).length});
+ return rows;
+}
 function scheduleText(s){
  var sc=commissionSchedule(s);
  return sc.rows.map(function(r){return r.label+': '+commissionRateLabel(r.rate)+' · '+brl2.format(r.each)+(r.count>1?' cada':'')}).join(' | ');
@@ -175,17 +210,21 @@ function renderClients(){
  }).join(''):'<tr><td colspan="8"><div class="gm-me-empty">Sua carteira pessoal ainda está vazia.</div></td></tr>';
 }
 function renderCommission(){
- var rows={};
- data.sales.forEach(function(s){var m=monthOf(s.date)||'Sem data';if(!rows[m])rows[m]={expected:0,received:0,sales:0};rows[m].expected+=commissionExpectedFor(s);rows[m].received+=num(s.commissionReceived);rows[m].sales+=1});
- var list=Object.keys(rows).sort().reverse(),totE=data.sales.reduce(function(a,s){return a+commissionExpectedFor(s)},0),totR=data.sales.reduce(function(a,s){return a+num(s.commissionReceived)},0),totNet=data.sales.reduce(function(a,s){return a+commissionNetFor(s)},0);
+ var rows=monthlyCommissionProjection(),list=Object.keys(rows).sort().reverse();
+ var focus=period||currentMonth(),next=addMonthsKey(focus,1),focusRow=rows[focus]||{gross:0,net:0,installments:0,sales:0},nextRow=rows[next]||{gross:0,net:0,installments:0,sales:0};
+ var totE=data.sales.reduce(function(a,s){return a+commissionExpectedFor(s)},0),totR=data.sales.reduce(function(a,s){return a+num(s.commissionReceived)},0);
  document.getElementById('gmMeCommissionSummary').innerHTML=
-  '<article class="gm-me-summary"><small>Comissão bruta · 2,2%</small><b>'+esc(brl2.format(totE))+'</b></article>'+
-  '<article class="gm-me-summary"><small>Líquido estimado</small><b>'+esc(brl2.format(totNet))+'</b></article>'+
-  '<article class="gm-me-summary"><small>Recebido informado</small><b>'+esc(brl2.format(totR))+'</b></article>';
- document.getElementById('gmMeCommissionBody').innerHTML=list.length?list.map(function(k){var x=rows[k];return '<tr><td>'+esc(monthLabel(k))+'</td><td>'+x.sales+'</td><td class="money">'+esc(brl2.format(x.expected))+'</td><td class="money">'+esc(brl2.format(x.received))+'</td><td class="money">'+esc(brl2.format(Math.max(0,x.expected-x.received)))+'</td><td>'+(x.expected?Math.min(100,x.received/x.expected*100).toFixed(0):0)+'%</td></tr>'}).join(''):'<tr><td colspan="6"><div class="gm-me-empty">Sem dados de comissão.</div></td></tr>';
+  '<article class="gm-me-summary"><small>Previsto · '+esc(monthLabel(focus))+'</small><b>'+esc(brl2.format(focusRow.gross))+'</b><span class="muted">'+focusRow.sales+' venda'+(focusRow.sales===1?'':'s')+' gerando '+focusRow.installments+' parcela'+(focusRow.installments===1?'':'s')+'</span></article>'+
+  '<article class="gm-me-summary"><small>Líquido estimado · '+esc(monthLabel(focus))+'</small><b>'+esc(brl2.format(focusRow.net))+'</b><span class="muted">após dedução estimada de 19,73%</span></article>'+
+  '<article class="gm-me-summary"><small>Próximo mês · '+esc(monthLabel(next))+'</small><b>'+esc(brl2.format(nextRow.gross))+'</b><span class="muted">'+nextRow.sales+' venda'+(nextRow.sales===1?'':'s')+' contribuindo</span></article>';
+ document.getElementById('gmMeCommissionBody').innerHTML=list.length?list.map(function(k){
+   var x=rows[k];
+   return '<tr><td><strong>'+esc(monthLabel(k))+'</strong></td><td>'+x.sales+'</td><td>'+x.installments+'</td><td class="money"><strong>'+esc(brl2.format(x.gross))+'</strong></td><td class="money">'+esc(brl2.format(x.net))+'</td></tr>';
+ }).join(''):'<tr><td colspan="5"><div class="gm-me-empty">Sem dados de comissão.</div></td></tr>';
  var detail=document.getElementById('gmMeCommissionSalesBody');
  if(detail)detail.innerHTML=data.sales.length?data.sales.slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))}).map(function(s){
-   return '<tr><td>'+esc(dateLabel(s.date))+'</td><td><strong>'+esc(s.clientName||'Venda própria')+'</strong></td><td class="money">'+esc(brl2.format(num(s.credit)))+'</td><td>'+esc(conditionLabel(s.condition||defaultCondition(s.product)))+'</td><td class="money">'+esc(brl2.format(commissionExpectedFor(s)))+'</td><td class="muted">'+esc(scheduleText(s))+'</td></tr>';
+   var first=monthOf(s.date),last=addMonthsKey(first,Math.max(0,commissionInstallments(s).length-1));
+   return '<tr><td>'+esc(dateLabel(s.date))+'</td><td><strong>'+esc(s.clientName||'Venda própria')+'</strong><div class="muted">'+esc(monthLabel(first))+' → '+esc(monthLabel(last))+'</div></td><td class="money">'+esc(brl2.format(num(s.credit)))+'</td><td>'+esc(conditionLabel(s.condition||defaultCondition(s.product)))+'</td><td class="money">'+esc(brl2.format(commissionExpectedFor(s)))+'</td><td class="muted">'+esc(scheduleText(s))+'</td></tr>';
  }).join(''):'<tr><td colspan="6"><div class="gm-me-empty">Nenhuma venda para calcular a diluição.</div></td></tr>';
 }
 function renderSettings(){
@@ -276,7 +315,7 @@ function build(){
    '<div class="gm-me-toolbar"><div class="gm-me-tabs"><button class="gm-me-tab active" data-me-tab="overview">Visão Geral</button><button class="gm-me-tab" data-me-tab="sales">Minhas Vendas</button><button class="gm-me-tab" data-me-tab="commission">Comissões</button><button class="gm-me-tab" data-me-tab="clients">Clientes</button><button class="gm-me-tab" data-me-tab="goals">Metas</button></div><div class="gm-me-period"><label>Período</label><select class="gm-me-select" id="gmMePeriod"></select></div></div>'+
    '<section class="gm-me-view active" id="gmMeView-overview"><section class="gm-me-profile-hero" id="gmMeProfileHero"><div class="gm-me-profile-portrait"><div class="gm-me-profile-ring"><img id="gmMeProfilePhoto" alt="Mateus Menezes" hidden><div id="gmMeProfileFallback" class="gm-me-profile-fallback">MM</div></div></div><div class="gm-me-profile-copy"><small>GESTÃO MENEZES · PERFORMANCE PESSOAL</small><h2 id="gmMeProfileName">Mateus Menezes</h2><p id="gmMeProfileRole">Gestor Comercial</p><div class="gm-me-profile-progress"><div class="gm-me-profile-progress-top"><span id="gmMeHeroPeriod">Período atual</span><b id="gmMeHeroPct">0%</b></div><div class="gm-me-profile-track"><i id="gmMeHeroBar"></i></div></div></div><div class="gm-me-profile-stats"><article><small>VENDAS NO PERÍODO</small><b id="gmMeHeroSold">R$ 0</b></article><article><small>COMISSÃO PREVISTA</small><b id="gmMeHeroCommission">R$ 0</b></article></div></section><div class="gm-me-kpis" id="gmMeKpis"></div><div class="gm-me-grid"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Evolução das vendas</h2><p>Últimos 12 meses da sua produção própria</p></div></div><div class="gm-me-chart" id="gmMeChart"></div></article><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Ritmo das metas</h2><p>Acompanhamento do período selecionado</p></div></div><div id="gmMeGoals"></div><button class="gm-me-btn ghost" data-open-tab="goals">Ajustar metas</button></article></div><div class="gm-me-grid"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Vendas recentes</h2><p>Últimos lançamentos do período</p></div><button class="gm-me-btn ghost" data-open-tab="sales">Ver todas</button></div><div class="gm-me-list" id="gmMeRecent"></div></article><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Base pessoal</h2><p>Informações privadas, separadas da gestão</p></div></div><div class="gm-me-note">A aba <strong>EU</strong> é exclusiva do perfil Gestor. Vendas podem ser sincronizadas com o dashboard principal e enriquecidas aqui com cliente e comissão, sem expor sua carteira aos demais acessos.</div></article></div></section>'+
    '<section class="gm-me-view" id="gmMeView-sales"><div class="gm-me-section-head"><div><h2>Minhas Vendas</h2><p>Controle completo da sua produção própria.</p></div><button class="gm-me-btn primary" data-add-sale>+ Nova venda</button></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Crédito</th><th>Cotas</th><th>Comissão prevista</th><th>Recebida</th><th>Status</th><th>Ações</th></tr></thead><tbody id="gmMeSalesBody"></tbody></table></div></section>'+
-   '<section class="gm-me-view" id="gmMeView-commission"><div class="gm-me-section-head"><div><h2>Comissões</h2><p>2,2% automático sobre suas vendas, com a mesma diluição da aba Comissionamento.</p></div></div><div class="gm-me-summary-grid" id="gmMeCommissionSummary"></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Mês da venda</th><th>Vendas</th><th>Bruto previsto</th><th>Recebido</th><th>A receber</th><th>Recebimento</th></tr></thead><tbody id="gmMeCommissionBody"></tbody></table></div><div class="gm-me-section-head gm-me-commission-detail-head"><div><h2>Diluição automática por venda</h2><p>As parcelas abaixo fecham exatamente a comissão de gestor de 2,2%.</p></div></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Crédito</th><th>Condição</th><th>Comissão 2,2%</th><th>Diluição</th></tr></thead><tbody id="gmMeCommissionSalesBody"></tbody></table></div></section>'+
+   '<section class="gm-me-view" id="gmMeView-commission"><div class="gm-me-section-head"><div><h2>Comissões</h2><p>Fluxo mensal automático: cada venda entra pela data e suas parcelas vão se somando nos meses seguintes.</p></div></div><div class="gm-me-summary-grid" id="gmMeCommissionSummary"></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Mês de recebimento</th><th>Vendas contribuindo</th><th>Parcelas no mês</th><th>Bruto previsto</th><th>Líquido estimado</th></tr></thead><tbody id="gmMeCommissionBody"></tbody></table></div><div class="gm-me-section-head gm-me-commission-detail-head"><div><h2>Diluição automática por venda</h2><p>As parcelas abaixo fecham exatamente a comissão de gestor de 2,2%.</p></div></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Crédito</th><th>Condição</th><th>Comissão 2,2%</th><th>Diluição</th></tr></thead><tbody id="gmMeCommissionSalesBody"></tbody></table></div></section>'+
    '<section class="gm-me-view" id="gmMeView-clients"><div class="gm-me-section-head"><div><h2>Meus Clientes</h2><p>Carteira, próximos contatos e acompanhamento.</p></div><button class="gm-me-btn primary" data-add-client>+ Novo cliente</button></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Cliente</th><th>WhatsApp</th><th>Produto</th><th>Crédito</th><th>Status</th><th>Próximo contato</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="gmMeClientsBody"></tbody></table></div></section>'+
    '<section class="gm-me-view" id="gmMeView-goals"><div class="gm-me-section-head"><div><h2>Metas pessoais</h2><p>Defina os objetivos que serão usados no seu painel.</p></div></div><article class="gm-me-card"><div class="gm-me-settings"><div class="gm-me-field"><label>Meta mensal de vendas (R$)</label><input class="gm-me-input" id="gmMeSalesTarget" type="number" min="0" step="1000"></div><div class="gm-me-field"><label>Meta mensal de comissão (R$)</label><input class="gm-me-input" id="gmMeCommissionTarget" type="number" min="0" step="100"></div></div><div class="gm-me-modal-actions"><button class="gm-me-btn primary" id="gmMeSaveGoals">Salvar metas</button></div></article></section>'+
   '</main>'+
