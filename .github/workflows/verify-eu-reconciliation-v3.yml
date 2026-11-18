@@ -1,0 +1,38 @@
+name: Verify EU reconciliation v3
+
+on:
+  push:
+    branches:
+      - cloudflare-migracao
+    paths:
+      - '.github/workflows/verify-eu-reconciliation-v3.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for production and verify reconciliation
+        run: |
+          set -e
+          for i in $(seq 1 20); do
+            curl --fail --silent --show-error \
+              https://dashboardmenezes.mateusademicon7.workers.dev/api/health -o /tmp/health.json || true
+            python - <<'PY' && exit 0 || true
+          import json,sys
+          try:
+              data=json.load(open('/tmp/health.json'))
+          except Exception:
+              sys.exit(1)
+          print(data)
+          repair=data.get("personalRepairV3")
+          if data.get("ok") and repair:
+              print("personalRepairV3=", repair)
+              sys.exit(0)
+          sys.exit(1)
+          PY
+            sleep 5
+          done
+          echo "Production did not expose personalRepairV3 in time"
+          cat /tmp/health.json || true
+          exit 1
