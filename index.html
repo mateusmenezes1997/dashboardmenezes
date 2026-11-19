@@ -1178,6 +1178,25 @@ body[data-role="viewer"] #leaders{display:none!important}
   </div>
 
   <div id="gmAiTrain" class="gm-ai-panel hidden">
+    <div class="gm-ai-training-dashboard">
+      <div class="gm-ai-training-level">
+        <div>
+          <span class="gm-ai-training-eyebrow">EVOLUÇÃO DO CONSULTOR</span>
+          <strong id="gmAiTrainingLevel">Iniciante</strong>
+          <small id="gmAiTrainingNext">Faça seu primeiro treino</small>
+        </div>
+        <div class="gm-ai-training-ring"><b id="gmAiTrainingAverage">—</b><span>MÉDIA</span></div>
+      </div>
+      <div class="gm-ai-training-stats">
+        <div><small>TREINOS</small><b id="gmAiTrainingCount">0</b></div>
+        <div><small>MELHOR NOTA</small><b id="gmAiTrainingBest">—</b></div>
+        <div><small>SEQUÊNCIA</small><b id="gmAiTrainingStreak">0</b></div>
+      </div>
+      <div class="gm-ai-training-history">
+        <div class="gm-ai-training-history-head"><span>ÚLTIMOS TREINOS</span><small id="gmAiTrainingHistoryHint">Seu histórico aparecerá aqui</small></div>
+        <div id="gmAiTrainingHistory" class="gm-ai-training-history-list"></div>
+      </div>
+    </div>
     <div class="gm-ai-train-grid">
       <div class="card gm-ai-train-setup">
         <div class="section-head"><h3>Configurar treinamento</h3><span class="badge">ROLEPLAY</span></div>
@@ -2360,7 +2379,8 @@ function objectionHtml(o){
  '<div class="gm-ai-msg"><div class="gm-ai-msg-label">2 • O QUE PERGUNTAR</div><div class="gm-ai-bubble"><ol>'+questions+'</ol></div></div>'+
  '<div class="gm-ai-msg"><div class="gm-ai-msg-label">3 • RESPOSTA RECOMENDADA</div><div class="gm-ai-bubble quote" id="gmAiMainReply">'+esc(o.r)+'</div><button class="gm-ai-copy" data-copy="gmAiMainReply" type="button">COPIAR RESPOSTA</button></div>'+
  '<div class="gm-ai-msg"><div class="gm-ai-msg-label">4 • WHATSAPP</div><div class="gm-ai-bubble quote" id="gmAiWhatsappReply">'+esc(o.w)+'</div><button class="gm-ai-copy" data-copy="gmAiWhatsappReply" type="button">COPIAR WHATSAPP</button></div>'+
- '<div class="gm-ai-msg"><div class="gm-ai-msg-label">5 • PRÓXIMA PERGUNTA</div><div class="gm-ai-bubble"><b>'+esc(o.n)+'</b></div></div>';
+ '<div class="gm-ai-msg"><div class="gm-ai-msg-label">5 • PRÓXIMA PERGUNTA</div><div class="gm-ai-bubble"><b>'+esc(o.n)+'</b></div></div>'+
+ '<div class="gm-ai-action-row"><button class="btn primary gm-ai-train-this" data-train-oid="'+o.id+'" type="button">🎭 TREINAR ESTA OBJEÇÃO</button><span>Pratique agora com um cliente virtual e receba nota.</span></div>';
 }
 function renderList(filter=""){
  const list=$("gmAiObjectionList"); if(!list)return;
@@ -2375,6 +2395,8 @@ function selectObjection(id){
  $("gmAiChatTitle").textContent=o.t;$("gmAiChatBody").innerHTML=objectionHtml(o);
  document.querySelectorAll(".gm-ai-objection-btn").forEach(b=>b.classList.toggle("active",b.dataset.oid===id));
  bindCopy();
+ const trainBtn=document.querySelector(".gm-ai-train-this");
+ if(trainBtn)trainBtn.onclick=()=>trainObjectionNow(trainBtn.dataset.trainOid);
 }
 function bindCopy(){
  document.querySelectorAll(".gm-ai-copy").forEach(b=>b.onclick=async()=>{
@@ -2392,11 +2414,81 @@ function bestMatch(text){
  D.forEach(o=>{let n=0;o.keys.forEach(k=>{if(s.includes(k))n+=k.length+4});if(s.includes(o.t.toLowerCase()))n+=20;if(n>score){score=n;best=o}});
  return score>0?best:D.find(x=>x.id==="thinking");
 }
+
+const GM_AI_HISTORY_KEY="gm_ai_training_history_v1";
+function getTrainingHistory(){
+ try{const v=JSON.parse(localStorage.getItem(GM_AI_HISTORY_KEY)||"[]");return Array.isArray(v)?v:[]}catch{return []}
+}
+function saveTrainingHistory(rows){
+ try{localStorage.setItem(GM_AI_HISTORY_KEY,JSON.stringify(rows.slice(0,30)))}catch{}
+}
+function trainingLevel(rows){
+ if(!rows.length)return {name:"Iniciante",next:"Faça seu primeiro treino"};
+ const avg=rows.reduce((a,x)=>a+Number(x.score||0),0)/rows.length;
+ if(rows.length>=20&&avg>=8.5)return {name:"Elite Comercial",next:"Consistência de alta performance"};
+ if(rows.length>=10&&avg>=8)return {name:"Avançado",next:"Busque média 8,5 para chegar ao Elite"};
+ if(rows.length>=5)return {name:"Em evolução",next:"Complete 10 treinos com média 8+"};
+ return {name:"Em treinamento",next:"Complete 5 treinos para subir de nível"};
+}
+function renderTrainingDashboard(){
+ const rows=getTrainingHistory(),level=trainingLevel(rows);
+ const count=rows.length;
+ const avg=count?rows.reduce((a,x)=>a+Number(x.score||0),0)/count:0;
+ const best=count?Math.max(...rows.map(x=>Number(x.score||0))):0;
+ let streak=0;
+ for(const x of rows){if(Number(x.score||0)>=8)streak++;else break}
+ const set=(id,v)=>{const el=$(id);if(el)el.textContent=v};
+ set("gmAiTrainingLevel",level.name);
+ set("gmAiTrainingNext",level.next);
+ set("gmAiTrainingAverage",count?avg.toFixed(1):"—");
+ set("gmAiTrainingCount",String(count));
+ set("gmAiTrainingBest",count?best.toFixed(1):"—");
+ set("gmAiTrainingStreak",String(streak));
+ const history=$("gmAiTrainingHistory");
+ const hint=$("gmAiTrainingHistoryHint");
+ if(!history)return;
+ if(!rows.length){
+   history.innerHTML='<div class="gm-ai-history-empty">Faça uma simulação e avalie sua resposta para começar seu histórico.</div>';
+   if(hint)hint.textContent="Seu histórico aparecerá aqui";
+   return;
+ }
+ if(hint)hint.textContent="últimos "+Math.min(rows.length,5)+" resultados";
+ history.innerHTML=rows.slice(0,5).map(x=>{
+   const good=Number(x.score)>=8;
+   return '<div class="gm-ai-history-item '+(good?'is-good':'is-review')+'"><div><strong>'+esc(x.objection)+'</strong><small>Nível '+esc(x.level)+' • '+esc(x.date)+'</small></div><b>'+Number(x.score).toFixed(1)+'</b></div>';
+ }).join("");
+}
+function addTrainingResult(o,lvl,total,investigation,empathy,control,compliance){
+ const rows=getTrainingHistory();
+ const now=new Date();
+ rows.unshift({
+   objection:o.t,
+   oid:o.id,
+   level:lvl,
+   score:total,
+   investigation,empathy,control,compliance,
+   date:now.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})
+ });
+ saveTrainingHistory(rows);
+ renderTrainingDashboard();
+}
+function trainObjectionNow(id){
+ const sel=$("gmAiTrainObjection");if(sel)sel.value=id;
+ switchMode("train");
+ setTimeout(()=>startTrain(),60);
+}
+function trainingStatus(total,investigation,compliance){
+ if(compliance<7)return {cls:"risk",title:"AJUSTE NECESSÁRIO",text:"Sua resposta criou risco de promessa. Refaça com transparência e sem garantia."};
+ if(investigation<7)return {cls:"review",title:"INVESTIGUE ANTES",text:"Você foi cedo para a resposta. Faça uma pergunta para descobrir a objeção real."};
+ if(total>=8)return {cls:"approved",title:"APROVADO PARA AVANÇAR",text:"Boa condução. Você investigou, manteve controle e pode seguir para a próxima pergunta."};
+ return {cls:"review",title:"QUASE LÁ",text:"A estrutura está boa, mas ainda dá para ganhar clareza, empatia e controle."};
+}
+
 function startTrain(){
  const id=$("gmAiTrainObjection").value,o=D.find(x=>x.id===id),lvl=Number($("gmAiTrainLevel").value||3);if(!o)return;
  const prefixes={1:"Olha, eu gostei da ideia, mas ",2:"Eu ainda tenho um pé atrás porque ",3:"Pra ser sincero, não estou convencido. ",4:"Eu olho isso como uma decisão de capital. ",5:"Já ouvi muita conversa de vendedor. "};
  $("gmAiRoleplayTitle").textContent="Nível "+lvl+" • "+o.t;
- $("gmAiRoleplayBody").innerHTML='<div class="gm-ai-client-line"><small>CLIENTE</small>'+esc(prefixes[lvl]+o.t.toLowerCase()+". O que você me diz?")+'</div>';
+ $("gmAiRoleplayBody").innerHTML='<div class="gm-ai-scenario-bar"><span>MISSÃO</span><b>Investigue antes de rebater</b><small>Descubra a causa real e conduza a próxima etapa.</small></div><div class="gm-ai-client-line"><small>CLIENTE</small>'+esc(prefixes[lvl]+o.t.toLowerCase()+". O que você me diz?")+'</div>';
  $("gmAiTrainReply").value="";$("gmAiTrainReply").focus();
 }
 function evaluate(){
@@ -2408,13 +2500,23 @@ function evaluate(){
  let compliance=10;
  if(/garant|certeza|vai contempl|contempla em|primeiro mês|100%/.test(low))compliance=2;
  let total=Math.round((investigation+empathy+control+compliance)/4*10)/10;
- const feedback=investigation<7?"Você respondeu antes de investigar. Faça pelo menos uma pergunta para descobrir a objeção real.":compliance<7?"Cuidado: sua resposta cria promessa/garantia. Troque certeza por estratégia e transparência.":"Boa condução. Você investigou e manteve a conversa aberta. Agora avance para a próxima pergunta.";
- $("gmAiRoleplayBody").innerHTML += '<div class="gm-ai-score"><div class="gm-ai-score-top"><div><span>NOTA DA RESPOSTA</span><br><b>'+total.toFixed(1)+'/10</b></div><span>'+esc(feedback)+'</span></div><div class="gm-ai-score-grid"><div><small>Investigação</small><b>'+investigation+'/10</b></div><div><small>Empatia</small><b>'+empathy+'/10</b></div><div><small>Controle</small><b>'+control+'/10</b></div><div><small>Compliance</small><b>'+compliance+'/10</b></div></div><div class="gm-ai-msg" style="margin-top:13px"><div class="gm-ai-msg-label">RESPOSTA DE ALTA PERFORMANCE</div><div class="gm-ai-bubble quote">'+esc(o.r)+'</div></div></div>';
+ const lvl=Number($("gmAiTrainLevel").value||3);
+ const status=trainingStatus(total,investigation,compliance);
+ addTrainingResult(o,lvl,total,investigation,empathy,control,compliance);
+ $("gmAiRoleplayBody").innerHTML += '<div class="gm-ai-score gm-ai-score-premium"><div class="gm-ai-score-hero"><div class="gm-ai-score-total"><small>NOTA GERAL</small><b>'+total.toFixed(1)+'</b><span>/10</span></div><div class="gm-ai-score-verdict '+status.cls+'"><small>'+status.title+'</small><strong>'+esc(status.text)+'</strong></div></div><div class="gm-ai-score-grid"><div><small>Investigação</small><b>'+investigation+'/10</b></div><div><small>Empatia</small><b>'+empathy+'/10</b></div><div><small>Controle</small><b>'+control+'/10</b></div><div><small>Compliance</small><b>'+compliance+'/10</b></div></div><div class="gm-ai-msg" style="margin-top:16px"><div class="gm-ai-msg-label">RESPOSTA DE ALTA PERFORMANCE</div><div class="gm-ai-bubble quote">'+esc(o.r)+'</div></div><div class="gm-ai-score-actions"><button type="button" class="btn gm-ai-retry">↻ TENTAR NOVAMENTE</button><button type="button" class="btn primary gm-ai-next-training">PRÓXIMA OBJEÇÃO →</button></div></div>';
+ const retry=$("gmAiRoleplayBody").querySelector(".gm-ai-retry");
+ if(retry)retry.onclick=startTrain;
+ const next=$("gmAiRoleplayBody").querySelector(".gm-ai-next-training");
+ if(next)next.onclick=()=>{
+   const pos=D.findIndex(x=>x.id===oid),nx=D[(pos+1)%D.length];
+   $("gmAiTrainObjection").value=nx.id;startTrain();
+ };
 }
 function runSos(){
  const txt=$("gmAiSosInput").value.trim();if(!txt){$("gmAiSosResult").innerHTML="";return}
  const o=bestMatch(txt);
- $("gmAiSosResult").innerHTML='<div class="gm-ai-match"><div class="gm-ai-msg-label">OBJEÇÃO IDENTIFICADA</div><h4>'+esc(o.t)+'</h4>'+(o.c?'<div class="gm-ai-warning">⚠️ Não prometa contemplação ou prazo.</div>':'')+'<p><b>Pergunte primeiro:</b> '+esc(o.q[0])+'</p><p><b>Depois responda:</b> '+esc(o.r)+'</p><p><b>Próxima pergunta:</b> '+esc(o.n)+'</p></div>';
+ $("gmAiSosResult").innerHTML='<div class="gm-ai-match gm-ai-sos-match"><div class="gm-ai-msg-label">OBJEÇÃO IDENTIFICADA</div><h4>'+esc(o.t)+'</h4>'+(o.c?'<div class="gm-ai-warning">⚠️ Não prometa contemplação ou prazo.</div>':'')+'<div class="gm-ai-sos-steps"><div><span>1</span><small>PERGUNTE PRIMEIRO</small><p>'+esc(o.q[0])+'</p></div><div><span>2</span><small>DEPOIS RESPONDA</small><p>'+esc(o.r)+'</p></div><div><span>3</span><small>PRÓXIMA PERGUNTA</small><p>'+esc(o.n)+'</p></div></div><div class="gm-ai-sos-result-actions"><button type="button" class="btn primary gm-ai-sos-train" data-oid="'+o.id+'">🎭 TREINAR ESTA OBJEÇÃO</button></div></div>';
+ const tb=$("gmAiSosResult").querySelector(".gm-ai-sos-train");if(tb)tb.onclick=()=>trainObjectionNow(tb.dataset.oid);
 }
 document.querySelectorAll(".gm-ai-tab").forEach(b=>b.onclick=()=>switchMode(b.dataset.aiMode));
 const search=$("gmAiSearch");if(search)search.oninput=()=>renderList(search.value);
@@ -2424,6 +2526,7 @@ const evalBtn=$("gmAiEvaluate");if(evalBtn)evalBtn.onclick=evaluate;
 const sos=$("gmAiSosRun");if(sos)sos.onclick=runSos;
 const clear=$("gmAiSosClear");if(clear)clear.onclick=()=>{$("gmAiSosInput").value="";$("gmAiSosResult").innerHTML=""};
 renderList();
+renderTrainingDashboard();
 })();
 </script>
 
@@ -2633,6 +2736,87 @@ renderList();
   #objections-ai .gm-ai-client-line,
   #objections-ai .gm-ai-compose textarea,
   #objections-ai #gmAiSosInput{font-size:14px!important}
+}
+</style>
+
+
+<!-- GM_SIMULACOES_IA_GAMIFICATION_V1_20261119 -->
+<style id="gm-simulacoes-ia-gamification-v1">
+#objections-ai .gm-ai-action-row{display:flex;align-items:center;gap:14px;margin-top:4px;padding:14px 0 4px;border-top:1px solid rgba(255,255,255,.06)}
+#objections-ai .gm-ai-action-row .btn{font-size:13px!important;min-height:46px;padding:11px 15px}
+#objections-ai .gm-ai-action-row span{color:#8f868c;font-size:12px;line-height:1.5}
+
+#objections-ai .gm-ai-training-dashboard{display:grid;grid-template-columns:1.2fr .85fr 1.6fr;gap:14px;margin-bottom:16px}
+#objections-ai .gm-ai-training-level,#objections-ai .gm-ai-training-stats,#objections-ai .gm-ai-training-history{border:1px solid rgba(230,189,98,.13);border-radius:17px;background:linear-gradient(145deg,rgba(31,18,23,.92),rgba(13,11,14,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+#objections-ai .gm-ai-training-level{padding:17px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+#objections-ai .gm-ai-training-eyebrow{display:block;color:#a88743;font-size:9px;font-weight:900;letter-spacing:.14em;margin-bottom:6px}
+#objections-ai .gm-ai-training-level strong{display:block;color:#fff;font-size:20px;line-height:1.1}
+#objections-ai .gm-ai-training-level small{display:block;margin-top:6px;color:#9a9096;font-size:11px;line-height:1.4}
+#objections-ai .gm-ai-training-ring{flex:0 0 70px;width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(238,194,91,.35);background:radial-gradient(circle,rgba(230,189,98,.12),rgba(111,23,45,.10) 60%,transparent 62%);box-shadow:0 0 26px rgba(203,154,52,.09)}
+#objections-ai .gm-ai-training-ring b{color:#f0cf76;font-size:22px;line-height:1}
+#objections-ai .gm-ai-training-ring span{margin-top:4px;color:#8e837d;font-size:7px;font-weight:900;letter-spacing:.12em}
+
+#objections-ai .gm-ai-training-stats{display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
+#objections-ai .gm-ai-training-stats>div{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;border-right:1px solid rgba(255,255,255,.05)}
+#objections-ai .gm-ai-training-stats>div:last-child{border-right:0}
+#objections-ai .gm-ai-training-stats small{color:#81787e;font-size:8px;font-weight:900;letter-spacing:.09em}
+#objections-ai .gm-ai-training-stats b{margin-top:6px;color:#eee8eb;font-size:20px}
+
+#objections-ai .gm-ai-training-history{padding:13px 14px}
+#objections-ai .gm-ai-training-history-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+#objections-ai .gm-ai-training-history-head span{color:#b18f49;font-size:9px;font-weight:900;letter-spacing:.12em}
+#objections-ai .gm-ai-training-history-head small{color:#766f74;font-size:9px}
+#objections-ai .gm-ai-training-history-list{display:flex;gap:7px;overflow:auto}
+#objections-ai .gm-ai-history-item{min-width:135px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:10px;background:#0d0b0e;border:1px solid rgba(255,255,255,.05)}
+#objections-ai .gm-ai-history-item strong{display:block;max-width:95px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ddd7db;font-size:10px}
+#objections-ai .gm-ai-history-item small{display:block;margin-top:3px;color:#70686e;font-size:8px}
+#objections-ai .gm-ai-history-item b{font-size:15px;color:#b7adb3}
+#objections-ai .gm-ai-history-item.is-good b{color:#e8c86f}
+#objections-ai .gm-ai-history-item.is-good{border-color:rgba(230,189,98,.14)}
+#objections-ai .gm-ai-history-empty{color:#827a80;font-size:11px;padding:10px 2px}
+
+#objections-ai .gm-ai-scenario-bar{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:10px;margin-bottom:14px;padding:11px 12px;border-radius:11px;border:1px solid rgba(230,189,98,.12);background:rgba(230,189,98,.035)}
+#objections-ai .gm-ai-scenario-bar span{color:#d0aa54;font-size:8px;font-weight:900;letter-spacing:.13em}
+#objections-ai .gm-ai-scenario-bar b{color:#e9e3e6;font-size:12px}
+#objections-ai .gm-ai-scenario-bar small{color:#857d82;font-size:10px;text-align:right}
+
+#objections-ai .gm-ai-score-premium{padding:18px!important}
+#objections-ai .gm-ai-score-hero{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:stretch;margin-bottom:14px}
+#objections-ai .gm-ai-score-total{display:flex;align-items:baseline;justify-content:center;padding:16px;border-radius:14px;border:1px solid rgba(230,189,98,.18);background:radial-gradient(circle at 50% 20%,rgba(230,189,98,.12),rgba(15,12,15,.9))}
+#objections-ai .gm-ai-score-total small{align-self:flex-start;color:#8e8178;font-size:8px;font-weight:900;letter-spacing:.12em;margin-right:8px}
+#objections-ai .gm-ai-score-total b{color:#f0cf75;font-size:45px;line-height:1}
+#objections-ai .gm-ai-score-total span{color:#8f858b;font-size:13px}
+#objections-ai .gm-ai-score-verdict{display:flex;flex-direction:column;justify-content:center;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:#0d0b0e}
+#objections-ai .gm-ai-score-verdict small{font-size:9px;font-weight:900;letter-spacing:.12em;margin-bottom:6px}
+#objections-ai .gm-ai-score-verdict strong{font-size:13px;line-height:1.55;color:#ddd6da}
+#objections-ai .gm-ai-score-verdict.approved{border-color:rgba(87,208,132,.22);background:rgba(47,144,83,.06)}
+#objections-ai .gm-ai-score-verdict.approved small{color:#71d492}
+#objections-ai .gm-ai-score-verdict.review{border-color:rgba(230,189,98,.20);background:rgba(230,189,98,.04)}
+#objections-ai .gm-ai-score-verdict.review small{color:#e2bd65}
+#objections-ai .gm-ai-score-verdict.risk{border-color:rgba(222,92,92,.22);background:rgba(180,55,55,.06)}
+#objections-ai .gm-ai-score-verdict.risk small{color:#e58b8b}
+#objections-ai .gm-ai-score-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+#objections-ai .gm-ai-score-actions .btn{font-size:12px!important;min-height:42px;padding:9px 13px}
+
+#objections-ai .gm-ai-sos-steps{display:grid;gap:9px;margin-top:14px}
+#objections-ai .gm-ai-sos-steps>div{display:grid;grid-template-columns:34px 150px 1fr;gap:10px;align-items:start;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018)}
+#objections-ai .gm-ai-sos-steps span{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:linear-gradient(145deg,rgba(111,23,45,.45),rgba(230,189,98,.10));border:1px solid rgba(230,189,98,.18);color:#e6c56e;font-size:12px;font-weight:900}
+#objections-ai .gm-ai-sos-steps small{padding-top:6px;color:#ad8d49;font-size:9px;font-weight:900;letter-spacing:.09em}
+#objections-ai .gm-ai-sos-steps p{margin:2px 0 0!important;font-size:14px!important;line-height:1.66!important;color:#ddd5da!important}
+#objections-ai .gm-ai-sos-result-actions{display:flex;justify-content:flex-end;margin-top:12px}
+#objections-ai .gm-ai-sos-result-actions .btn{font-size:12px!important;min-height:43px;padding:10px 14px}
+
+@media(max-width:1100px){
+  #objections-ai .gm-ai-training-dashboard{grid-template-columns:1fr 1fr}
+  #objections-ai .gm-ai-training-history{grid-column:1/-1}
+}
+@media(max-width:720px){
+  #objections-ai .gm-ai-training-dashboard{grid-template-columns:1fr}
+  #objections-ai .gm-ai-training-history{grid-column:auto}
+  #objections-ai .gm-ai-score-hero{grid-template-columns:1fr}
+  #objections-ai .gm-ai-sos-steps>div{grid-template-columns:34px 1fr}
+  #objections-ai .gm-ai-sos-steps p{grid-column:2}
+  #objections-ai .gm-ai-action-row{align-items:flex-start;flex-direction:column}
 }
 </style>
 
