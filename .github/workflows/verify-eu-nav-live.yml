@@ -19,7 +19,7 @@ jobs:
             curl --fail --silent --show-error -D /tmp/headers.txt \
               https://dashboardmenezes.mateusademicon7.workers.dev/ -o /tmp/page.html || true
             VERSION=$(tr -d '\r' < /tmp/headers.txt | awk -F': ' 'tolower($1)=="x-gm-me-version"{print $2}' | tail -1)
-            if grep -q 'me-dashboard-v7-20261118.js?v=me-v10-navfix' /tmp/page.html && [ "$VERSION" = "me-v10-navfix-20261118" ]; then
+            if grep -q 'me-dashboard-v7-20261118.js?v=me-v11-cockpit' /tmp/page.html && [ "$VERSION" = "me-v11-cockpit-20261118" ]; then
               echo "EU live version verified: $VERSION"
               exit 0
             fi
