@@ -1,0 +1,187 @@
+name: Destacar Simulacoes IA como novidade
+
+on:
+  push:
+    branches:
+      - cloudflare-migracao
+    paths:
+      - '.github/workflows/destacar-simulacoes-ia.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cloudflare-migracao
+          persist-credentials: true
+
+      - name: Aplicar destaque premium em Simulacoes IA
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path("index.html")
+          html = p.read_text(encoding="utf-8")
+
+          marker = "GM_SIMULACOES_IA_NOVO_20261119"
+          if marker in html:
+              print("Destaque ja aplicado.")
+              raise SystemExit(0)
+
+          script = r'''
+<script id="GM_SIMULACOES_IA_NOVO_20261119">
+(function(){
+  const STYLE_ID='gm-simulacoes-ia-new-style';
+  const TARGET_CLASS='gm-simulacoes-ia-new';
+
+  function installStyle(){
+    if(document.getElementById(STYLE_ID)) return;
+    const s=document.createElement('style');
+    s.id=STYLE_ID;
+    s.textContent=`
+      @keyframes gmAiGlowPulse{
+        0%,100%{box-shadow:0 0 0 1px rgba(212,166,72,.30),0 0 12px rgba(212,166,72,.10),inset 0 0 0 1px rgba(255,255,255,.015)}
+        50%{box-shadow:0 0 0 1px rgba(236,190,88,.58),0 0 24px rgba(222,170,58,.22),0 0 44px rgba(112,20,42,.12),inset 0 0 16px rgba(222,170,58,.035)}
+      }
+      .${TARGET_CLASS}{
+        position:relative!important;
+        isolation:isolate;
+        overflow:visible!important;
+        border:1px solid rgba(219,173,74,.42)!important;
+        background:
+          radial-gradient(circle at 18% 50%,rgba(219,173,74,.11),transparent 34%),
+          linear-gradient(100deg,rgba(107,15,37,.11),rgba(11,8,12,.12) 54%,rgba(219,173,74,.055))!important;
+        animation:gmAiGlowPulse 2.8s ease-in-out infinite;
+        transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease!important;
+      }
+      .${TARGET_CLASS}:hover{
+        transform:translateY(-1px) scale(1.008);
+        border-color:rgba(242,199,100,.76)!important;
+        box-shadow:0 0 0 1px rgba(242,199,100,.58),0 0 28px rgba(222,170,58,.28),0 0 54px rgba(112,20,42,.16)!important;
+      }
+      .${TARGET_CLASS} svg,
+      .${TARGET_CLASS} [class*="icon"],
+      .${TARGET_CLASS} i{
+        filter:drop-shadow(0 0 7px rgba(235,187,78,.72));
+      }
+      .${TARGET_CLASS} .gm-ai-new-label{
+        text-shadow:0 0 12px rgba(236,190,88,.34);
+      }
+      .${TARGET_CLASS} .gm-ai-new-badge{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        margin-left:8px;
+        padding:2px 7px 2.5px;
+        border-radius:999px;
+        border:1px solid rgba(239,193,90,.72);
+        background:linear-gradient(135deg,rgba(110,17,39,.96),rgba(48,9,20,.96));
+        color:#f4cf78;
+        font-size:8px;
+        line-height:1;
+        font-weight:800;
+        letter-spacing:.11em;
+        text-transform:uppercase;
+        box-shadow:0 0 12px rgba(221,169,62,.28),inset 0 0 8px rgba(255,214,120,.06);
+        vertical-align:middle;
+        white-space:nowrap;
+      }
+      .${TARGET_CLASS} .gm-ai-new-badge::before{
+        content:'';
+        width:4px;height:4px;border-radius:50%;
+        background:#ffd97e;
+        margin-right:5px;
+        box-shadow:0 0 8px #efb840;
+      }
+      @media (prefers-reduced-motion:reduce){
+        .${TARGET_CLASS}{animation:none!important}
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  function normalize(t){return (t||'').replace(/\s+/g,' ').trim().toLowerCase()}
+
+  function decorate(){
+    installStyle();
+    const nodes=[...document.querySelectorAll('a,button,[role="button"],.nav-item,.menu-item,.sidebar-item,.card,div')];
+    let target=null;
+    for(const el of nodes){
+      const tx=normalize(el.textContent);
+      if(tx==='simulações ia' || tx==='simulacoes ia' || tx.startsWith('simulações ia ') || tx.startsWith('simulacoes ia ')){
+        const clickable=el.closest('a,button,[role="button"],.nav-item,.menu-item,.sidebar-item') || el;
+        if(clickable && clickable.getBoundingClientRect().width>0){
+          target=clickable;
+          break;
+        }
+      }
+    }
+    if(!target) return false;
+    if(target.classList.contains(TARGET_CLASS)) return true;
+
+    target.classList.add(TARGET_CLASS);
+    target.setAttribute('data-gm-new-feature','true');
+
+    const walkers=[...target.querySelectorAll('span,strong,b,p,div')];
+    const label=walkers.find(x=>{
+      const t=normalize(x.textContent);
+      return (t==='simulações ia'||t==='simulacoes ia') && x.children.length===0;
+    });
+    const host=label || target;
+    if(label) label.classList.add('gm-ai-new-label');
+
+    if(!target.querySelector('.gm-ai-new-badge')){
+      const badge=document.createElement('span');
+      badge.className='gm-ai-new-badge';
+      badge.textContent='NOVO';
+      if(label) label.insertAdjacentElement('afterend',badge);
+      else host.appendChild(badge);
+    }
+    return true;
+  }
+
+  function boot(){
+    if(decorate()) return;
+    let tries=0;
+    const timer=setInterval(()=>{
+      tries++;
+      if(decorate() || tries>40) clearInterval(timer);
+    },250);
+
+    const obs=new MutationObserver(()=>decorate());
+    obs.observe(document.documentElement,{subtree:true,childList:true});
+    setTimeout(()=>obs.disconnect(),20000);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+</script>
+'''
+
+          if "</body>" not in html.lower():
+              raise SystemExit("Nao encontrei </body> em index.html")
+
+          pos = html.lower().rfind("</body>")
+          html = html[:pos] + script + "\n" + html[pos:]
+          p.write_text(html, encoding="utf-8")
+          print("Destaque Simulacoes IA aplicado com sucesso.")
+          PY
+
+      - name: Commit da atualizacao
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Sem alteracoes para commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Destaca Simulacoes IA como nova funcionalidade"
+          git push origin HEAD:cloudflare-migracao
