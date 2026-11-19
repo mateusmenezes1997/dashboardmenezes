@@ -4,7 +4,7 @@
 if(window.__gmMeDashboardV7)return;
 window.__gmMeDashboardV7=true;
 
-var app=null,data={sales:[],clients:[],settings:{monthlySalesTarget:5000000,monthlyCommissionTarget:0}},revision=0,period='',active='overview',saving=false,profile={name:'Mateus Menezes',role:'Gestor Comercial',photo:''};
+var app=null,data={sales:[],clients:[],settings:{monthlySalesTarget:5000000,monthlyCommissionTarget:0}},revision=0,period='',active='overview',saving=false,salesQuery='',salesProduct='',salesStatus='',profile={name:'Mateus Menezes',role:'Gestor Comercial',photo:''};
 var brl=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
 var brl2=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
 var fmtDate=new Intl.DateTimeFormat('pt-BR',{timeZone:'UTC'});
@@ -123,9 +123,46 @@ function monthSeries(){
  for(var i=11;i>=0;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1),m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');out.push({m:m,total:data.sales.filter(function(s){return monthOf(s.date)===m}).reduce(function(a,s){return a+num(s.credit)},0)})}
  return out;
 }
+function salesInMonth(m){return data.sales.filter(function(s){return monthOf(s.date)===m})}
+function salesTotalForMonth(m){return salesInMonth(m).reduce(function(a,s){return a+num(s.credit)},0)}
+function yearSales(year){return data.sales.filter(function(s){return String(s.date||'').slice(0,4)===String(year)}).reduce(function(a,s){return a+num(s.credit)},0)}
+function yearSalesRows(year){return data.sales.filter(function(s){return String(s.date||'').slice(0,4)===String(year)})}
+function previousMonthKey(m){return addMonthsKey(m,-1)}
+function currentPerformance(){
+ var cm=currentMonth(),pm=previousMonthKey(cm),now=new Date(),parts=cm.split('-'),year=Number(parts[0]),month=Number(parts[1]),days=new Date(year,month,0).getDate(),day=Math.min(days,now.getDate());
+ var sold=salesTotalForMonth(cm),prev=salesTotalForMonth(pm),target=Math.max(0,num(data.settings.monthlySalesTarget)),remaining=Math.max(0,target-sold),daysLeft=Math.max(0,days-day);
+ var pace=daysLeft?remaining/daysLeft:remaining,projection=day?sold/day*days:sold,delta=prev?((sold-prev)/prev)*100:(sold?100:0);
+ var yrRows=yearSalesRows(year),yr=yrRows.reduce(function(a,s){return a+num(s.credit)},0),ticket=yrRows.length?yr/yrRows.length:0;
+ var monthly={};
+ yrRows.forEach(function(s){var m=monthOf(s.date);monthly[m]=(monthly[m]||0)+num(s.credit)});
+ var bestKey='',best=0;Object.keys(monthly).forEach(function(k){if(monthly[k]>best){best=monthly[k];bestKey=k}});
+ return {cm:cm,pm:pm,sold:sold,prev:prev,target:target,remaining:remaining,days:days,day:day,daysLeft:daysLeft,pace:pace,projection:projection,delta:delta,year:year,yearTotal:yr,yearTicket:ticket,bestKey:bestKey,best:best};
+}
+function commissionCashflow(){
+ var projection=monthlyCommissionProjection(),cm=currentMonth(),next=addMonthsKey(cm,1),thisGross=num(projection[cm]&&projection[cm].gross),thisNet=num(projection[cm]&&projection[cm].net),nextGross=num(projection[next]&&projection[next].gross);
+ var d90=0,d90net=0,y12=0,y12net=0,future=0,futurenet=0;
+ for(var i=0;i<12;i++){var k=addMonthsKey(cm,i),x=projection[k]||{};y12+=num(x.gross);y12net+=num(x.net);if(i<3){d90+=num(x.gross);d90net+=num(x.net)}}
+ Object.keys(projection).forEach(function(k){if(k>=cm){future+=num(projection[k].gross);futurenet+=num(projection[k].net)}});
+ return {projection:projection,cm:cm,next:next,thisGross:thisGross,thisNet:thisNet,nextGross:nextGross,d90:d90,d90net:d90net,y12:y12,y12net:y12net,future:future,futurenet:futurenet};
+}
+function clientActions(){
+ var t=today(),td=new Date(t+'T00:00:00'),week=new Date(td);week.setDate(week.getDate()+7);var weekKey=week.toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'});
+ var overdue=0,todayCount=0,next7=0,noDate=0;
+ data.clients.forEach(function(x){var d=String(x.nextContact||'');if(!d){noDate++;return}if(d<t)overdue++;else if(d===t)todayCount++;else if(d<=weekKey)next7++});
+ return {overdue:overdue,today:todayCount,next7:next7,noDate:noDate,total:data.clients.length};
+}
+function visibleSales(){
+ var q=String(salesQuery||'').trim().toLocaleLowerCase('pt-BR');
+ return filteredSales().filter(function(s){
+   if(salesProduct&&String(s.product||'')!==salesProduct)return false;
+   if(salesStatus&&String(s.status||'')!==salesStatus)return false;
+   if(q){var hay=[s.clientName,s.product,s.status,s.note,num(s.credit)].join(' ').toLocaleLowerCase('pt-BR');if(!hay.includes(q))return false}
+   return true;
+ });
+}
 function renderProfileHero(){
  var root=document.getElementById('gmMeProfileHero');if(!root)return;
- var m=metrics(),target=num(data.settings.monthlySalesTarget),pct=target?Math.min(100,m.sold/target*100):0;
+ var p=currentPerformance(),cash=commissionCashflow(),pct=p.target?Math.min(100,p.sold/p.target*100):0;
  var img=document.getElementById('gmMeProfilePhoto'),fallback=document.getElementById('gmMeProfileFallback');
  if(img){
    if(profile.photo){img.src=profile.photo;img.hidden=false;if(fallback)fallback.hidden=true}
@@ -133,11 +170,11 @@ function renderProfileHero(){
  }
  var n=document.getElementById('gmMeProfileName');if(n)n.textContent=profile.name||'Mateus Menezes';
  var r=document.getElementById('gmMeProfileRole');if(r)r.textContent=profile.role||'Gestor Comercial';
- var sold=document.getElementById('gmMeHeroSold');if(sold)sold.textContent=brl.format(m.sold);
- var commission=document.getElementById('gmMeHeroCommission');if(commission)commission.textContent=brl2.format(m.expected);
+ var sold=document.getElementById('gmMeHeroSold');if(sold)sold.textContent=brl.format(p.sold);
+ var commission=document.getElementById('gmMeHeroCommission');if(commission)commission.textContent=brl2.format(cash.thisGross);
  var pctEl=document.getElementById('gmMeHeroPct');if(pctEl)pctEl.textContent=pct.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
  var bar=document.getElementById('gmMeHeroBar');if(bar)bar.style.width=pct+'%';
- var periodEl=document.getElementById('gmMeHeroPeriod');if(periodEl)periodEl.textContent=period?monthLabel(period):'Todos os períodos';
+ var periodEl=document.getElementById('gmMeHeroPeriod');if(periodEl)periodEl.textContent='Meta de '+monthLabel(p.cm);
 }
 function loadProfile(){
  return api('/api/state').then(function(r){
@@ -156,29 +193,55 @@ function loadProfile(){
 }
 function renderOverview(){
  renderProfileHero();
- var m=metrics(),target=num(data.settings.monthlySalesTarget),ctarget=num(data.settings.monthlyCommissionTarget);
+ var p=currentPerformance(),cash=commissionCashflow(),actions=clientActions(),m=metrics(),ctarget=num(data.settings.monthlyCommissionTarget);
+ var deltaText=p.prev?(p.delta>=0?'↑ ':'↓ ')+Math.abs(p.delta).toLocaleString('pt-BR',{maximumFractionDigits:1})+'% vs. mês anterior':(p.sold?'primeiro mês com produção':'sem produção no mês');
  document.getElementById('gmMeKpis').innerHTML=[
-  ['VOLUME VENDIDO',brl.format(m.sold),m.sales.length+' venda'+(m.sales.length===1?'':'s')],
-  ['COMISSÃO PREVISTA',brl2.format(m.expected),'no período selecionado'],
-  ['COMISSÃO RECEBIDA',brl2.format(m.received),m.expected?Math.min(100,m.received/m.expected*100).toFixed(0)+'% da prevista':'sem previsão informada'],
-  ['CLIENTES NA BASE',String(m.clients),'carteira pessoal'],
-  ['TICKET MÉDIO',brl.format(m.ticket),'por venda'],
-  ['COTAS',String(m.qty),'volume de cotas']
- ].map(function(x){return '<article class="gm-me-kpi"><small>'+x[0]+'</small><b>'+esc(x[1])+'</b><span>'+esc(x[2])+'</span></article>'}).join('');
- var salePct=target?Math.min(100,m.sold/target*100):0,comPct=ctarget?Math.min(100,m.expected/ctarget*100):0;
+  ['VENDIDO NO ANO',brl.format(p.yearTotal),String(p.year)],
+  ['COMISSÃO ESTE MÊS',brl2.format(cash.thisGross),brl2.format(cash.thisNet)+' líquido estimado'],
+  ['PRÓXIMO MÊS',brl2.format(cash.nextGross),monthLabel(cash.next)],
+  ['PRÓXIMOS 90 DIAS',brl2.format(cash.d90),'fluxo bruto projetado'],
+  ['CARTEIRA FUTURA',brl2.format(cash.future),'comissões ainda projetadas'],
+  ['TICKET MÉDIO ANO',brl.format(p.yearTicket),deltaText]
+ ].map(function(x,i){return '<article class="gm-me-kpi '+(i===1?'focus':'')+'"><small>'+x[0]+'</small><b>'+esc(x[1])+'</b><span>'+esc(x[2])+'</span></article>'}).join('');
+
+ var salePct=p.target?Math.min(100,p.sold/p.target*100):0,comPct=ctarget?Math.min(100,cash.thisGross/ctarget*100):0;
  document.getElementById('gmMeGoals').innerHTML=
-  '<div class="gm-me-progress-item"><div class="gm-me-progress-label"><span>Meta de vendas</span><b>'+(target?brl.format(m.sold)+' / '+brl.format(target):'Defina sua meta')+'</b></div><div class="gm-me-track"><i style="width:'+salePct+'%"></i></div></div>'+
-  '<div class="gm-me-progress-item"><div class="gm-me-progress-label"><span>Meta de comissão</span><b>'+(ctarget?brl2.format(m.expected)+' / '+brl2.format(ctarget):'Defina sua meta')+'</b></div><div class="gm-me-track"><i style="width:'+comPct+'%"></i></div></div>';
+  '<div class="gm-me-goal-intel"><div><small>VENDIDO NO MÊS</small><b>'+esc(brl.format(p.sold))+'</b><span>'+esc(deltaText)+'</span></div><div><small>PROJEÇÃO DE FECHAMENTO</small><b>'+esc(brl.format(p.projection))+'</b><span>mantendo o ritmo atual</span></div><div><small>FALTA PARA META</small><b>'+esc(brl.format(p.remaining))+'</b><span>'+(p.daysLeft?esc(brl.format(p.pace))+' por dia nos '+p.daysLeft+' dias restantes':'mês em fechamento')+'</span></div></div>'+
+  '<div class="gm-me-progress-item"><div class="gm-me-progress-label"><span>Meta de vendas</span><b>'+(p.target?brl.format(p.sold)+' / '+brl.format(p.target):'Defina sua meta')+'</b></div><div class="gm-me-track"><i style="width:'+salePct+'%"></i></div></div>'+
+  (ctarget?'<div class="gm-me-progress-item"><div class="gm-me-progress-label"><span>Meta de comissão</span><b>'+brl2.format(cash.thisGross)+' / '+brl2.format(ctarget)+'</b></div><div class="gm-me-track"><i style="width:'+comPct+'%"></i></div></div>':'');
+
  var series=monthSeries(),max=Math.max(1,...series.map(function(x){return x.total}));
  document.getElementById('gmMeChart').innerHTML=series.map(function(x){
-   var h=Math.max(3,x.total/max*155),p=x.m.split('-');
-   return '<div class="gm-me-bar-wrap" title="'+esc(monthLabel(x.m))+' • '+esc(brl.format(x.total))+'"><span class="gm-me-bar-value">'+(x.total?esc((x.total/1000000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'M'):'0')+'</span><i class="gm-me-bar" style="height:'+h+'px"></i><span class="gm-me-bar-label">'+p[1]+'/'+p[0].slice(2)+'</span></div>';
+   var h=Math.max(3,x.total/max*155),pp=x.m.split('-');
+   return '<div class="gm-me-bar-wrap" title="'+esc(monthLabel(x.m))+' • '+esc(brl.format(x.total))+'"><span class="gm-me-bar-value">'+(x.total?esc((x.total/1000000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'M'):'0')+'</span><i class="gm-me-bar" style="height:'+h+'px"></i><span class="gm-me-bar-label">'+pp[1]+'/'+pp[0].slice(2)+'</span></div>';
  }).join('');
+
+ var cf=document.getElementById('gmMeCashflowChart');
+ if(cf){
+   var months=[];for(var i=0;i<8;i++){var k=addMonthsKey(cash.cm,i),x=cash.projection[k]||{};months.push({m:k,total:num(x.gross)})}
+   var maxC=Math.max(1,...months.map(function(x){return x.total}));
+   cf.innerHTML=months.map(function(x,i){var h=Math.max(3,x.total/maxC*155),pp=x.m.split('-');return '<div class="gm-me-bar-wrap '+(i===0?'current':'')+'" title="'+esc(monthLabel(x.m))+' • '+esc(brl2.format(x.total))+'"><span class="gm-me-bar-value">'+esc(brl2.format(x.total))+'</span><i class="gm-me-bar gm-me-cash-bar" style="height:'+h+'px"></i><span class="gm-me-bar-label">'+pp[1]+'/'+pp[0].slice(2)+'</span></div>'}).join('');
+ }
+ var cashStats=document.getElementById('gmMeCashflowStats');
+ if(cashStats)cashStats.innerHTML='<span><b>'+esc(brl2.format(cash.thisGross))+'</b> este mês</span><span><b>'+esc(brl2.format(cash.nextGross))+'</b> próximo mês</span><span><b>'+esc(brl2.format(cash.y12))+'</b> 12 meses</span>';
+
+ var next=document.getElementById('gmMeNextActions');
+ if(next)next.innerHTML=[
+   ['Atrasados',actions.overdue,'follow-ups'],
+   ['Hoje',actions.today,'contatos'],
+   ['Próximos 7 dias',actions.next7,'agendados'],
+   ['Sem próxima data',actions.noDate,'clientes']
+ ].map(function(x,i){return '<button type="button" class="gm-me-action-row '+(i===0&&x[1]?'urgent':'')+'" data-open-tab="clients"><span>'+esc(x[0])+'<small>'+esc(x[2])+'</small></span><b>'+x[1]+'</b></button>'}).join('');
+
  var recent=filteredSales().slice(0,6);
  document.getElementById('gmMeRecent').innerHTML=recent.length?recent.map(function(s){return '<div class="gm-me-list-row"><div><strong>'+esc(s.clientName||'Venda própria')+'</strong><small>'+esc(dateLabel(s.date))+' · '+esc(s.product||'Produto')+'</small></div><b>'+esc(brl.format(num(s.credit)))+'</b></div>'}).join(''):'<div class="gm-me-empty">Nenhuma venda registrada neste período.</div>';
+ var record=document.getElementById('gmMeRecord');
+ if(record)record.innerHTML='<div class="gm-me-record-main"><small>MELHOR MÊS DO ANO</small><b>'+esc(p.best?brl.format(p.best):'—')+'</b><span>'+esc(p.bestKey?monthLabel(p.bestKey):'Ainda sem recorde')+'</span></div><div class="gm-me-record-side"><small>PRODUÇÃO ATUAL</small><b>'+esc(brl.format(p.sold))+'</b><span>'+(p.best&&p.sold>=p.best?'Novo recorde em andamento':'Referência para superar: '+esc(brl.format(p.best)))+'</span></div>';
 }
 function renderSales(){
- var rows=filteredSales();
+ var rows=visibleSales(),total=rows.reduce(function(a,s){return a+num(s.credit)},0),commission=rows.reduce(function(a,s){return a+commissionExpectedFor(s)},0);
+ var summary=document.getElementById('gmMeSalesSummary');
+ if(summary)summary.innerHTML='<span><small>RESULTADOS FILTRADOS</small><b>'+rows.length+'</b></span><span><small>CRÉDITO</small><b>'+esc(brl.format(total))+'</b></span><span><small>COMISSÃO 2,2%</small><b>'+esc(brl2.format(commission))+'</b></span>';
  document.getElementById('gmMeSalesBody').innerHTML=rows.length?rows.map(function(s){
   return '<tr>'+
    '<td>'+esc(dateLabel(s.date))+'</td>'+
@@ -191,10 +254,12 @@ function renderSales(){
    '<td><span class="gm-me-chip '+saleStatusClass(s.status)+'">'+esc(s.status||'Ativa')+'</span></td>'+
    '<td><div class="gm-me-actions"><button class="gm-me-icon-btn" data-edit-sale="'+esc(s.id)+'">Editar</button><button class="gm-me-icon-btn" data-del-sale="'+esc(s.id)+'">Excluir</button></div></td>'+
   '</tr>';
- }).join(''):'<tr><td colspan="9"><div class="gm-me-empty">Nenhuma venda cadastrada.</div></td></tr>';
+ }).join(''):'<tr><td colspan="9"><div class="gm-me-empty">Nenhuma venda encontrada com esses filtros.</div></td></tr>';
 }
 function renderClients(){
- var rows=filteredClients();
+ var rows=filteredClients(),actions=clientActions(),potential=rows.reduce(function(a,x){return a+num(x.credit)},0);
+ var summary=document.getElementById('gmMeClientsSummary');
+ if(summary)summary.innerHTML='<span><small>CLIENTES</small><b>'+rows.length+'</b></span><span><small>POTENCIAL</small><b>'+esc(brl.format(potential))+'</b></span><span class="'+(actions.overdue?'urgent':'')+'"><small>FOLLOW-UPS ATRASADOS</small><b>'+actions.overdue+'</b></span><span><small>PRÓXIMOS 7 DIAS</small><b>'+actions.next7+'</b></span>';
  document.getElementById('gmMeClientsBody').innerHTML=rows.length?rows.map(function(c){
   var phone=String(c.phone||'').replace(/\D/g,'');
   return '<tr>'+
@@ -210,6 +275,14 @@ function renderClients(){
  }).join(''):'<tr><td colspan="8"><div class="gm-me-empty">Sua carteira pessoal ainda está vazia.</div></td></tr>';
 }
 function renderCommission(){
+ var cash=commissionCashflow();
+ var flow=document.getElementById('gmMeCommissionCashflow');
+ if(flow)flow.innerHTML=[
+   ['ESTE MÊS',brl2.format(cash.thisGross),brl2.format(cash.thisNet)+' líquido'],
+   ['PRÓXIMO MÊS',brl2.format(cash.nextGross),monthLabel(cash.next)],
+   ['PRÓXIMOS 90 DIAS',brl2.format(cash.d90),brl2.format(cash.d90net)+' líquido'],
+   ['PRÓXIMOS 12 MESES',brl2.format(cash.y12),brl2.format(cash.y12net)+' líquido']
+ ].map(function(x,i){return '<article class="gm-me-summary '+(i===0?'focus':'')+'"><small>'+x[0]+'</small><b>'+esc(x[1])+'</b><span>'+esc(x[2])+'</span></article>'}).join('');
  var rows={};
  data.sales.forEach(function(s){var m=monthOf(s.date)||'Sem data';if(!rows[m])rows[m]={expected:0,received:0,sales:0};rows[m].expected+=commissionExpectedFor(s);rows[m].received+=num(s.commissionReceived);rows[m].sales+=1});
  var list=Object.keys(rows).sort().reverse(),totE=data.sales.reduce(function(a,s){return a+commissionExpectedFor(s)},0),totR=data.sales.reduce(function(a,s){return a+num(s.commissionReceived)},0),totNet=data.sales.reduce(function(a,s){return a+commissionNetFor(s)},0);
@@ -230,6 +303,13 @@ function renderCommission(){
 }
 function renderSettings(){
  var a=document.getElementById('gmMeSalesTarget'),b=document.getElementById('gmMeCommissionTarget');if(a)a.value=num(data.settings.monthlySalesTarget)||'';if(b)b.value=num(data.settings.monthlyCommissionTarget)||'';
+ var p=currentPerformance(),cash=commissionCashflow(),root=document.getElementById('gmMeGoalIntelligence');
+ if(root)root.innerHTML='<article><small>VENDIDO NO MÊS</small><b>'+esc(brl.format(p.sold))+'</b><span>'+(p.target?Math.min(100,p.sold/p.target*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'% da meta':'sem meta definida')+'</span></article>'+
+ '<article><small>FALTA PARA META</small><b>'+esc(brl.format(p.remaining))+'</b><span>'+p.daysLeft+' dias restantes</span></article>'+
+ '<article><small>RITMO NECESSÁRIO</small><b>'+esc(brl.format(p.pace))+'</b><span>por dia até o fim do mês</span></article>'+
+ '<article><small>PROJEÇÃO ATUAL</small><b>'+esc(brl.format(p.projection))+'</b><span>'+(p.target?(p.projection>=p.target?'ritmo acima da meta':'ritmo abaixo da meta'):'configure sua meta')+'</span></article>'+
+ '<article><small>COMISSÃO DO MÊS</small><b>'+esc(brl2.format(cash.thisGross))+'</b><span>'+esc(brl2.format(cash.thisNet))+' líquido estimado</span></article>'+
+ '<article><small>RECORDE DO ANO</small><b>'+esc(p.best?brl.format(p.best):'—')+'</b><span>'+esc(p.bestKey?monthLabel(p.bestKey):'sem histórico')+'</span></article>';
 }
 function render(){
  normalize();
@@ -314,11 +394,11 @@ function build(){
   '<header class="gm-me-top"><div class="gm-me-brand"><small>ÁREA PRIVADA DO GESTOR</small><h1>EU · Painel Pessoal</h1><p>Suas vendas, comissão, clientes e metas em uma única base.</p></div><div class="gm-me-top-actions"><button class="gm-me-btn" id="gmMeSync">↻ Sincronizar vendas</button><button class="gm-me-btn primary" id="gmMeAddSale">+ Venda</button><button class="gm-me-btn primary" id="gmMeAddClient">+ Cliente</button><button class="gm-me-btn gm-me-close" id="gmMeClose" aria-label="Fechar">×</button></div></header>'+
   '<main class="gm-me-wrap">'+
    '<div class="gm-me-toolbar"><div class="gm-me-tabs"><button class="gm-me-tab active" data-me-tab="overview">Visão Geral</button><button class="gm-me-tab" data-me-tab="sales">Minhas Vendas</button><button class="gm-me-tab" data-me-tab="commission">Comissões</button><button class="gm-me-tab" data-me-tab="clients">Clientes</button><button class="gm-me-tab" data-me-tab="goals">Metas</button></div><div class="gm-me-period"><label>Período</label><select class="gm-me-select" id="gmMePeriod"></select></div></div>'+
-   '<section class="gm-me-view active" id="gmMeView-overview"><section class="gm-me-profile-hero" id="gmMeProfileHero"><div class="gm-me-profile-portrait"><div class="gm-me-profile-ring"><img id="gmMeProfilePhoto" alt="Mateus Menezes" hidden><div id="gmMeProfileFallback" class="gm-me-profile-fallback">MM</div></div></div><div class="gm-me-profile-copy"><small>GESTÃO MENEZES · PERFORMANCE PESSOAL</small><h2 id="gmMeProfileName">Mateus Menezes</h2><p id="gmMeProfileRole">Gestor Comercial</p><div class="gm-me-profile-progress"><div class="gm-me-profile-progress-top"><span id="gmMeHeroPeriod">Período atual</span><b id="gmMeHeroPct">0%</b></div><div class="gm-me-profile-track"><i id="gmMeHeroBar"></i></div></div></div><div class="gm-me-profile-stats"><article><small>VENDAS NO PERÍODO</small><b id="gmMeHeroSold">R$ 0</b></article><article><small>COMISSÃO PREVISTA</small><b id="gmMeHeroCommission">R$ 0</b></article></div></section><div class="gm-me-kpis" id="gmMeKpis"></div><div class="gm-me-grid"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Evolução das vendas</h2><p>Últimos 12 meses da sua produção própria</p></div></div><div class="gm-me-chart" id="gmMeChart"></div></article><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Ritmo das metas</h2><p>Acompanhamento do período selecionado</p></div></div><div id="gmMeGoals"></div><button class="gm-me-btn ghost" data-open-tab="goals">Ajustar metas</button></article></div><div class="gm-me-grid"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Vendas recentes</h2><p>Últimos lançamentos do período</p></div><button class="gm-me-btn ghost" data-open-tab="sales">Ver todas</button></div><div class="gm-me-list" id="gmMeRecent"></div></article><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Base pessoal</h2><p>Informações privadas, separadas da gestão</p></div></div><div class="gm-me-note">A aba <strong>EU</strong> é exclusiva do perfil Gestor. Vendas podem ser sincronizadas com o dashboard principal e enriquecidas aqui com cliente e comissão, sem expor sua carteira aos demais acessos.</div></article></div></section>'+
-   '<section class="gm-me-view" id="gmMeView-sales"><div class="gm-me-section-head"><div><h2>Minhas Vendas</h2><p>Controle completo da sua produção própria.</p></div><button class="gm-me-btn primary" data-add-sale>+ Nova venda</button></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Crédito</th><th>Cotas</th><th>Comissão prevista</th><th>Recebida</th><th>Status</th><th>Ações</th></tr></thead><tbody id="gmMeSalesBody"></tbody></table></div></section>'+
-   '<section class="gm-me-view" id="gmMeView-commission"><div class="gm-me-section-head"><div><h2>Comissões</h2><p>2,2% automático sobre suas vendas, com a mesma diluição da aba Comissionamento.</p></div></div><div class="gm-me-summary-grid" id="gmMeCommissionSummary"></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Mês da venda</th><th>Vendas</th><th>Bruto previsto</th><th>Recebido</th><th>A receber</th><th>Recebimento</th></tr></thead><tbody id="gmMeCommissionBody"></tbody></table></div><div class="gm-me-section-head gm-me-commission-detail-head"><div><h2>Recebimento mensal de comissão</h2><p>Somatório das parcelas da sua comissão de 2,2% conforme a data de cada venda.</p></div></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Mês</th><th>Comissão no mês</th><th>Líquido estimado</th><th>Vendas contribuindo</th></tr></thead><tbody id="gmMeMonthlyCommissionBody"></tbody></table></div><div class="gm-me-section-head gm-me-commission-detail-head"><div><h2>Diluição automática por venda</h2><p>As parcelas abaixo fecham exatamente a comissão de gestor de 2,2%.</p></div></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Crédito</th><th>Condição</th><th>Comissão 2,2%</th><th>Diluição</th></tr></thead><tbody id="gmMeCommissionSalesBody"></tbody></table></div></section>'+
-   '<section class="gm-me-view" id="gmMeView-clients"><div class="gm-me-section-head"><div><h2>Meus Clientes</h2><p>Carteira, próximos contatos e acompanhamento.</p></div><button class="gm-me-btn primary" data-add-client>+ Novo cliente</button></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Cliente</th><th>WhatsApp</th><th>Produto</th><th>Crédito</th><th>Status</th><th>Próximo contato</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="gmMeClientsBody"></tbody></table></div></section>'+
-   '<section class="gm-me-view" id="gmMeView-goals"><div class="gm-me-section-head"><div><h2>Metas pessoais</h2><p>Defina os objetivos que serão usados no seu painel.</p></div></div><article class="gm-me-card"><div class="gm-me-settings"><div class="gm-me-field"><label>Meta mensal de vendas (R$)</label><input class="gm-me-input" id="gmMeSalesTarget" type="number" min="0" step="1000"></div><div class="gm-me-field"><label>Meta mensal de comissão (R$)</label><input class="gm-me-input" id="gmMeCommissionTarget" type="number" min="0" step="100"></div></div><div class="gm-me-modal-actions"><button class="gm-me-btn primary" id="gmMeSaveGoals">Salvar metas</button></div></article></section>'+
+   '<section class="gm-me-view active" id="gmMeView-overview"><section class="gm-me-profile-hero" id="gmMeProfileHero"><div class="gm-me-profile-portrait"><div class="gm-me-profile-ring"><img id="gmMeProfilePhoto" alt="Mateus Menezes" hidden><div id="gmMeProfileFallback" class="gm-me-profile-fallback">MM</div></div></div><div class="gm-me-profile-copy"><small>GESTÃO MENEZES · PERFORMANCE PESSOAL</small><h2 id="gmMeProfileName">Mateus Menezes</h2><p id="gmMeProfileRole">Gestor Comercial</p><div class="gm-me-profile-progress"><div class="gm-me-profile-progress-top"><span id="gmMeHeroPeriod">Meta do mês</span><b id="gmMeHeroPct">0%</b></div><div class="gm-me-profile-track"><i id="gmMeHeroBar"></i></div></div></div><div class="gm-me-profile-stats"><article><small>VENDIDO NO MÊS</small><b id="gmMeHeroSold">R$ 0</b></article><article><small>COMISSÃO ESTE MÊS</small><b id="gmMeHeroCommission">R$ 0</b></article></div></section><div class="gm-me-kpis" id="gmMeKpis"></div><div class="gm-me-grid gm-me-grid-balanced"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Evolução das vendas</h2><p>Últimos 12 meses da sua produção própria</p></div></div><div class="gm-me-chart" id="gmMeChart"></div></article><article class="gm-me-card gm-me-cash-card"><div class="gm-me-card-head"><div><h2>Minha renda de comissão</h2><p>Fluxo previsto dos próximos 8 meses</p></div><button class="gm-me-btn ghost" data-open-tab="commission">Detalhar</button></div><div class="gm-me-cashflow-stats" id="gmMeCashflowStats"></div><div class="gm-me-chart gm-me-cashflow-chart" id="gmMeCashflowChart"></div></article></div><div class="gm-me-grid"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Ritmo da meta</h2><p>Quanto falta e onde seu ritmo atual te leva</p></div><button class="gm-me-btn ghost" data-open-tab="goals">Ajustar meta</button></div><div id="gmMeGoals"></div></article><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Próximas ações</h2><p>O que merece sua atenção comercial agora</p></div><button class="gm-me-btn ghost" data-open-tab="clients">Ver clientes</button></div><div class="gm-me-next-actions" id="gmMeNextActions"></div></article></div><div class="gm-me-grid"><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Vendas recentes</h2><p>Últimos lançamentos do período selecionado</p></div><button class="gm-me-btn ghost" data-open-tab="sales">Ver todas</button></div><div class="gm-me-list" id="gmMeRecent"></div></article><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Performance pessoal</h2><p>Seu recorde e sua produção atual</p></div></div><div class="gm-me-record" id="gmMeRecord"></div></article></div></section>'+
+   '<section class="gm-me-view" id="gmMeView-sales"><div class="gm-me-section-head"><div><h2>Minhas Vendas</h2><p>Consulte, filtre e gerencie sua produção própria.</p></div><button class="gm-me-btn primary" data-add-sale>+ Nova venda</button></div><div class="gm-me-inline-summary" id="gmMeSalesSummary"></div><div class="gm-me-filterbar"><input class="gm-me-input" id="gmMeSalesSearch" placeholder="Buscar cliente, produto, valor..."><select class="gm-me-select" id="gmMeSalesProduct"><option value="">Todos os produtos</option><option value="Lar">Lar</option><option value="Motors">Motors</option></select><select class="gm-me-select" id="gmMeSalesStatus"><option value="">Todos os status</option><option value="Ativa">Ativa</option><option value="Contemplada">Contemplada</option><option value="Cancelada">Cancelada</option></select></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Crédito</th><th>Cotas</th><th>Comissão prevista</th><th>Recebida</th><th>Status</th><th>Ações</th></tr></thead><tbody id="gmMeSalesBody"></tbody></table></div></section>'+
+   '<section class="gm-me-view" id="gmMeView-commission"><div class="gm-me-section-head"><div><h2>Comissões</h2><p>Primeiro, quanto entra no caixa. Depois, os detalhes técnicos da sua comissão de 2,2%.</p></div></div><div class="gm-me-section-label"><span>FLUXO DE RECEBIMENTO</span><small>Projeção baseada na diluição de cada venda</small></div><div class="gm-me-summary-grid gm-me-summary-grid-4" id="gmMeCommissionCashflow"></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Mês</th><th>Comissão no mês</th><th>Líquido estimado</th><th>Vendas contribuindo</th></tr></thead><tbody id="gmMeMonthlyCommissionBody"></tbody></table></div><div class="gm-me-section-head gm-me-commission-detail-head"><div><h2>Visão acumulada das vendas</h2><p>Totais originais preservados: comissão gerada, recebida e saldo a receber.</p></div></div><div class="gm-me-summary-grid" id="gmMeCommissionSummary"></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Mês da venda</th><th>Vendas</th><th>Bruto previsto</th><th>Recebido</th><th>A receber</th><th>Recebimento</th></tr></thead><tbody id="gmMeCommissionBody"></tbody></table></div><div class="gm-me-section-head gm-me-commission-detail-head"><div><h2>Diluição automática por venda</h2><p>Detalhamento técnico; as parcelas abaixo fecham exatamente a comissão de gestor de 2,2%.</p></div></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Data</th><th>Cliente</th><th>Crédito</th><th>Condição</th><th>Comissão 2,2%</th><th>Diluição</th></tr></thead><tbody id="gmMeCommissionSalesBody"></tbody></table></div></section>'+
+   '<section class="gm-me-view" id="gmMeView-clients"><div class="gm-me-section-head"><div><h2>Meus Clientes</h2><p>Carteira e follow-ups que precisam virar ação.</p></div><button class="gm-me-btn primary" data-add-client>+ Novo cliente</button></div><div class="gm-me-inline-summary gm-me-inline-summary-4" id="gmMeClientsSummary"></div><div class="gm-me-table-wrap"><table class="gm-me-table"><thead><tr><th>Cliente</th><th>WhatsApp</th><th>Produto</th><th>Crédito</th><th>Status</th><th>Próximo contato</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="gmMeClientsBody"></tbody></table></div></section>'+
+   '<section class="gm-me-view" id="gmMeView-goals"><div class="gm-me-section-head"><div><h2>Metas pessoais</h2><p>Ritmo, projeção e objetivo do mês em uma única leitura.</p></div></div><div class="gm-me-goal-grid" id="gmMeGoalIntelligence"></div><article class="gm-me-card"><div class="gm-me-card-head"><div><h2>Configurar objetivos</h2><p>Esses valores alimentam as projeções da Visão Geral.</p></div></div><div class="gm-me-settings"><div class="gm-me-field"><label>Meta mensal de vendas (R$)</label><input class="gm-me-input" id="gmMeSalesTarget" type="number" min="0" step="1000"></div><div class="gm-me-field"><label>Meta mensal de comissão (R$)</label><input class="gm-me-input" id="gmMeCommissionTarget" type="number" min="0" step="100"></div></div><div class="gm-me-modal-actions"><button class="gm-me-btn primary" id="gmMeSaveGoals">Salvar metas</button></div></article></section>'+
   '</main>'+
  '</div>'+
  '<div class="gm-me-modal" id="gmMeModal"><div class="gm-me-modal-card"><div class="gm-me-modal-head"><h3 id="gmMeModalTitle"></h3><button type="button" class="gm-me-btn gm-me-close" data-close-modal>×</button></div><div id="gmMeModalBody"></div></div></div>'+
@@ -358,6 +438,10 @@ function build(){
    renderSaleCommissionPreview(form);
  });
  sel.addEventListener('change',function(){period=sel.value;render()});
+ var salesSearch=document.getElementById('gmMeSalesSearch'),salesProductEl=document.getElementById('gmMeSalesProduct'),salesStatusEl=document.getElementById('gmMeSalesStatus');
+ if(salesSearch)salesSearch.addEventListener('input',function(){salesQuery=this.value;renderSales()});
+ if(salesProductEl)salesProductEl.addEventListener('change',function(){salesProduct=this.value;renderSales()});
+ if(salesStatusEl)salesStatusEl.addEventListener('change',function(){salesStatus=this.value;renderSales()});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&app.classList.contains('open')){if(document.getElementById('gmMeModal').classList.contains('open'))closeModal();else close()}});
 }
 function load(){
