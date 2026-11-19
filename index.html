@@ -962,6 +962,7 @@ body[data-role="viewer"] #leaders{display:none!important}
     <button class="active" data-view="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span>Dashboard</button>
     <button data-view="leaders"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-8"/><path d="M22 19H2"/><path d="m5 6 3-3 3 3"/><path d="M8 3v6"/></svg></span>Líderes - Gestão</button>
     <button data-view="simulator"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="3"/><path d="M8 6.5h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h8"/></svg></span>Simulador</button>
+    <button data-view="objections-ai"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg></span>Simulações IA</button>
     <button class="manager-only" data-view="sale"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-8"/><path d="M22 19H2"/><path d="m15 7 3-3 3 3"/><path d="M18 4v7"/></svg></span>Lançar venda</button>
     <button data-view="team"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Equipe</button>
     <button data-view="commission"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.5c.5-1 1.5-1.5 3-1.5 2 0 3 1 3 2.2 0 1.3-1 2-3 2.3-2 .3-3 1-3 2.3C9 16 10 17 12 17c1.5 0 2.6-.5 3.2-1.5"/><path d="M12 6.5v11"/></svg></span>Comissionamento</button>
@@ -1123,6 +1124,98 @@ body[data-role="viewer"] #leaders{display:none!important}
           <tbody id="leadersRankingBody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="objections-ai" class="view hidden">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Academia Menezes • Inteligência Comercial</div>
+      <h2>Simulações IA</h2>
+      <div class="sub">Treine. Responda. Feche. Um treinador de objeções de consórcio para usar antes, durante e depois das conversas com clientes.</div>
+    </div>
+    <div class="actions"><span class="badge gm-ai-status"><span class="gm-ai-dot"></span> TREINADOR ATIVO</span></div>
+  </div>
+
+  <div class="gm-ai-hero">
+    <div>
+      <span class="gm-ai-kicker">CENTRAL DE OBJEÇÕES</span>
+      <h3>Qual objeção você quer vencer hoje?</h3>
+      <p>Escolha uma objeção, simule uma venda ou cole exatamente o que o cliente falou.</p>
+    </div>
+    <div class="gm-ai-hero-mark">⚡</div>
+  </div>
+
+  <div class="gm-ai-tabs" role="tablist">
+    <button class="gm-ai-tab active" data-ai-mode="answer" type="button">💬 Responder objeção</button>
+    <button class="gm-ai-tab" data-ai-mode="train" type="button">🎭 Treinar venda</button>
+    <button class="gm-ai-tab" data-ai-mode="sos" type="button">⚡ SOS Venda</button>
+  </div>
+
+  <div id="gmAiAnswer" class="gm-ai-panel">
+    <div class="gm-ai-layout">
+      <aside class="card gm-ai-library">
+        <div class="section-head"><h3>Objeções frequentes</h3><span class="badge" id="gmAiCount">0</span></div>
+        <div class="gm-ai-search"><span>⌕</span><input id="gmAiSearch" type="search" placeholder="Buscar objeção..."></div>
+        <div id="gmAiObjectionList" class="gm-ai-objection-list"></div>
+      </aside>
+      <div class="card gm-ai-chat">
+        <div class="gm-ai-chat-head">
+          <div><small>ASSISTENTE COMERCIAL</small><strong id="gmAiChatTitle">Selecione uma objeção</strong></div>
+          <span class="gm-ai-online">● online</span>
+        </div>
+        <div id="gmAiChatBody" class="gm-ai-chat-body">
+          <div class="gm-ai-empty">
+            <div class="gm-ai-orb">M</div>
+            <h3>Pronto para entrar na conversa.</h3>
+            <p>Selecione uma objeção à esquerda. Você receberá diagnóstico, perguntas, resposta recomendada, versão para WhatsApp e a próxima pergunta para conduzir a venda.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gmAiTrain" class="gm-ai-panel hidden">
+    <div class="gm-ai-train-grid">
+      <div class="card gm-ai-train-setup">
+        <div class="section-head"><h3>Configurar treinamento</h3><span class="badge">ROLEPLAY</span></div>
+        <label>Perfil do cliente</label>
+        <select id="gmAiTrainLevel" class="control">
+          <option value="1">Nível 1 — Cliente receptivo</option>
+          <option value="2">Nível 2 — Cliente desconfiado</option>
+          <option value="3" selected>Nível 3 — Cliente difícil</option>
+          <option value="4">Nível 4 — Empresário / investidor</option>
+          <option value="5">Nível 5 — Extremamente resistente</option>
+        </select>
+        <label>Objeção para treinar</label>
+        <select id="gmAiTrainObjection" class="control"></select>
+        <button id="gmAiStartTrain" class="btn primary" type="button">Iniciar simulação</button>
+        <div class="gm-ai-tip">Objetivo: investigar antes de rebater. Faça perguntas curtas, descubra a causa real e conduza para a próxima etapa.</div>
+      </div>
+      <div class="card gm-ai-roleplay">
+        <div class="gm-ai-chat-head"><div><small>CLIENTE VIRTUAL</small><strong id="gmAiRoleplayTitle">Aguardando simulação</strong></div><span class="gm-ai-online">● treino</span></div>
+        <div id="gmAiRoleplayBody" class="gm-ai-roleplay-body"><div class="gm-ai-empty"><div class="gm-ai-orb">🎭</div><h3>Escolha o nível e comece.</h3><p>O sistema vai apresentar uma objeção realista e avaliar sua resposta comercial.</p></div></div>
+        <div class="gm-ai-compose">
+          <textarea id="gmAiTrainReply" rows="3" placeholder="Escreva aqui exatamente o que você responderia ao cliente..."></textarea>
+          <button id="gmAiEvaluate" class="btn primary" type="button">Avaliar resposta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gmAiSos" class="gm-ai-panel hidden">
+    <div class="card gm-ai-sos">
+      <div class="gm-ai-sos-icon">⚡</div>
+      <div class="gm-ai-sos-copy">
+        <div class="eyebrow">ESTOU FALANDO COM O CLIENTE AGORA</div>
+        <h3>Cole exatamente o que ele falou.</h3>
+        <p>O sistema identifica a objeção mais provável e entrega um caminho de resposta imediato.</p>
+      </div>
+      <textarea id="gmAiSosInput" rows="4" placeholder='Ex.: "R$ 3.500 de parcela está muito caro pra mim."' ></textarea>
+      <div class="gm-ai-sos-actions"><button id="gmAiSosRun" class="btn primary" type="button">Gerar resposta agora</button><button id="gmAiSosClear" class="btn" type="button">Limpar</button></div>
+      <div id="gmAiSosResult"></div>
     </div>
   </div>
 </section>
@@ -2191,5 +2284,148 @@ document.getElementById('rankingShareClose').onclick=()=>document.getElementById
   setInterval(refresh,60000);
 })();
 </script>
+
+<style id="gm-objections-ai-v1">
+#objections-ai{--ai-gold:#e6bd62;--ai-wine:#6f172d;--ai-bg:#0c0b0d;--ai-card:#121014}
+.gm-ai-status{display:flex!important;align-items:center;gap:7px;color:#e9c775!important;border-color:rgba(230,189,98,.22)!important;background:rgba(230,189,98,.07)!important}
+.gm-ai-dot{width:7px;height:7px;border-radius:50%;background:#69d18a;box-shadow:0 0 12px rgba(105,209,138,.6)}
+.gm-ai-hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:28px 30px;margin-bottom:18px;border:1px solid rgba(230,189,98,.16);border-radius:22px;background:radial-gradient(circle at 90% 18%,rgba(132,27,54,.28),transparent 34%),linear-gradient(135deg,rgba(29,20,24,.98),rgba(10,9,11,.98));box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gm-ai-hero:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(230,189,98,.05),transparent 65%)}
+.gm-ai-kicker{display:block;color:#d8b45f;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:9px}
+.gm-ai-hero h3{margin:0;color:#fff;font-size:27px;letter-spacing:-.045em}
+.gm-ai-hero p{margin:8px 0 0;color:#9f969c;font-size:12px;line-height:1.6}
+.gm-ai-hero-mark{display:grid;place-items:center;flex:0 0 66px;width:66px;height:66px;border-radius:20px;font-size:28px;border:1px solid rgba(230,189,98,.18);background:linear-gradient(145deg,rgba(230,189,98,.12),rgba(111,23,45,.18));box-shadow:0 0 35px rgba(111,23,45,.2)}
+.gm-ai-tabs{display:flex;gap:8px;margin-bottom:18px;padding:6px;width:max-content;max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.07);background:#0e0c0f}
+.gm-ai-tab{appearance:none;border:0;background:transparent;color:#8f878d;padding:10px 14px;border-radius:10px;font:800 11px/1.2 inherit;cursor:pointer;transition:.2s}
+.gm-ai-tab:hover{color:#e9e4e7;background:rgba(255,255,255,.04)}
+.gm-ai-tab.active{color:#f3d78e;background:linear-gradient(135deg,rgba(111,23,45,.42),rgba(230,189,98,.09));box-shadow:inset 0 0 0 1px rgba(230,189,98,.14)}
+.gm-ai-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px;min-height:650px}
+.gm-ai-library,.gm-ai-chat,.gm-ai-train-setup,.gm-ai-roleplay,.gm-ai-sos{background:linear-gradient(180deg,rgba(20,17,21,.98),rgba(12,11,13,.99))!important;border-color:rgba(255,255,255,.07)!important}
+.gm-ai-library{padding:16px!important}
+.gm-ai-search{display:flex;align-items:center;gap:8px;margin:10px 0 12px;padding:0 11px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:#0c0a0d}
+.gm-ai-search span{color:#777078;font-size:17px}.gm-ai-search input{width:100%;padding:10px 0;border:0;outline:0;background:transparent;color:#eee;font:600 11px inherit}
+.gm-ai-objection-list{display:flex;flex-direction:column;gap:7px;max-height:555px;overflow:auto;padding-right:3px}
+.gm-ai-objection-btn{width:100%;text-align:left;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.018);color:#c7c0c5;cursor:pointer;font:700 11px/1.35 inherit;transition:.18s}
+.gm-ai-objection-btn:hover{transform:translateX(2px);color:#fff;border-color:rgba(230,189,98,.16);background:rgba(230,189,98,.045)}
+.gm-ai-objection-btn.active{color:#f4d98e;border-color:rgba(230,189,98,.25);background:linear-gradient(90deg,rgba(111,23,45,.28),rgba(230,189,98,.06))}
+.gm-ai-chat{padding:0!important;overflow:hidden;display:flex;flex-direction:column}
+.gm-ai-chat-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 18px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.015)}
+.gm-ai-chat-head small{display:block;color:#746d73;font-size:8px;font-weight:900;letter-spacing:.16em}.gm-ai-chat-head strong{display:block;margin-top:4px;color:#e9e5e7;font-size:12px}
+.gm-ai-online{color:#74c98f;font-size:9px;font-weight:800}
+.gm-ai-chat-body{flex:1;padding:18px;overflow:auto}
+.gm-ai-empty{min-height:420px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#877f85}.gm-ai-empty h3{margin:12px 0 6px;color:#ddd7db}.gm-ai-empty p{max-width:470px;margin:0;font-size:11px;line-height:1.7}
+.gm-ai-orb{display:grid;place-items:center;width:54px;height:54px;border-radius:17px;color:#f0cd78;font-weight:900;font-size:18px;background:linear-gradient(145deg,rgba(111,23,45,.5),rgba(230,189,98,.09));border:1px solid rgba(230,189,98,.16);box-shadow:0 0 30px rgba(111,23,45,.2)}
+.gm-ai-msg{margin-bottom:14px}.gm-ai-msg-label{margin:0 0 6px;color:#ac8a43;font-size:8px;font-weight:900;letter-spacing:.13em}.gm-ai-bubble{padding:13px 14px;border-radius:13px;color:#d8d1d5;font-size:11px;line-height:1.65;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025)}
+.gm-ai-bubble b{color:#fff}.gm-ai-bubble ol,.gm-ai-bubble ul{padding-left:18px;margin:7px 0 0}.gm-ai-bubble li{margin:5px 0}
+.gm-ai-bubble.quote{color:#f0e7eb;border-color:rgba(230,189,98,.15);background:linear-gradient(135deg,rgba(111,23,45,.19),rgba(230,189,98,.035))}
+.gm-ai-copy{margin-top:9px;padding:7px 10px;border:1px solid rgba(230,189,98,.12);border-radius:9px;background:transparent;color:#d7b65f;font:800 9px inherit;cursor:pointer}
+.gm-ai-warning{margin-bottom:14px;padding:12px 13px;border-radius:12px;border:1px solid rgba(241,181,63,.22);background:rgba(241,181,63,.07);color:#e5c77f;font-size:10px;line-height:1.55}
+.gm-ai-train-grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px}.gm-ai-train-setup{padding:18px!important}.gm-ai-train-setup label{display:block;margin:13px 0 6px;color:#847b81;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.gm-ai-train-setup .control{width:100%}.gm-ai-train-setup .btn{width:100%;margin-top:15px}
+.gm-ai-tip{margin-top:14px;padding:11px;border-left:2px solid #8b6b2f;background:rgba(230,189,98,.04);color:#948b90;font-size:10px;line-height:1.6}
+.gm-ai-roleplay{padding:0!important;overflow:hidden}.gm-ai-roleplay-body{min-height:410px;padding:18px}.gm-ai-roleplay-body .gm-ai-empty{min-height:370px}
+.gm-ai-client-line{max-width:84%;padding:13px 14px;border-radius:14px 14px 14px 4px;background:#191519;border:1px solid rgba(255,255,255,.07);color:#e9e3e6;font-size:12px;line-height:1.6}.gm-ai-client-line small{display:block;margin-bottom:6px;color:#8f858b;font-size:8px;font-weight:900;letter-spacing:.1em}
+.gm-ai-score{margin-top:16px;padding:16px;border-radius:15px;border:1px solid rgba(230,189,98,.14);background:rgba(230,189,98,.035)}.gm-ai-score-top{display:flex;align-items:flex-end;justify-content:space-between}.gm-ai-score-top b{font-size:31px;color:#efd17d}.gm-ai-score-top span{color:#a89da3;font-size:10px}.gm-ai-score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.gm-ai-score-grid div{padding:9px;border-radius:9px;background:#0d0b0e}.gm-ai-score-grid small{display:block;color:#777078;font-size:8px}.gm-ai-score-grid b{display:block;margin-top:3px;color:#ddd;font-size:12px}
+.gm-ai-compose{display:grid;grid-template-columns:1fr auto;gap:9px;padding:13px;border-top:1px solid rgba(255,255,255,.06)}.gm-ai-compose textarea,.gm-ai-sos textarea{resize:vertical;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#0c0a0d;color:#eee;padding:12px;font:600 11px/1.55 inherit;outline:none}.gm-ai-compose textarea:focus,.gm-ai-sos textarea:focus{border-color:rgba(230,189,98,.25);box-shadow:0 0 0 3px rgba(230,189,98,.035)}
+.gm-ai-sos{max-width:920px;margin:0 auto;padding:24px!important}.gm-ai-sos-icon{font-size:27px;margin-bottom:12px}.gm-ai-sos-copy h3{margin:5px 0 4px;color:#fff;font-size:22px}.gm-ai-sos-copy p{margin:0 0 16px;color:#91888e;font-size:11px}.gm-ai-sos textarea{width:100%;box-sizing:border-box;min-height:105px}.gm-ai-sos-actions{display:flex;gap:8px;margin-top:10px}
+.gm-ai-match{margin-top:16px;padding:16px;border-radius:15px;border:1px solid rgba(230,189,98,.14);background:linear-gradient(135deg,rgba(111,23,45,.15),rgba(230,189,98,.03))}.gm-ai-match h4{margin:0 0 9px;color:#f0d27d}.gm-ai-match p{margin:5px 0;color:#c9c1c6;font-size:11px;line-height:1.65}
+@media(max-width:960px){.gm-ai-layout,.gm-ai-train-grid{grid-template-columns:1fr}.gm-ai-objection-list{max-height:280px}.gm-ai-tabs{width:100%;overflow:auto}.gm-ai-tab{white-space:nowrap}.gm-ai-compose{grid-template-columns:1fr}.gm-ai-score-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.gm-ai-hero{padding:20px}.gm-ai-hero h3{font-size:22px}.gm-ai-hero-mark{display:none}.gm-ai-tabs{padding:4px}.gm-ai-tab{padding:9px 10px;font-size:10px}}
+</style>
+
+
+<script id="gm-objections-ai-v1-script">
+(function(){
+const D=[
+{id:"delay",t:"Consórcio demora",keys:["demora","demorar","tempo","anos"],u:"O cliente está comparando velocidade de aquisição, não necessariamente custo. Descubra o que significa 'demorar' para ele e qual é a urgência real.",q:["Quando você fala que demora, qual prazo seria aceitável para você?","Você precisa comprar agora ou está planejando a compra?","O que acontece se essa aquisição ficar para alguns meses à frente?"],r:"Entendi. Então antes de escolher entre financiamento e consórcio, precisamos definir o que pesa mais para você: disponibilidade imediata ou planejamento financeiro. O financiamento resolve a urgência, mas cobra por essa antecipação. No consórcio, trabalhamos a aquisição por sorteio ou lance, sem prometer uma data. Se eu entender seu prazo e seus recursos, consigo mostrar qual caminho faz mais sentido.",w:"Entendi. Quando você fala que demora, qual prazo seria aceitável pra você? Pergunto porque o consórcio faz mais sentido quando conseguimos alinhar estratégia, prazo e custo — sem prometer data de contemplação.",n:"Se você pudesse equilibrar prazo e custo, qual dos dois seria prioridade hoje?",c:true},
+{id:"thinking",t:"Vou pensar",keys:["pensar","vou ver","depois","analisar"],u:"Normalmente é uma objeção de saída. O objetivo é descobrir o que ainda não ficou resolvido, sem pressionar.",q:["Claro. O que exatamente você sente que ainda precisa avaliar?","É mais uma questão de valor, segurança ou timing?","O que precisaria ficar claro para você tomar uma decisão com tranquilidade?"],r:"Perfeito, faz sentido analisar. Para eu não ficar te procurando sem necessidade, me ajuda com uma coisa: quando você diz que vai pensar, qual ponto especificamente ainda não ficou 100% claro para você? Se for valor, prazo, segurança ou comparação, eu consigo esclarecer agora e aí você pensa com todas as informações.",w:"Claro. Só pra eu não ficar te incomodando depois: quando você fala que quer pensar, o que especificamente ainda precisa avaliar — valor, prazo, segurança ou comparação?",n:"Qual é o principal ponto que ainda te impede de avançar hoje?"},
+{id:"expensive",t:"A parcela está cara",keys:["caro","cara","parcela","valor alto","pesado"],u:"Não defenda o preço antes de entender capacidade e percepção de valor. Pode ser falta de orçamento ou falta de valor percebido.",q:["Qual parcela ficaria confortável para você hoje?","O que você está comparando com esse valor?","É o valor mensal ou o compromisso total que te incomoda?"],r:"Entendi. Eu não quero encaixar você em uma parcela desconfortável. Me diga qual faixa mensal faria sentido hoje. A partir disso, eu consigo avaliar crédito, quantidade de cotas e estratégia para montar algo sustentável, sem forçar uma contratação.",w:"Entendi. Qual seria uma parcela confortável para você hoje? Prefiro ajustar o projeto à sua realidade do que tentar te encaixar em algo pesado.",n:"Dentro dessa parcela confortável, qual crédito você gostaria de construir?"},
+{id:"financing",t:"Prefiro financiamento",keys:["financiamento","financiar","banco"],u:"O cliente valoriza previsibilidade e posse imediata. Não ataque o financiamento: compare objetivos, urgência e custo total.",q:["O principal motivo é pegar o bem imediatamente?","Você já simulou o custo total do financiamento?","Pra você pesa mais comprar agora ou reduzir o custo da aquisição?"],r:"Financiamento pode ser o caminho certo quando a prioridade absoluta é comprar imediatamente. O que eu sugiro é comparar projeto com projeto: entrada, parcela, custo total e prazo. O consórcio tem outra lógica — aquisição por sorteio ou lance e taxa de administração, sem garantia de data. A melhor escolha depende da sua urgência e do seu caixa.",w:"Faz sentido. Se sua prioridade é comprar imediatamente, financiamento merece entrar na comparação. Posso só colocar lado a lado entrada, parcela e custo total para você decidir pelos números?",n:"Sua prioridade número 1 hoje é prazo ou custo?"},
+{id:"rate",t:"A taxa está alta",keys:["taxa","administracao","administração","juros"],u:"O cliente está olhando uma porcentagem isolada. Traga a análise para custo total, prazo e alternativa comparável.",q:["Alta comparada a qual alternativa?","Você está olhando a taxa isolada ou o custo total do projeto?","Já colocou lado a lado o valor total pago em cada opção?"],r:"Faz sentido olhar a taxa. Só não quero que você decida por um número isolado. O ideal é comparar o custo total de cada alternativa, o prazo, a parcela e a urgência da compra. No consórcio existe taxa de administração; no financiamento, a estrutura de custo é diferente. Vamos comparar o projeto completo.",w:"Perfeito. Alta comparada a quê? Se você me disser a alternativa, eu coloco custo total, prazo e parcela lado a lado para compararmos de forma justa.",n:"Qual proposta você está usando como referência?"},
+{id:"no-bid",t:"Não tenho dinheiro para lance",keys:["sem lance","não tenho lance","dinheiro para lance","sem dinheiro"],u:"Lance é uma possibilidade, não obrigação. O cliente pode participar por sorteio e avaliar estratégias compatíveis com o grupo.",q:["Você precisa de contemplação em prazo curto ou consegue planejar?","Hoje você teria algum recurso parcial ou nenhum?","Seu foco é construir patrimônio ou adquirir o bem com urgência?"],r:"Tudo bem. Ter recurso para lance pode aumentar as possibilidades estratégicas, mas não é requisito para entrar no consórcio. Existe contemplação por sorteio e, conforme as regras do grupo, outras modalidades de lance. O importante é não montar uma expectativa de prazo que dependa de algo que você não pretende fazer.",w:"Sem problema. Lance não é obrigatório para contratar. O ponto é alinharmos sua expectativa de prazo, porque eu não vou te prometer contemplação. Posso montar o cenário pensando na sua realidade atual.",n:"Você precisa do crédito em qual horizonte de tempo?",c:true},
+{id:"when",t:"Quando vou ser contemplado?",keys:["quando contempla","quando vou","contemplado","contemplação","garantia"],u:"Essa pergunta exige transparência. Não existe data garantida. Explique sorteio/lance e trabalhe estratégia sem promessa.",q:["Você tem uma data limite para usar o crédito?","Pretende trabalhar com lance ou participar também por sorteio?","Qual recurso estaria disponível caso decidisse ofertar lance?"],r:"Eu não vou te prometer uma data porque isso seria incorreto. A contemplação ocorre conforme as regras do grupo, por sorteio ou lance. O que eu consigo fazer é entender seu objetivo, sua disponibilidade de recursos e as modalidades do grupo para estruturar uma estratégia — mas não garantir quando acontecerá.",w:"Não existe uma data que eu possa te garantir. A contemplação ocorre por sorteio ou lance conforme as regras do grupo. Posso te ajudar a montar uma estratégia, mas sem prometer prazo.",n:"Qual seria a data ideal e qual seria a data máxima aceitável para você?",c:true},
+{id:"bid60",t:"Com 60% de lance contempla?",keys:["60%","70%","lance livre","percentual de lance","lance de"],u:"Percentual de lance não é garantia. A competitividade varia por assembleia, grupo e modalidade.",q:["Esse percentual é recurso próprio ou envolve lance embutido?","Você quer usar esse valor agora ou está estudando possibilidades?","Qual é sua urgência para usar o crédito?"],r:"Um lance de 60% pode ser competitivo em determinados cenários, mas eu não posso afirmar que contempla. O resultado depende dos lances daquela assembleia, das regras e da disponibilidade do grupo. Podemos analisar referências e estruturar a oferta, mantendo claro que não existe garantia.",w:"60% pode ser um lance forte, mas não é garantia de contemplação. Depende da assembleia, dos demais lances e das regras do grupo. Posso analisar a estratégia com você sem criar uma promessa que ninguém pode garantir.",n:"Você quer estruturar esse lance com recurso próprio, embutido ou combinação?",c:true},
+{id:"spouse",t:"Preciso falar com meu marido/esposa",keys:["esposa","esposo","marido","mulher","meu sócio","socia","sócia"],u:"Existe outro decisor. Não tente contornar: inclua essa pessoa no processo e descubra quais critérios importam.",q:["Perfeito. O que você acha que ele(a) vai querer entender primeiro?","Vocês costumam decidir esse tipo de investimento juntos?","Faz sentido marcarmos 15 minutos com os dois para eu explicar e vocês decidirem sem ruído?"],r:"Perfeito, e acho correto vocês decidirem juntos. Para facilitar, me diga qual ponto você acredita que seu marido/esposa vai questionar primeiro. Posso te mandar um resumo ou, se preferirem, fazemos uma conversa rápida com os dois e eu respondo tudo de uma vez.",w:"Perfeito, decisão assim faz sentido ser em conjunto. O que você acha que ele(a) vai querer entender primeiro? Se fizer sentido, marcamos 15 min com vocês dois e eu explico tudo sem compromisso.",n:"Qual horário seria melhor para conversarmos com os dois?"},
+{id:"badexp",t:"Já tive problema com consórcio",keys:["problema","experiência ruim","tive consórcio","me arrependi","golpe"],u:"Aqui a venda começa ouvindo. Descubra o que aconteceu antes de defender o produto.",q:["O que aconteceu exatamente na sua experiência?","O problema foi com atendimento, expectativa de contemplação, contrato ou pagamento?","O que teria que ser diferente para você voltar a considerar essa modalidade?"],r:"Entendo sua resistência. Antes de falar qualquer coisa sobre uma nova contratação, eu gostaria de entender o que aconteceu com você. Se houve promessa errada, falta de acompanhamento ou alguma condição que não ficou clara, faz sentido isso ter gerado desconfiança. Me conta exatamente o que aconteceu.",w:"Entendo sua resistência. Antes de tentar te convencer de qualquer coisa, me conta o que aconteceu na sua experiência anterior. Quero entender se o problema foi produto, promessa, atendimento ou expectativa.",n:"Qual foi o ponto que mais te incomodou naquela experiência?"},
+{id:"save",t:"Prefiro juntar dinheiro sozinho",keys:["juntar","guardar","poupar","sozinho"],u:"O cliente valoriza autonomia e não quer compromisso. Explore disciplina, prazo e objetivo sem desqualificar a escolha.",q:["Você já definiu quanto pretende guardar por mês?","Em quanto tempo quer atingir o valor do bem?","Você costuma manter esse dinheiro separado sem usar para outras prioridades?"],r:"Juntar por conta própria pode funcionar muito bem quando existe disciplina e prazo. O que vale comparar é se o ritmo de acumulação te leva ao objetivo no prazo desejado e se você quer ou não um compromisso estruturado. Posso colocar os dois cenários lado a lado sem assumir que consórcio é automaticamente melhor.",w:"Juntar sozinho pode fazer sentido. Vamos só comparar quanto você pretende guardar por mês e em quanto tempo chega no crédito desejado. Aí você decide pelo cenário que funciona melhor.",n:"Quanto você consegue separar por mês sem comprometer seu caixa?"},
+{id:"competitor",t:"Achei outra administradora mais barata",keys:["outra administradora","concorrente","mais barata","outra empresa"],u:"Preço menor pode esconder diferenças de prazo, crédito, fundo, reajuste, serviço e estrutura. Compare condições equivalentes.",q:["Você consegue me enviar a proposta completa?","O crédito, prazo e condição de parcela são exatamente os mesmos?","O que mais pesou para você além do preço?"],r:"Ótimo você comparar. Me manda a proposta completa e eu faço uma leitura ponto a ponto: crédito, prazo, parcela, taxa, regras de lance e demais condições. Se a outra proposta for realmente melhor para o seu objetivo, os números vão mostrar. O importante é comparar estruturas equivalentes.",w:"Me manda a proposta completa. Eu comparo crédito, prazo, parcela, taxa e regras de lance lado a lado. Aí você decide com base na estrutura inteira, não só em uma linha da proposta.",n:"Além do preço, qual critério é mais importante para você nessa decisão?"},
+{id:"now",t:"Quero comprar agora",keys:["agora","imediato","imediatamente","urgente","essa semana","hoje"],u:"Urgência real pode tornar financiamento ou compra à vista mais adequados. Consórcio não deve ser vendido como solução de data garantida.",q:["Quando você diz agora, estamos falando de dias ou algumas semanas?","Você já tem entrada ou recurso disponível?","O que acontece se a compra não ocorrer imediatamente?"],r:"Se a sua necessidade é obrigatoriamente imediata, eu prefiro ser transparente: consórcio não oferece garantia de contemplação em uma data específica. Podemos avaliar se existe uma estratégia compatível com seu planejamento, mas se você precisa do bem em dias, vale comparar também soluções de aquisição imediata.",w:"Se você precisa do bem obrigatoriamente em poucos dias, eu não vou vender consórcio como se houvesse data garantida. Posso avaliar seu cenário e comparar as alternativas corretas para essa urgência.",n:"Qual é a data limite real para você estar com esse bem?",c:true}
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function objectionHtml(o){
+ const questions=o.q.map(x=>"<li>"+esc(x)+"</li>").join("");
+ return (o.c?'<div class="gm-ai-warning">⚠️ <b>COMPLIANCE:</b> não prometa contemplação, prazo ou percentual vencedor. Trabalhe estratégia e expectativa com transparência.</div>':"")+
+ '<div class="gm-ai-msg"><div class="gm-ai-msg-label">1 • ENTENDA A OBJEÇÃO</div><div class="gm-ai-bubble">'+esc(o.u)+'</div></div>'+
+ '<div class="gm-ai-msg"><div class="gm-ai-msg-label">2 • O QUE PERGUNTAR</div><div class="gm-ai-bubble"><ol>'+questions+'</ol></div></div>'+
+ '<div class="gm-ai-msg"><div class="gm-ai-msg-label">3 • RESPOSTA RECOMENDADA</div><div class="gm-ai-bubble quote" id="gmAiMainReply">'+esc(o.r)+'</div><button class="gm-ai-copy" data-copy="gmAiMainReply" type="button">COPIAR RESPOSTA</button></div>'+
+ '<div class="gm-ai-msg"><div class="gm-ai-msg-label">4 • WHATSAPP</div><div class="gm-ai-bubble quote" id="gmAiWhatsappReply">'+esc(o.w)+'</div><button class="gm-ai-copy" data-copy="gmAiWhatsappReply" type="button">COPIAR WHATSAPP</button></div>'+
+ '<div class="gm-ai-msg"><div class="gm-ai-msg-label">5 • PRÓXIMA PERGUNTA</div><div class="gm-ai-bubble"><b>'+esc(o.n)+'</b></div></div>';
+}
+function renderList(filter=""){
+ const list=$("gmAiObjectionList"); if(!list)return;
+ const q=filter.trim().toLowerCase();
+ const rows=D.filter(o=>!q||o.t.toLowerCase().includes(q)||o.keys.some(k=>k.includes(q)));
+ $("gmAiCount").textContent=rows.length+" objeções";
+ list.innerHTML=rows.map(o=>'<button type="button" class="gm-ai-objection-btn" data-oid="'+o.id+'">'+esc(o.t)+'</button>').join("");
+ list.querySelectorAll("[data-oid]").forEach(b=>b.onclick=()=>selectObjection(b.dataset.oid));
+}
+function selectObjection(id){
+ const o=D.find(x=>x.id===id);if(!o)return;
+ $("gmAiChatTitle").textContent=o.t;$("gmAiChatBody").innerHTML=objectionHtml(o);
+ document.querySelectorAll(".gm-ai-objection-btn").forEach(b=>b.classList.toggle("active",b.dataset.oid===id));
+ bindCopy();
+}
+function bindCopy(){
+ document.querySelectorAll(".gm-ai-copy").forEach(b=>b.onclick=async()=>{
+   const el=$(b.dataset.copy);if(!el)return;
+   try{await navigator.clipboard.writeText(el.innerText);const old=b.textContent;b.textContent="COPIADO ✓";setTimeout(()=>b.textContent=old,1300)}catch{}
+ });
+}
+function switchMode(mode){
+ document.querySelectorAll(".gm-ai-tab").forEach(b=>b.classList.toggle("active",b.dataset.aiMode===mode));
+ $("gmAiAnswer").classList.toggle("hidden",mode!=="answer");$("gmAiTrain").classList.toggle("hidden",mode!=="train");$("gmAiSos").classList.toggle("hidden",mode!=="sos");
+}
+function bestMatch(text){
+ const s=text.toLowerCase();
+ let best=D[0],score=-1;
+ D.forEach(o=>{let n=0;o.keys.forEach(k=>{if(s.includes(k))n+=k.length+4});if(s.includes(o.t.toLowerCase()))n+=20;if(n>score){score=n;best=o}});
+ return score>0?best:D.find(x=>x.id==="thinking");
+}
+function startTrain(){
+ const id=$("gmAiTrainObjection").value,o=D.find(x=>x.id===id),lvl=Number($("gmAiTrainLevel").value||3);if(!o)return;
+ const prefixes={1:"Olha, eu gostei da ideia, mas ",2:"Eu ainda tenho um pé atrás porque ",3:"Pra ser sincero, não estou convencido. ",4:"Eu olho isso como uma decisão de capital. ",5:"Já ouvi muita conversa de vendedor. "};
+ $("gmAiRoleplayTitle").textContent="Nível "+lvl+" • "+o.t;
+ $("gmAiRoleplayBody").innerHTML='<div class="gm-ai-client-line"><small>CLIENTE</small>'+esc(prefixes[lvl]+o.t.toLowerCase()+". O que você me diz?")+'</div>';
+ $("gmAiTrainReply").value="";$("gmAiTrainReply").focus();
+}
+function evaluate(){
+ const txt=$("gmAiTrainReply").value.trim();if(!txt){alert("Escreva sua resposta ao cliente.");return}
+ const oid=$("gmAiTrainObjection").value,o=D.find(x=>x.id===oid)||D[0],low=txt.toLowerCase();
+ let investigation=/\?|me conta|me diga|qual|quando|o que|como|por que/.test(low)?9:4;
+ let empathy=/entendo|faz sentido|perfeito|claro|compreendo/.test(low)?9:6;
+ let control=/próxim|qual|vamos|posso|me diga|me conta/.test(low)?8:5;
+ let compliance=10;
+ if(/garant|certeza|vai contempl|contempla em|primeiro mês|100%/.test(low))compliance=2;
+ let total=Math.round((investigation+empathy+control+compliance)/4*10)/10;
+ const feedback=investigation<7?"Você respondeu antes de investigar. Faça pelo menos uma pergunta para descobrir a objeção real.":compliance<7?"Cuidado: sua resposta cria promessa/garantia. Troque certeza por estratégia e transparência.":"Boa condução. Você investigou e manteve a conversa aberta. Agora avance para a próxima pergunta.";
+ $("gmAiRoleplayBody").innerHTML += '<div class="gm-ai-score"><div class="gm-ai-score-top"><div><span>NOTA DA RESPOSTA</span><br><b>'+total.toFixed(1)+'/10</b></div><span>'+esc(feedback)+'</span></div><div class="gm-ai-score-grid"><div><small>Investigação</small><b>'+investigation+'/10</b></div><div><small>Empatia</small><b>'+empathy+'/10</b></div><div><small>Controle</small><b>'+control+'/10</b></div><div><small>Compliance</small><b>'+compliance+'/10</b></div></div><div class="gm-ai-msg" style="margin-top:13px"><div class="gm-ai-msg-label">RESPOSTA DE ALTA PERFORMANCE</div><div class="gm-ai-bubble quote">'+esc(o.r)+'</div></div></div>';
+}
+function runSos(){
+ const txt=$("gmAiSosInput").value.trim();if(!txt){$("gmAiSosResult").innerHTML="";return}
+ const o=bestMatch(txt);
+ $("gmAiSosResult").innerHTML='<div class="gm-ai-match"><div class="gm-ai-msg-label">OBJEÇÃO IDENTIFICADA</div><h4>'+esc(o.t)+'</h4>'+(o.c?'<div class="gm-ai-warning">⚠️ Não prometa contemplação ou prazo.</div>':'')+'<p><b>Pergunte primeiro:</b> '+esc(o.q[0])+'</p><p><b>Depois responda:</b> '+esc(o.r)+'</p><p><b>Próxima pergunta:</b> '+esc(o.n)+'</p></div>';
+}
+document.querySelectorAll(".gm-ai-tab").forEach(b=>b.onclick=()=>switchMode(b.dataset.aiMode));
+const search=$("gmAiSearch");if(search)search.oninput=()=>renderList(search.value);
+const trSel=$("gmAiTrainObjection");if(trSel)trSel.innerHTML=D.map(o=>'<option value="'+o.id+'">'+esc(o.t)+'</option>').join("");
+const start=$("gmAiStartTrain");if(start)start.onclick=startTrain;
+const evalBtn=$("gmAiEvaluate");if(evalBtn)evalBtn.onclick=evaluate;
+const sos=$("gmAiSosRun");if(sos)sos.onclick=runSos;
+const clear=$("gmAiSosClear");if(clear)clear.onclick=()=>{$("gmAiSosInput").value="";$("gmAiSosResult").innerHTML=""};
+renderList();
+})();
+</script>
+
 </body>
 </html>
