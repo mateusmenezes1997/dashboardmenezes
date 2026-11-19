@@ -1,4 +1,4 @@
-const VERSION = "gm-pwa-executive-v33-simulacoes-readable-20261119";
+const VERSION = "gm-pwa-executive-v34-simulacoes-full-readability-20261119";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
