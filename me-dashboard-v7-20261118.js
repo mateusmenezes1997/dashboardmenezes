@@ -538,7 +538,7 @@ function installNav(){
 async function boot(){
  try{var r=await api('/api/session');if(r.role!=='gestor')return}catch(e){return}
  document.querySelectorAll('link[href*="me-dashboard-20261118.css"]').forEach(function(el){el.remove()});
- var link=document.createElement('link');link.rel='stylesheet';link.href='/me-dashboard-v7-20261118.css?v=11';document.head.appendChild(link);
+ var link=document.createElement('link');link.rel='stylesheet';link.href='/me-dashboard-v7-20261118.css?v=12';document.head.appendChild(link);
  build();installNav();setInterval(installNav,1800);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
