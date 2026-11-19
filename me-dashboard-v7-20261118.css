@@ -494,3 +494,34 @@
   .gm-me-filterbar .gm-me-input{grid-column:auto}
   .gm-me-section-label{align-items:flex-start;flex-direction:column;gap:3px}
 }
+
+
+/* EU annual performance v12 */
+.gm-me-year-section{margin-top:16px;padding:20px;border:1px solid rgba(224,181,99,.14);border-radius:20px;background:radial-gradient(circle at 95% 0%,rgba(126,76,28,.08),transparent 28%),linear-gradient(145deg,#121015,#0c0b0f)}
+.gm-me-year-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px}
+.gm-me-year-head small{display:block;color:#b99152;font-size:9px;font-weight:900;letter-spacing:.16em;margin-bottom:5px}
+.gm-me-year-head h2{margin:0;font-size:22px;letter-spacing:-.03em}
+.gm-me-year-head p{margin:5px 0 0;color:#837b81;font-size:11px}
+.gm-me-year-badge{display:inline-flex;align-items:center;border:1px solid rgba(224,181,99,.22);background:rgba(126,76,28,.08);color:#d7b26d;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:900;letter-spacing:.1em;white-space:nowrap}
+.gm-me-year-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-bottom:12px}
+.gm-me-year-kpi{padding:13px;border:1px solid rgba(255,255,255,.07);border-radius:14px;background:#100e12;min-width:0}
+.gm-me-year-kpi.focus{border-color:rgba(224,181,99,.25);background:linear-gradient(145deg,rgba(106,34,52,.18),#100e12)}
+.gm-me-year-kpi small{display:block;color:#81787e;font-size:8px;font-weight:900;letter-spacing:.08em;margin-bottom:7px}
+.gm-me-year-kpi b{display:block;color:#f0e9e4;font-size:18px;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-me-year-kpi.focus b{color:#e7c37c}
+.gm-me-year-kpi span{display:block;color:#7c747a;font-size:9px;margin-top:5px;line-height:1.35}
+.gm-me-year-grid{display:grid;grid-template-columns:1.5fr .7fr;gap:12px}
+.gm-me-year-chart-card,.gm-me-year-details{border:1px solid rgba(255,255,255,.06);border-radius:15px;background:#0f0d11;padding:15px}
+.gm-me-year-chart{display:flex;align-items:flex-end;gap:7px;height:220px;padding:10px 2px 2px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto}
+.gm-me-year-bar-wrap{min-width:43px;flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px}
+.gm-me-year-bar{width:min(28px,78%);min-height:3px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#ddb76d,#761a37);box-shadow:0 0 18px rgba(165,103,55,.10)}
+.gm-me-year-bar-value{font-size:8px;color:#ad9b7d;white-space:nowrap}
+.gm-me-year-bar-label{font-size:9px;color:#746d73}
+.gm-me-year-details{display:grid;align-content:start;gap:9px}
+.gm-me-year-details>div{padding:12px;border:1px solid rgba(255,255,255,.055);border-radius:12px;background:#121015}
+.gm-me-year-details small{display:block;color:#7f767d;font-size:8px;font-weight:900;letter-spacing:.08em;margin-bottom:6px}
+.gm-me-year-details b{display:block;color:#e5c079;font-size:20px;letter-spacing:-.03em}
+.gm-me-year-details span{display:block;color:#817980;font-size:9px;margin-top:4px}
+@media(max-width:1180px){.gm-me-year-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.gm-me-year-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.gm-me-year-section{padding:15px}.gm-me-year-head{align-items:flex-start;flex-direction:column}.gm-me-year-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.gm-me-year-chart{height:190px}.gm-me-year-kpi b{font-size:16px}}
+@media(max-width:460px){.gm-me-year-kpis{grid-template-columns:1fr}.gm-me-year-bar-wrap{min-width:38px}}
