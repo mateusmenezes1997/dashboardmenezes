@@ -2,5 +2,5 @@ Primeiro build do Dashboard Gestão Menezes na Cloudflare.
 Branch: cloudflare-migracao.
 Este arquivo apenas inicia uma nova compilação pelo GitHub; não altera dados de vendas.
 
-Forçar nova compilação: 2026-11-19 09:20 America/Sao_Paulo
-Motivo: padronização de fontes maiores em toda a aba Simulações IA, com foco em Treinar Venda e SOS Venda.
+Forçar nova compilação: 2026-11-19 09:31 America/Sao_Paulo
+Motivo: Simulações IA gamificada — evolução, histórico, placar, treino direto e SOS operacional.
