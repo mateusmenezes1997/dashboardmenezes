@@ -2427,5 +2427,46 @@ renderList();
 })();
 </script>
 
+
+<!-- GM_SIMULACOES_IA_NOVO_20261119_DIRECT -->
+<style id="gm-simulacoes-ia-new-style">
+@keyframes gmAiGlowPulse{0%,100%{box-shadow:0 0 0 1px rgba(212,166,72,.28),0 0 12px rgba(212,166,72,.10)}50%{box-shadow:0 0 0 1px rgba(236,190,88,.60),0 0 24px rgba(222,170,58,.24),0 0 44px rgba(112,20,42,.14)}}
+.gm-simulacoes-ia-new{position:relative!important;isolation:isolate;overflow:visible!important;border:1px solid rgba(219,173,74,.44)!important;background:radial-gradient(circle at 18% 50%,rgba(219,173,74,.12),transparent 34%),linear-gradient(100deg,rgba(107,15,37,.12),rgba(11,8,12,.12) 54%,rgba(219,173,74,.06))!important;animation:gmAiGlowPulse 2.8s ease-in-out infinite;transition:.22s ease!important}
+.gm-simulacoes-ia-new:hover{transform:translateY(-1px) scale(1.008);border-color:rgba(242,199,100,.78)!important;box-shadow:0 0 0 1px rgba(242,199,100,.60),0 0 28px rgba(222,170,58,.30),0 0 54px rgba(112,20,42,.18)!important}
+.gm-simulacoes-ia-new svg,.gm-simulacoes-ia-new [class*="icon"],.gm-simulacoes-ia-new i{filter:drop-shadow(0 0 7px rgba(235,187,78,.76))}
+.gm-simulacoes-ia-new .gm-ai-new-label{text-shadow:0 0 12px rgba(236,190,88,.40)}
+.gm-simulacoes-ia-new .gm-ai-new-badge{display:inline-flex;align-items:center;justify-content:center;margin-left:8px;padding:3px 7px;border-radius:999px;border:1px solid rgba(239,193,90,.78);background:linear-gradient(135deg,rgba(110,17,39,.98),rgba(48,9,20,.98));color:#f4cf78;font-size:8px;line-height:1;font-weight:900;letter-spacing:.11em;text-transform:uppercase;box-shadow:0 0 12px rgba(221,169,62,.32),inset 0 0 8px rgba(255,214,120,.08);vertical-align:middle;white-space:nowrap}
+.gm-simulacoes-ia-new .gm-ai-new-badge:before{content:"";width:4px;height:4px;border-radius:50%;background:#ffd97e;margin-right:5px;box-shadow:0 0 8px #efb840}
+@media (prefers-reduced-motion:reduce){.gm-simulacoes-ia-new{animation:none!important}}
+</style>
+<script>
+(function(){
+  function norm(t){return (t||"").replace(/\s+/g," ").trim().toLowerCase()}
+  function apply(){
+    const nodes=[...document.querySelectorAll("a,button,[role=button],.nav-item,.menu-item,.sidebar-item,.card,div")];
+    for(const el of nodes){
+      const tx=norm(el.textContent);
+      if(tx==="simulações ia"||tx==="simulacoes ia"||tx.startsWith("simulações ia ")||tx.startsWith("simulacoes ia ")){
+        const target=el.closest("a,button,[role=button],.nav-item,.menu-item,.sidebar-item")||el;
+        if(!target||target.classList.contains("gm-simulacoes-ia-new")) return true;
+        target.classList.add("gm-simulacoes-ia-new");
+        const label=[...target.querySelectorAll("span,strong,b,p,div")].find(x=>{const t=norm(x.textContent);return (t==="simulações ia"||t==="simulacoes ia")&&x.children.length===0});
+        if(label) label.classList.add("gm-ai-new-label");
+        const badge=document.createElement("span"); badge.className="gm-ai-new-badge"; badge.textContent="NOVO";
+        if(label) label.insertAdjacentElement("afterend",badge); else target.appendChild(badge);
+        return true;
+      }
+    }
+    return false;
+  }
+  function boot(){
+    if(apply()) return;
+    let n=0; const timer=setInterval(()=>{n++; if(apply()||n>60) clearInterval(timer)},250);
+    const obs=new MutationObserver(apply); obs.observe(document.documentElement,{subtree:true,childList:true}); setTimeout(()=>obs.disconnect(),30000);
+  }
+  document.readyState==="loading"?document.addEventListener("DOMContentLoaded",boot,{once:true}):boot();
+})();
+</script>
+
 </body>
 </html>
