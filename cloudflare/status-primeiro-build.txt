@@ -1,3 +1,6 @@
 Primeiro build do Dashboard Gestão Menezes na Cloudflare.
 Branch: cloudflare-migracao.
 Este arquivo apenas inicia uma nova compilação pelo GitHub; não altera dados de vendas.
+
+Forçar nova compilação: 2026-11-19 09:06 America/Sao_Paulo
+Motivo: fontes maiores e melhor legibilidade na aba Simulações IA.
