@@ -167,6 +167,62 @@ function saleOK(s,ids) {
     &&Number.isInteger(Number(s.qty))&&Number(s.qty)>0
     &&/^\d{4}-\d{2}-\d{2}$/.test(s.date));
 }
+
+// GM_THAYNARA_TRAINEE_MIGRATION_V1
+const THAYNARA_TRAINEE_MIGRATION_ID='migration-thaynara-trainee-20261120-v1';
+async function ensureThaynaraTrainee(env) {
+  if(!env.DB) return {ok:false,applied:false,reason:'database-unavailable'};
+  const done=await readDoc(env,THAYNARA_TRAINEE_MIGRATION_ID);
+  if(done?.result) return done.result;
+
+  for(let attempt=0;attempt<3;attempt++) {
+    const doc=materialize(await readDoc(env,'state'));
+    if(!doc?.state||!Array.isArray(doc.state.consultants)) return {ok:false,applied:false,reason:'state-unavailable'};
+
+    const normalizeName=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+    const consultants=doc.state.consultants;
+    const targetIndex=consultants.findIndex(x=>{
+      const n=normalizeName(x?.name);
+      return n==='thaynara silva'||n==='thaynara';
+    });
+
+    if(targetIndex<0) return {ok:false,applied:false,reason:'thaynara-not-found'};
+
+    const current=consultants[targetIndex];
+    if(String(current.role||'').toLowerCase()==='trainee') {
+      const result={ok:true,applied:false,alreadyTrainee:true,consultantId:current.id||null,name:current.name||'Thaynara Silva'};
+      await writeDoc(env,THAYNARA_TRAINEE_MIGRATION_ID,{result},null).catch(()=>{});
+      return result;
+    }
+
+    const next=structuredClone(doc.state);
+    const before=String(next.consultants[targetIndex].role||'consultor');
+    next.consultants[targetIndex]={...next.consultants[targetIndex],role:'trainee'};
+
+    const trail=Array.isArray(next.auditTrail)?next.auditTrail:[];
+    next.auditTrail=[...trail.slice(-79),{
+      id:crypto.randomUUID(),
+      at:new Date().toISOString(),
+      actor:'gestor',
+      action:'PERFIL_CONSULTOR_ATUALIZADO',
+      details:{
+        consultantId:next.consultants[targetIndex].id||null,
+        name:next.consultants[targetIndex].name||'Thaynara Silva',
+        beforeRole:before,
+        afterRole:'trainee',
+        source:'migration-20261120'
+      }
+    }];
+
+    if(await writeDoc(env,'state',{state:next},doc.revision)) {
+      const result={ok:true,applied:true,consultantId:next.consultants[targetIndex].id||null,name:next.consultants[targetIndex].name||'Thaynara Silva',beforeRole:before,afterRole:'trainee'};
+      await writeDoc(env,THAYNARA_TRAINEE_MIGRATION_ID,{result},null).catch(()=>{});
+      return result;
+    }
+  }
+  return {ok:false,applied:false,reason:'concurrent-update'};
+}
+
 async function routeSession(req,env) {
   if(req.method==='GET') return json(200,{role:(await session(req,env))?.role||null,configured:configured(env)});
   if(req.method==='DELETE') return json(200,{ok:true},{'set-cookie':clearCookie});
@@ -575,7 +631,8 @@ export default {
       const personalImport=await ensureHistoricalPersonalSales(env);
       const personalRepair=await reconcileHistoricalPersonalSales(env);
       const personalRepairV3=await reconcileHistoricalPersonalSalesV3(env);
-      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,personalImport,personalRepair,personalRepairV3,...(missing.length?{missingConfig:missing}:{})}); }
+      const thaynaraTrainee=await ensureThaynaraTrainee(env);
+      if(path==='/api/health'&&req.method==='GET') { const required=['SESSION_SECRET','PASSWORD_GESTOR','PASSWORD_TRAINEE','PASSWORD_CONSULTOR']; const missing=required.filter(key=>!env[key]); return json(200,{ok:true,configured:configured(env),databaseBound:!!env.DB,personalImport,personalRepair,personalRepairV3,thaynaraTrainee,...(missing.length?{missingConfig:missing}:{})}); }
       if(path==='/api/session') return await routeSession(req,env);
       if(path==='/api/state') return await routeState(req,env);
       if(path==='/api/me') return await routeMe(req,env);
